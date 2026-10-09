@@ -356,49 +356,8 @@ export function GameLibrary({
     }
   };
 
-  const enterMobileLandscape = () => {
-    if (!window.matchMedia("(pointer: coarse)").matches) return;
-
-    const root = document.documentElement as HTMLElement & {
-      webkitRequestFullscreen?: () => Promise<void> | void;
-    };
-    const requestFullscreen =
-      root.requestFullscreen?.bind(root) ?? root.webkitRequestFullscreen?.bind(root);
-    const lockLandscape = () => {
-      try {
-        const orientation = screen.orientation as typeof screen.orientation & {
-          lock?: (value: string) => Promise<void>;
-        };
-        const lock = orientation?.lock;
-        if (lock) void lock.call(orientation, "landscape").catch(() => {});
-      } catch {
-        // A orientação manual e o botão do player continuam disponíveis.
-      }
-    };
-
-    if (document.fullscreenElement) {
-      lockLandscape();
-      return;
-    }
-    if (!requestFullscreen) return;
-
-    try {
-      const result = requestFullscreen();
-      if (result && typeof (result as Promise<void>).then === "function") {
-        void Promise.resolve(result).then(lockLandscape).catch(() => {});
-      } else {
-        lockLandscape();
-      }
-    } catch {
-      // Alguns navegadores só permitem iniciar o jogo e girar manualmente.
-    }
-  };
-
   const playGame = async (rom: string) => {
     if (launching) return;
-    // Executa dentro do toque no card, antes do fetch assíncrono, para manter
-    // a ativação de usuário exigida pelo navegador para tela cheia/orientação.
-    enterMobileLandscape();
     setLaunchError("");
     setLaunching(rom);
     try {
