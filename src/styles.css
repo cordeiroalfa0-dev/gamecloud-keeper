@@ -142,3 +142,19 @@
     color: var(--color-foreground);
   }
 }
+
+/* Regra de ouro: a interface pública não exibe ferramentas de edição da plataforma. */
+a[href*="lovable.dev"],
+iframe[src*="lovable.dev"],
+div[style*="Edit with Lovable"],
+#lovable-badge-cta,
+[id*="lovable-badge"],
+[class*="lovable-badge"],
+[aria-label*="Edit with Lovable"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  z-index: -9999 !important;
+}

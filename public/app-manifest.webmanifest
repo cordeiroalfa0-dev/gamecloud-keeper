@@ -1,0 +1,16 @@
+{
+  "name": "Master Games Arcade",
+  "short_name": "MGA Arcade",
+  "description": "Fliperama com clássicos de arcade. Saves ficam no seu aparelho.",
+  "id": "/intro.html",
+  "start_url": "/intro.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#030615",
+  "theme_color": "#030615",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/kali-dragon.png", "sizes": "300x300", "type": "image/png", "purpose": "any" }
+  ]
+}

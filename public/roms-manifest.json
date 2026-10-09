@@ -1,0 +1,766 @@
+{
+  "source": "Google Drive: https://drive.google.com/drive/folders/1WdYP36QIdnxxhFhpZOJf0ly6zd9mAGzo?usp=drive_link",
+  "source_folder_id": "1GeewDRRA6ShlgsNGc9W9zk9fJ7cgX8f9",
+  "target_folder_name": "roms",
+  "catalog_count": 185,
+  "download_count": 182,
+  "duplicate_count": 2,
+  "files": [
+    {
+      "name": "3wonders.zip",
+      "id": "1bhLvcuV09FiD2jCvzq7CionF0EU2dTYL"
+    },
+    {
+      "name": "1942.zip",
+      "id": "1wQuVy_WXvCGTzFiBUlIQhpwNWRdxSaJC"
+    },
+    {
+      "name": "1943.zip",
+      "id": "17quUfv6kTgobTHD_ZSGPIXZauZQC30bd"
+    },
+    {
+      "name": "aladmdb.zip",
+      "id": "1dSgZyqa6sjmw0xTyYVTDQ4ZoBw4qZb_3"
+    },
+    {
+      "name": "altbeast.zip",
+      "id": "1a-rugmEc2BOTzYAKImAbft0PL5QuJOki"
+    },
+    {
+      "name": "androdun.zip",
+      "id": "1JG1JenzLUynBh_s53E5VQ8vi0M1WQqBL"
+    },
+    {
+      "name": "aof3.zip",
+      "id": "1ieHij1wVcoXQxbivNaK7ugpBXK4Nh_KQ"
+    },
+    {
+      "name": "ar_bios.zip",
+      "id": "1NwW4L--fyTQk78szaF6B1ETmpbwInGrG"
+    },
+    {
+      "name": "avsp.zip",
+      "id": "1XqVuXyujrvRSnp2NSoorCEMO62ZpBQPv"
+    },
+    {
+      "name": "avspu.zip",
+      "id": "1SVw1-kd0HiriHY6Ap7Dfvx1RSyl9Oybr"
+    },
+    {
+      "name": "awbios.zip",
+      "id": "1WGUWZMwnfKIvcf18VTHlKiY2qeIw3Q8W"
+    },
+    {
+      "name": "bjourney.zip",
+      "id": "1pAgeo3tdE4I-36YXTUMaW3Yk6yD6q945"
+    },
+    {
+      "name": "breakrev.zip",
+      "id": "1MV-BxRb-9uIoMkvhpN3R_iHo9UeWxa32"
+    },
+    {
+      "name": "btoads.zip",
+      "id": "1rVB0aXseRlHTKAsHo186T9dcw40-C6XM"
+    },
+    {
+      "name": "bub68705.zip",
+      "id": "11BNHaIBS8QepVkqD1wTkun8hIf1gXNKd"
+    },
+    {
+      "name": "cap-33s-2.chd",
+      "id": "1wqdu3f2bLPc9rifsu3BnfX40wTXvxdKC"
+    },
+    {
+      "name": "captcommb.zip",
+      "id": "1T8hV74f5hPcTUNwSWoZfLZKU6powjvn2"
+    },
+    {
+      "name": "cawing.zip",
+      "id": "12s5yMdFKF78nwjI56p78xrH9lyumQeFe"
+    },
+    {
+      "name": "contra.zip",
+      "id": "1zNmeV07EaXbNHwaVMSHET5LxH9aBbaDP"
+    },
+    {
+      "name": "csclub.zip",
+      "id": "1zxJBDJ5W3E41nC1GWqOpSXZ6J_58vfwL"
+    },
+    {
+      "name": "ctribe.zip",
+      "id": "1UcAfrLg4qW53kL1StHoJE-FXn_Gs3DFV"
+    },
+    {
+      "name": "dbz2.zip",
+      "id": "1og2izaq5ru-7BB8y6Vaeqp5hyKmA1GV5"
+    },
+    {
+      "name": "ddragon.zip",
+      "id": "15SuYXLsysZFQAitYw82SlVoCnUAKwlKj"
+    },
+    {
+      "name": "ddragon2.zip",
+      "id": "14WgLL7jaa4RyeSfeVIpjh0u7YTNQEdrE"
+    },
+    {
+      "name": "ddragon3.zip",
+      "id": "16hYTouDnvFMILxK87JoWAYfAMNF65r_k"
+    },
+    {
+      "name": "ddsom.zip",
+      "id": "1qMBTyCGZHEqNGQ3rCP59mZM6Kxf38eQ3"
+    },
+    {
+      "name": "ddtod.zip",
+      "id": "1rpOdVnFZJJyh_rl7ANBQMBnuNqEPob0e"
+    },
+    {
+      "name": "deadconx.zip",
+      "id": "1uAha0R615ix-segxUCYJCuDjcDYQlMMz"
+    },
+    {
+      "name": "dino.zip",
+      "id": "1iCb4gOdzOlEORRyU09Z79WfTQtuLj9WK"
+    },
+    {
+      "name": "dir.txt",
+      "id": "18Wv5nXoEIUsX9WUSOrsa5bWK1Lm0SIHg",
+      "skipDownload": true,
+      "kind": "catalog"
+    },
+    {
+      "name": "doubledr.zip",
+      "id": "18EAvNKsjJ3ltA0aL93D2FfkB1dY8rNVU"
+    },
+    {
+      "name": "dstlk.zip",
+      "id": "1l7yNzzKmABN6jfAhMVx4oyrPOI9TfJ-u"
+    },
+    {
+      "name": "eightman.zip",
+      "id": "1DHN2NOS7gebvuv-1rZd_Oe2D6GmPbd9J"
+    },
+    {
+      "name": "elvactr.zip",
+      "id": "1V5JGkO0XyOZcvy2AlcgOJzS-I8VrKOlA"
+    },
+    {
+      "name": "fatfursp.zip",
+      "id": "12sZvDwn1SN7Jg9UTmQ9AnMGFxTjeR3kH"
+    },
+    {
+      "name": "fatfury3.zip",
+      "id": "14fQZkAJ6srEic3AMRFnbWfZFnxCg-zWo"
+    },
+    {
+      "name": "ffight.zip",
+      "id": "16oqWdUzvIdZggi4vA1Cf_envm-uCalYd"
+    },
+    {
+      "name": "ffight2b.zip",
+      "id": "1ULHKYzVZA6R7CVaqo1tlPyR6XNO2AkwN"
+    },
+    {
+      "name": "ga2.zip",
+      "id": "15rnn9-rAPJn_2h9cPEXB3MAbHfzOdKFV"
+    },
+    {
+      "name": "galaga.zip",
+      "id": "1H-4EgBR7uVe5Se1Dmik_t-0R9LipTC8c"
+    },
+    {
+      "name": "galaga88.zip",
+      "id": "1Ay4rRsxDTG8k3xPGk9ZxxQ7lR_EjCHFD"
+    },
+    {
+      "name": "garou.zip",
+      "id": "1fhTpUUxPPbtrHZyC2dCTdHUjAysxYYsT"
+    },
+    {
+      "name": "ghouls.zip",
+      "id": "1wLZpxI6SYlRM5x7t402d37ZA3phHapZX"
+    },
+    {
+      "name": "goldnaxe.zip",
+      "id": "1pM7A58r_ZfIvZZSisX9MohAfZmKxoAng"
+    },
+    {
+      "name": "hsf2.zip",
+      "id": "1f2hBD8FsweE1DZpwDF0_kQUi2tt_IE2N"
+    },
+    {
+      "name": "joemacr.zip",
+      "id": "11mDM2xnpKOp49ZuXr8XqmBop62-3qJKF"
+    },
+    {
+      "name": "jojobane.zip",
+      "id": "1ghGtbhKp0HxHZWlKpo8HUFRWAqXwLSNZ"
+    },
+    {
+      "name": "kf2k2mp2 (1).zip",
+      "id": "1b-SOXJQHatne0Xl_yGUaAj862WHZvvou",
+      "skipDownload": true,
+      "duplicateOf": "kf2k2mp2.zip"
+    },
+    {
+      "name": "kf2k2mp2.zip",
+      "id": "1h4vXRNOEz9XMaVaKVIuiWgM4fGvOw3mM"
+    },
+    {
+      "name": "kf2k5uni.zip",
+      "id": "1NRzKgmEiAfX1gEgDoOBWsMnS8NX7kowX"
+    },
+    {
+      "name": "kf10thep.zip",
+      "id": "1z9m_jjF2SyRLxfZGjYiY2VgN5iQXQuZV"
+    },
+    {
+      "name": "kinst.chd",
+      "id": "1rK-TPkTxlje1jam0g4FXIVAp22VFAncN"
+    },
+    {
+      "name": "kinst.zip",
+      "id": "1JC7PcyqGdGbxBSyotX5hO3V4ydbtBpE5"
+    },
+    {
+      "name": "kinst2.chd",
+      "id": "10Nv_-cEGUfwBigHu9Yy0tau-8wnOEyaJ"
+    },
+    {
+      "name": "kinst2.zip",
+      "id": "1ugLUY5hSGiaWPexRxuQQhV9tvS_u9rtg"
+    },
+    {
+      "name": "kizuna.zip",
+      "id": "1jbEF7KmKkGAEzjAfODunR2_dXhPCRa5x"
+    },
+    {
+      "name": "knights.zip",
+      "id": "1ct1D8OlDJkV8oU4sH8kqQC53eZp8cHDy"
+    },
+    {
+      "name": "kof2k4se.zip",
+      "id": "1rZT9skdRco6velkqD4q8OdsTrOktPygV"
+    },
+    {
+      "name": "kof94.zip",
+      "id": "1kRoYnPCFn4qIN-BICBCaqoLIym71OUnP"
+    },
+    {
+      "name": "kof95.zip",
+      "id": "1mJCIQqdbNZAJnFRyBO2Ngq_wyf4BPqFV"
+    },
+    {
+      "name": "kof96.zip",
+      "id": "1Yg-sDT2QSQzwUGxg3_azSLVbF0id8ERG"
+    },
+    {
+      "name": "kof97.zip",
+      "id": "11aqoucjhyjPN5RzOk4iHex0LeocahI0v"
+    },
+    {
+      "name": "kof98.zip",
+      "id": "1cCF-8GnXf4XhP-5KjyGxjfEUpDiYHciP"
+    },
+    {
+      "name": "kof99.zip",
+      "id": "14LBSpGF55hhbfL3nB6ZebyWkuosasNGZ"
+    },
+    {
+      "name": "kof2000.zip",
+      "id": "1G9KcJz4QUHCfCgwo-TM3S9lEPadQUscv"
+    },
+    {
+      "name": "kof2001.zip",
+      "id": "1dkqYDN-9o4VpxoMh64SX3qDYn8uYu9Yt"
+    },
+    {
+      "name": "kof2002.zip",
+      "id": "1f5qVEGOybeYld6Ow9SdMHRcrYA8hogJR"
+    },
+    {
+      "name": "kof2003.zip",
+      "id": "1bgC3stNrga8snXTuzg21UOvMPeqnvsGK"
+    },
+    {
+      "name": "lastbld2.zip",
+      "id": "1cJsMoakvr41RjtZYMBXUkCyBQTrfp1g0"
+    },
+    {
+      "name": "lbowling.zip",
+      "id": "1KNYPgkN6b1L6_rcrthQsNdHJ2tUjpOl5"
+    },
+    {
+      "name": "magdrop3.zip",
+      "id": "1FApRbrrkY3qqNMA_7Xx9oJ3dsoBVT-wb"
+    },
+    {
+      "name": "majtitl2.zip",
+      "id": "1o0g6bS9uwOmoM9yy1n402UhZeOXvyQyD"
+    },
+    {
+      "name": "martmast.zip",
+      "id": "1i4Dh3wlp_YSMyDT-vRpKZsl8cmFrkaI6"
+    },
+    {
+      "name": "matrim.zip",
+      "id": "1lvsJTPREMQnhNayJGUV4wPnw9c_2EYBZ"
+    },
+    {
+      "name": "megaman.zip",
+      "id": "1eaXLaeEeMZzzHwJTZqnjfw3R10v0xR5T"
+    },
+    {
+      "name": "megaman2.zip",
+      "id": "1MDZXWy3PoBTpTVZORuPORn1sersIZsjk"
+    },
+    {
+      "name": "mk.zip",
+      "id": "19gN92l7ldbMj3mYlMXksETHLJx26kJ21"
+    },
+    {
+      "name": "mk2.zip",
+      "id": "1DdBIeeHSU5ktFXsIxMerbEKntA69DBJ6"
+    },
+    {
+      "name": "mk4.zip",
+      "id": "1OWFW8Gsf7RHVbITJQ3iesCmx1TQWCTyS"
+    },
+    {
+      "name": "moomesa.zip",
+      "id": "1OPbmVuFYZ3OVLxQuUCTCrcnbIOodcRDN"
+    },
+    {
+      "name": "mp_sor2.zip",
+      "id": "14o3r0y2arX1TtqMwU7VFM0LYLNfJ8oLS"
+    },
+    {
+      "name": "msh.zip",
+      "id": "1TCeMwefHnFdfOxDxkhQCcvbxMqGsPk0M"
+    },
+    {
+      "name": "mshvsf.zip",
+      "id": "17HYlHZmZUyhtyPJ2K9OlLC2ofWMRKi75"
+    },
+    {
+      "name": "mslug.zip",
+      "id": "13usdf8oKUbzQyeLr8XSfkRlwv0a8Eeeu"
+    },
+    {
+      "name": "mslug2.zip",
+      "id": "1rpJfsFBEQxY06Xdg5b4O6qKXhMBtRoKZ"
+    },
+    {
+      "name": "mslug3.zip",
+      "id": "1mmSrW7Bo1Tp10CIjt54KHBbWWUKzE5MU"
+    },
+    {
+      "name": "mslug3b6.zip",
+      "id": "1OwGIQnlt_lhqb8XpHzgXDvtUHJAYJv4N"
+    },
+    {
+      "name": "mslug4.zip",
+      "id": "1avsoc5lfV5Zjhm5tmZc-T1nW-jOFlsPo"
+    },
+    {
+      "name": "mslug5.zip",
+      "id": "1aKa7E3tHnzz6a4ocTFV8TarsSEvL2EiI"
+    },
+    {
+      "name": "mslugx.zip",
+      "id": "1WxdvHIapindrbcM3GuwPpUhN-9tJhOrl"
+    },
+    {
+      "name": "mvsc.zip",
+      "id": "1IouW1Rgy0yTMxcMfBI-L_ouXPssMONEd"
+    },
+    {
+      "name": "mwalk.zip",
+      "id": "1jQoRgH8POGCSZKW2rp3POxoLvQgZmT9s"
+    },
+    {
+      "name": "naomi.zip",
+      "id": "1GW3YanBUoAiTqrxSJiG_vjHD9eWWZShb"
+    },
+    {
+      "name": "nbajam.zip",
+      "id": "1A8R4YtjvtNNImpY76lAvrp0kqi7pwbqJ"
+    },
+    {
+      "name": "neobombe.zip",
+      "id": "1HFnbla0_wIsBCp2M_X-xLhwp2jvAoZhh"
+    },
+    {
+      "name": "neogeo.zip",
+      "id": "1M3EmGFVuE0g_KWJDqGoqsYE1L46t70wq"
+    },
+    {
+      "name": "ninjamas.zip",
+      "id": "1tj6o_h0wCAl18DCy_pXamB5n8dknF7KE"
+    },
+    {
+      "name": "nss.zip",
+      "id": "1LbwfcgmNVcwAJ4szeCuTsW4OoykOqPvy"
+    },
+    {
+      "name": "nwarru.zip",
+      "id": "1tYerdtqy6KA-HfXkO0yxZNSUOfEyfPvw"
+    },
+    {
+      "name": "outrun.zip",
+      "id": "1VKyhIGxSpTko1ydmtrLREaABCHiU9LiW"
+    },
+    {
+      "name": "pacplus.zip",
+      "id": "1MPhrea6PFI_NAnr8aW58qmfhmJQqbvLh"
+    },
+    {
+      "name": "pbobblen.zip",
+      "id": "1E1YpRzuZne6MMaWSbGnCHAmCbHMmB1T0"
+    },
+    {
+      "name": "pcktgal.zip",
+      "id": "1IZiDRvqsZYahj0shLXHSdCD0aXYzASA8"
+    },
+    {
+      "name": "pgm.zip",
+      "id": "1SxeQFdyMIkzkvEI4CdArt7Gs8TQlAGCx"
+    },
+    {
+      "name": "prehisle.zip",
+      "id": "1EPblrKUqpwcg5kOsk_tFXIOWf818aVBx"
+    },
+    {
+      "name": "preisle2.zip",
+      "id": "1Zl9mNYRMwPwjz40HyvWdvoymhdeeDxTH"
+    },
+    {
+      "name": "punisher.zip",
+      "id": "1YZUZhuUoU9yN_M8H229fE2RBYco-gZft"
+    },
+    {
+      "name": "qbert.zip",
+      "id": "1sRCMqy4NZAtygnt34fqeegM5V1p1IGKM"
+    },
+    {
+      "name": "qsound.zip",
+      "id": "1FootFu2OO29xrKRx11LF6KniJ2A92dyg"
+    },
+    {
+      "name": "rampage.zip",
+      "id": "1eE4c3jzfE_GGG0Ba_P5BTg2P66qY9WIJ"
+    },
+    {
+      "name": "rbffspec.zip",
+      "id": "13IjhSaXowAbkosrcfn3oS3yLtk56e4Gx"
+    },
+    {
+      "name": "robocop2.zip",
+      "id": "19bmh7GD6hfN7Of7SzqRYIJzwRTB3HfWz"
+    },
+    {
+      "name": "rotd.zip",
+      "id": "1IR34OIkOWFkBMcse1UFL0_aZ-NIAJssT"
+    },
+    {
+      "name": "rtype.zip",
+      "id": "11YKSNjDPUxzQqxSIx7i8a64LG0KxChVk"
+    },
+    {
+      "name": "rtype2.zip",
+      "id": "11mtm-oGNfMEMEzHTgo4roCmK0qJ_PRgb"
+    },
+    {
+      "name": "rtypeleo.zip",
+      "id": "1CqUqNa2TwSOEgxpI9TkAntc3cGv_zCOl"
+    },
+    {
+      "name": "sailormn.zip",
+      "id": "1egHo1sA4YVPTZDuN2dI5xRv2MxkxUcgm"
+    },
+    {
+      "name": "samsh5sp.zip",
+      "id": "1DiskP2MkKB-hiPUekB0PBTH0CsfHfy6d"
+    },
+    {
+      "name": "samsh5sp (1).zip",
+      "id": "18WDbNPxpx5lU-IVqyoFcmW6eVhP3uf2M",
+      "skipDownload": true,
+      "duplicateOf": "samsh5sp.zip"
+    },
+    {
+      "name": "samsho.zip",
+      "id": "1frmoLi647ESYKlA3pEnLbg7uVQ_HijIO"
+    },
+    {
+      "name": "samsho2.zip",
+      "id": "1a3iwp8ZemRmxCTnvPzoCtJ0sykEmjWYg"
+    },
+    {
+      "name": "samsho3.zip",
+      "id": "1nWGWW1AIIaUqOtmNBqmGNU8pc4iwuq8p"
+    },
+    {
+      "name": "samsho4.zip",
+      "id": "1lL7S4hnqfd7fvYOz3cgHvnL-mzvl59-W"
+    },
+    {
+      "name": "savagere.zip",
+      "id": "1y3CjJh-A2aF8XmGu0gfgyDcMzjh5Qw6z"
+    },
+    {
+      "name": "sdodgeb.zip",
+      "id": "1fqJKzCKdHDMZ27khOmIyDI7sTStoBRYb"
+    },
+    {
+      "name": "sengoku3.zip",
+      "id": "1HOkhyT0MxBFG2fql0OG5GVhy2fUOLK7B"
+    },
+    {
+      "name": "sf2.zip",
+      "id": "1K-2cNEzzNuzsZlVvxBFP3k-LtahBuzHI"
+    },
+    {
+      "name": "sf2ce.zip",
+      "id": "1pDWVLc0kh-U9d7XBOJu8GsOxYJ2y0rkW"
+    },
+    {
+      "name": "sf2hf.zip",
+      "id": "1us0Vi_Jf5zhJm9G4dJ7gVetwbLuFtOJa"
+    },
+    {
+      "name": "sf2m7.zip",
+      "id": "14txHnsEr3r0seKCjx2_JD7FH6JE_9ZYX"
+    },
+    {
+      "name": "sf2m8.zip",
+      "id": "1dTYVBl3XeWAjWSi2xD45Ka0U8FM1aCw5"
+    },
+    {
+      "name": "sfa.zip",
+      "id": "1jDat28X582D59RaLYm5PKrZxMXefqD-X"
+    },
+    {
+      "name": "sfa2u.zip",
+      "id": "1CN271vvyjtstDHOAsfty6u9qIsPSmqgd"
+    },
+    {
+      "name": "sfa3.zip",
+      "id": "1PMvW2dQ7ZDcj0pI4Phaoa548LeeR9MQp"
+    },
+    {
+      "name": "sfex2pa.zip",
+      "id": "1TnlKYbIYbMCW6ojhDa2YxW95uaBwkFuw"
+    },
+    {
+      "name": "sfexpu1.zip",
+      "id": "1fpsn9qnl4iLnbf83boRsGO_BqvUsJDmm"
+    },
+    {
+      "name": "sfiii.zip",
+      "id": "1PHS1gSosnPHIWRAzZosmni-IUSGpuon_"
+    },
+    {
+      "name": "sfiii2.zip",
+      "id": "1xFFD9I6EGXtgb-zr3GxhsgD8q03i-Or9"
+    },
+    {
+      "name": "sfiii2n.zip",
+      "id": "10DPuWcE_ENqKiyRQPHYjT5x-sVaIjRlR"
+    },
+    {
+      "name": "sfiii3.zip",
+      "id": "1mip1wxDCt3gy9sQjI69R1Q7gUYTlJ_N0"
+    },
+    {
+      "name": "sftm.zip",
+      "id": "1b3YbBRxVSFdaDaIgz8M8rmIhOhoEktgW"
+    },
+    {
+      "name": "sfz2ald.zip",
+      "id": "17mRxejBt0UlidGsxg_ACvEKIN9s0XWCW"
+    },
+    {
+      "name": "sgemf.zip",
+      "id": "1nHUCHcOkV58ev5MMNXJNvTqR2TS3xY6j"
+    },
+    {
+      "name": "shdancer.zip",
+      "id": "1cFTpNz2OykJOCQ_9JbRf_CtgQUKe79f8"
+    },
+    {
+      "name": "shinobi.zip",
+      "id": "1UykpNta196nEew4Dqm41FPRZrRIY-gjJ"
+    },
+    {
+      "name": "shinobi1.zip",
+      "id": "1nmLpzR9rb4tZ44595XSWU-WwhWwWWigU"
+    },
+    {
+      "name": "shocktr2.zip",
+      "id": "10-KO29CKFqjS_6rzkfzipY2qjI8BV6QR"
+    },
+    {
+      "name": "simpsons.zip",
+      "id": "1g29RnW25q1kqC020XpxuLxgpYwF3XoBN"
+    },
+    {
+      "name": "snowbro2.zip",
+      "id": "1Y54kCLorBQXJ8znHK86GzjgnmHvfBkkP"
+    },
+    {
+      "name": "snowbros.zip",
+      "id": "1_zZccTmKUmS2IZBJqfbxjNAp8immzh78"
+    },
+    {
+      "name": "sonic2mb.zip",
+      "id": "18tc3CyDcrpTkeJ-PiLddqD3zO79IAfA2"
+    },
+    {
+      "name": "sonicwi2.zip",
+      "id": "1R362X0AzJDtqr40d3pmTyDbO-3RSm9UN"
+    },
+    {
+      "name": "sonicwi3.zip",
+      "id": "1zmO2bNKliJ23Z2NWeSepvIOXLHD-svjg"
+    },
+    {
+      "name": "soulclbr.zip",
+      "id": "12-7Vf2UMRxPhj0lnrVQ9mjvNwheC0SK2"
+    },
+    {
+      "name": "spang.zip",
+      "id": "1WYeN16URK_G5SHDLux1nmlwajdosAZww"
+    },
+    {
+      "name": "spf2t.zip",
+      "id": "15pNG0kDthCX5jhrnFYECRFTX3YGs2TOU"
+    },
+    {
+      "name": "spidman.zip",
+      "id": "1DFkb3rg0jorSQkNY-4G7OmgBM9EgTHgg"
+    },
+    {
+      "name": "spinmast.zip",
+      "id": "16tfuSAM3qkk9BwW33Svyz-a-tD5eqvES"
+    },
+    {
+      "name": "ssf2.zip",
+      "id": "1OqsnGKjJJUaD9y5pMPu-UZNLf4nX3H6r"
+    },
+    {
+      "name": "ssf2t.zip",
+      "id": "1mBk03Duy_oYoXx-jY6bUwKgkOiU-_bti"
+    },
+    {
+      "name": "ssideki3.zip",
+      "id": "1UY8qlJJAaHSczfH3R_8dkn1pGo5YXpCT"
+    },
+    {
+      "name": "ssideki4.zip",
+      "id": "1zrEBX7b30BA5koEqbYaQNoVtF8xkkne_"
+    },
+    {
+      "name": "ssriders.zip",
+      "id": "1Bpubi-tN1vTdJJkrmWvzpCq3z_0dcNoq"
+    },
+    {
+      "name": "strhoop.zip",
+      "id": "1S1my9mzFlC0wWfH0tY32PrG8JwZBeEwC"
+    },
+    {
+      "name": "suprmrio.zip",
+      "id": "1B0SAbQAkxZUoTDJC32Ce01N0YShK358E"
+    },
+    {
+      "name": "svc.zip",
+      "id": "1tKOy0Dc0g1Z2Z-RN8KZluqtzin9k9iwN"
+    },
+    {
+      "name": "svcsplus.zip",
+      "id": "1SaJ7qTsAxcvfhN261Ymmy3dMRT0Oi4QT"
+    },
+    {
+      "name": "tekken3.zip",
+      "id": "1Soz235PG_7CkWMjJDzjiqiwi4D7nfK5D"
+    },
+    {
+      "name": "tektagt.zip",
+      "id": "1z26fNK0H7TdoKPnICeMS39vsZzEb9JHO"
+    },
+    {
+      "name": "tetrisp.zip",
+      "id": "1i0qWDQj5lEgZKnK7DX4Z9dfFmC-A4IcT"
+    },
+    {
+      "name": "tmnt2.zip",
+      "id": "19DvJ-kY9jmez9yfjePtRqxAVSs34k2ow"
+    },
+    {
+      "name": "tmnt22pu.zip",
+      "id": "18jF0MGJGLBzkFREM1ZdbG5MJi4BVqXEf"
+    },
+    {
+      "name": "toki.zip",
+      "id": "1PC1FjG2H1VEq16QWyPqGl1hjR2qjowOn"
+    },
+    {
+      "name": "tumblep.zip",
+      "id": "12y2L7Htxbpuu7lt5c7crGSyjxZ0fKZST"
+    },
+    {
+      "name": "twinspri.zip",
+      "id": "17PduhxEz20RgBZHp_vtd7X1swsEzd-UJ"
+    },
+    {
+      "name": "umk3.zip",
+      "id": "1Is9iY0W3I2tYvJ9V0k55Fw1VhWSO0znp"
+    },
+    {
+      "name": "vhunt2.zip",
+      "id": "14S7TAim0UrZmngg4-waxJr25ZaXybyKo"
+    },
+    {
+      "name": "vsavj.zip",
+      "id": "1GiiR8qwkdtoBitQrmchek_dTKJ4vkprV"
+    },
+    {
+      "name": "wakuwak7.zip",
+      "id": "1grwjifsH1zgUxP3iBuUCCJqCCH6iVMLn"
+    },
+    {
+      "name": "whp.zip",
+      "id": "1Lj9ODlEDzmek25uxKWiPeDq-JqDtwJ6e"
+    },
+    {
+      "name": "wonder3.zip",
+      "id": "11rD8gnasrBrcugnNvCtmRE1nFSqwb-PR"
+    },
+    {
+      "name": "wwfmania.zip",
+      "id": "1MNm4J9Bh_hxlTjYC6gzMFWZcWWvFiTp2"
+    },
+    {
+      "name": "xmcota.zip",
+      "id": "17RNkrZsBDSBgNDL4zRehV8koJuM-pBDS"
+    },
+    {
+      "name": "xmvsfur1.zip",
+      "id": "10YCX8p24VCjT1bNJNVfd0YwRtjaIrOh-"
+    },
+    {
+      "name": "zedblade.zip",
+      "id": "1WFnuRY8k2HlOWi1uqBGx5JoV4fhc3a5V"
+    }
+  ],
+  "bios_first": [
+    "neogeo.zip",
+    "qsound.zip",
+    "pgm.zip"
+  ],
+  "chd_targets": {
+    "kinst.chd": "kinst",
+    "kinst2.chd": "kinst2",
+    "cap-33s-2.chd": "sfiii3"
+  }
+}

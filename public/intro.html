@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="pt-BR" translate="no" class="notranslate">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google" content="notranslate" />
+    <meta name="theme-color" content="#030615" />
+    <title>Master Games Arcade</title>
+    <style>
+      :root { color-scheme: dark; font-family: "Courier New", monospace; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #030615; }
+      body { cursor: none; }
+      #bgVideo, #bgImage, #darkLayer, .scanlines { position: fixed; inset: 0; width: 100%; height: 100%; }
+      #bgVideo { z-index: 0; object-fit: cover; opacity: 1; transition: opacity 1.2s ease; }
+      #bgImage { z-index: 1; background: #030615 url('/assets/intro-esteyori-poster.jpg?v=20260926-esteyori') center / cover no-repeat; opacity: 0; transition: opacity 1.8s ease; }
+      #darkLayer { z-index: 2; background: linear-gradient(180deg, rgba(0, 0, 12, .22), rgba(0, 0, 12, .08) 38%, rgba(0, 0, 12, .25)); pointer-events: none; }
+      .scanlines { z-index: 4; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, .1) 3px, rgba(0, 0, 0, .1) 4px); }
+
+      /* Texto no céu/área superior do vídeo, acima das silhuetas dos personagens. */
+      #introContent { position: fixed; z-index: 10; top: clamp(18px, 5vh, 48px); left: clamp(18px, 4vw, 64px); width: min(29vw, 370px); display: flex; flex-direction: column; align-items: flex-start; color: #fff; transition: opacity 1s ease; }
+      .hidden { opacity: 0; }
+      .line { width: min(190px, 42vw); height: 1px; margin: 9px 0; background: linear-gradient(90deg, #00e5ff, #e040fb, transparent); }
+      .subtitle { margin: 0 0 8px; color: #a8f7ff; font-size: clamp(9px, 1vw, 12px); letter-spacing: .22em; text-shadow: 0 0 12px #00e5ff; }
+      .title { width: 100%; max-width: 100%; margin: 0; color: #fff; font-family: Arial, sans-serif; font-size: clamp(22px, 2.4vw, 32px); font-weight: 900; line-height: 1.08; letter-spacing: -.035em; text-align: left; text-shadow: 0 2px 18px #02030b, 0 0 20px rgba(0, 229, 255, .7); }
+      .title span { display: block; }
+      .title .arcade { color: #ff72de; text-shadow: 0 0 18px rgba(224, 64, 251, .9); }
+      .edition { margin-top: 9px; color: #d7e8f0; font-size: 10px; letter-spacing: .19em; text-shadow: 0 1px 8px #000; }
+      .dev-signature { margin-top: 6px; color: #ff9be8; font-size: 9px; font-weight: 700; letter-spacing: .18em; text-shadow: 0 0 12px rgba(224, 64, 251, .8); }
+      .dragon-logo { width: 52px; height: 52px; margin-bottom: 5px; object-fit: contain; filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(0, 229, 255, .8)); }
+      .dot { display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: #00e676; box-shadow: 0 0 10px #00e676; }
+
+      /* A instrução também fica na faixa superior, sem cobrir os lutadores. */
+      #insertCoin { position: fixed; z-index: 20; top: clamp(18px, 5vh, 48px); right: clamp(18px, 4vw, 64px); width: min(34vw, 340px); text-align: right; opacity: 0; transition: opacity .8s ease; color: #fff; }
+      .show { opacity: 1 !important; }
+      .coin { color: #fff; font-size: clamp(13px, 1.5vw, 18px); font-weight: 700; letter-spacing: .2em; text-shadow: 0 0 15px #00e5ff; animation: pulse 1.2s infinite; }
+      .hint { margin-top: 9px; color: #d0dce3; font-size: clamp(9px, 1vw, 12px); letter-spacing: .08em; text-shadow: 0 1px 8px #000; }
+      @keyframes pulse { 50% { opacity: .45; } }
+      .mobile-hint { display: none; }
+      #cursor { position: fixed; z-index: 100; width: 10px; height: 10px; border: 1px solid #00e5ff; border-radius: 50%; box-shadow: 0 0 8px #00e5ff; pointer-events: none; transform: translate(-50%, -50%); }
+
+      @media (max-width: 600px) {
+        #bgVideo { object-fit: contain; }
+        #bgImage { background-size: contain; }
+        #introContent { top: 4vh; left: 4vw; width: 59vw; }
+        .line { width: min(125px, 38vw); margin: 6px 0; }
+        .subtitle { max-width: 100%; margin-bottom: 6px; font-size: 8px; letter-spacing: .12em; }
+        .title { font-size: clamp(19px, 5.8vw, 28px); line-height: 1.08; }
+        .edition { margin-top: 6px; font-size: 8px; letter-spacing: .08em; }
+        .dev-signature { font-size: 8px; letter-spacing: .1em; }
+        .dragon-logo { width: 42px; height: 42px; }
+        .dot { width: 6px; height: 6px; margin-right: 5px; }
+        #insertCoin { top: 4vh; right: 4vw; width: 31vw; }
+        .coin { font-size: clamp(11px, 3.2vw, 15px); letter-spacing: .09em; }
+        .hint { margin-top: 7px; font-size: 9px; line-height: 1.35; letter-spacing: .03em; }
+        .desktop-hint { display: none; }
+        .mobile-hint { display: inline; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      }
+    </style>
+  </head>
+  <body translate="no" class="notranslate">
+    <video id="bgVideo" playsinline preload="auto" autoplay>
+      <source src="/assets/intro-esteyori.mp4?v=20261006-esteyori-audio" type="video/mp4" />
+    </video>
+    <div id="bgImage" aria-hidden="true"></div>
+    <div id="darkLayer" aria-hidden="true"></div>
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <main id="introContent">
+      <img class="dragon-logo" src="/kali-dragon.png" alt="Logo do dragão" />
+      <div class="line"></div>
+      <p class="subtitle">MASTER GAMES ARCADE · WEB EDITION</p>
+      <h1 class="title"><span>Seu próximo recorde</span><span class="arcade">começa aqui.</span></h1>
+      <p class="edition"><span class="dot"></span>CLÁSSICOS DE ARCADE · 2026</p>
+      <p class="dev-signature">DEV EMERSON 2026</p>
+      <div class="line"></div>
+    </main>
+
+    <div id="insertCoin" aria-live="polite">
+      <div class="coin">APERTE START</div>
+      <div class="hint"><span class="desktop-hint">PRESSIONE QUALQUER TECLA PARA JOGAR</span><span class="mobile-hint">TOQUE PARA JOGAR</span></div>
+    </div>
+    <div id="cursor" aria-hidden="true"></div>
+
+    <script>
+      let canEnter = false;
+      let audioUnlocked = false;
+      const video = document.getElementById('bgVideo');
+      const introContent = document.getElementById('introContent');
+      const insertCoin = document.getElementById('insertCoin');
+
+      function transition() {
+        if (canEnter) return;
+        introContent.classList.add('hidden');
+        video.style.opacity = '0';
+        document.getElementById('bgImage').style.opacity = '1';
+        window.setTimeout(() => {
+          insertCoin.classList.add('show');
+          canEnter = true;
+        }, 1800);
+      }
+
+      video.addEventListener('ended', transition);
+      video.addEventListener('error', () => window.setTimeout(transition, 3000));
+
+      function activateIntroAudio() {
+        video.muted = false;
+        video.volume = 1;
+        const audioPlay = video.play();
+        if (audioPlay?.then) {
+          audioPlay.then(() => {
+            audioUnlocked = true;
+          }).catch(() => {
+            video.muted = true;
+            audioUnlocked = false;
+          });
+        }
+      }
+
+      function enterArcade() {
+        // O primeiro toque/tecla libera o áudio, mas não navega imediatamente.
+        // Assim o navegador tem tempo de iniciar a trilha antes do START.
+        if (!audioUnlocked) {
+          activateIntroAudio();
+          return;
+        }
+        if (!canEnter) return;
+        canEnter = false;
+        sessionStorage.setItem('mga.introSeen', '1');
+        window.location.href = '/?launcher=1';
+      }
+      window.setTimeout(() => {
+        if (video.readyState < 2) return;
+        const initialPlay = video.play();
+        initialPlay.then(() => {
+          audioUnlocked = true;
+        }).catch(() => {
+          // Se o autoplay com som for bloqueado, o primeiro gesto tenta de novo.
+          video.muted = true;
+          audioUnlocked = false;
+          video.play().catch(() => {});
+        });
+      }, 100);
+      document.addEventListener('keydown', enterArcade);
+      document.addEventListener('pointerdown', enterArcade);
+      document.addEventListener('mousemove', (event) => {
+        const cursor = document.getElementById('cursor');
+        cursor.style.left = event.clientX + 'px';
+        cursor.style.top = event.clientY + 'px';
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "name": "DragonRise / Generic USB 0079:0006",
+  "provider": "gamepad",
+  "reference": "Original Master Games Arcade controls",
+  "P1": {
+    "up": "ArrowUp",
+    "down": "ArrowDown",
+    "left": "ArrowLeft",
+    "right": "ArrowRight",
+    "b1": "Z",
+    "b2": "X",
+    "b3": "C",
+    "b4": "A",
+    "b5": "S",
+    "b6": "D",
+    "start": "1",
+    "coin": "5",
+    "menu": "Tab"
+  },
+  "P2": {
+    "up": "Numpad8",
+    "down": "Numpad2",
+    "left": "Numpad4",
+    "right": "Numpad6",
+    "b1": "A",
+    "b2": "S",
+    "b3": "Q",
+    "b4": "W",
+    "b5": "E",
+    "b6": "R",
+    "start": "2",
+    "coin": "6"
+  }
+}

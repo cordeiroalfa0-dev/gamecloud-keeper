@@ -1,0 +1,1812 @@
+{
+  "3wonders": {
+    "title": "Three Wonders (World 910520)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/3wonders.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/3wonders.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/3wonders.mp4",
+    "local_snap": "assets/snaps/3wonders.png",
+    "local_icon": "assets/icons/3wonders.png",
+    "local_video": null
+  },
+  "1942": {
+    "title": "1942 (Revision B)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/1942.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/1942.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/1942.mp4",
+    "local_snap": "assets/snaps/1942.png",
+    "local_icon": "assets/icons/1942.png",
+    "local_video": null
+  },
+  "1943": {
+    "title": "1943: The Battle of Midway (Euro)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/1943.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/1943.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/1943.mp4",
+    "local_snap": "assets/snaps/1943.png",
+    "local_icon": "assets/icons/1943.png",
+    "local_video": null
+  },
+  "aladmdb": {
+    "title": "Aladdin (bootleg of Mega Drive version)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/aladmdb.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/aladmdb.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/aladmdb.mp4",
+    "local_snap": "assets/snaps/aladmdb.png",
+    "local_icon": "assets/icons/aladmdb.png",
+    "local_video": null
+  },
+  "altbeast": {
+    "title": "Altered Beast (set 8) (8751 317-0078)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/altbeast.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/altbeast.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/altbeast.mp4",
+    "local_snap": "assets/snaps/altbeast.png",
+    "local_icon": "assets/icons/altbeast.png",
+    "local_video": null
+  },
+  "androdun": {
+    "title": "Andro Dunos (NGM-049 ~ NGH-049)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/androdun.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/androdun.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/androdun.mp4",
+    "local_snap": "assets/snaps/androdun.png",
+    "local_icon": "assets/icons/androdun.png",
+    "local_video": null
+  },
+  "aof3": {
+    "title": "Art of Fighting 3 - The Path of the Warrior / Art of Fighting - Ryuuko no Ken Gaiden",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/aof3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/aof3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/aof3.mp4",
+    "local_snap": "assets/snaps/aof3.png",
+    "local_icon": "assets/icons/aof3.png",
+    "local_video": null
+  },
+  "ar_bios": {
+    "title": "Arcadia System BIOS",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ar_bios.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ar_bios.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ar_bios.mp4",
+    "local_snap": "assets/snaps/ar_bios.png",
+    "local_icon": "assets/icons/ar_bios.png",
+    "local_video": null
+  },
+  "avsp": {
+    "title": "Alien vs. Predator (Europe 940520)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/avsp.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/avsp.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/avsp.mp4",
+    "local_snap": "assets/snaps/avsp.png",
+    "local_icon": "assets/icons/avsp.png",
+    "local_video": null
+  },
+  "avspu": {
+    "title": "Alien vs. Predator (USA 940520)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/avspu.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/avspu.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/avspu.mp4",
+    "local_snap": "assets/snaps/avspu.png",
+    "local_icon": "assets/icons/avspu.png",
+    "local_video": null
+  },
+  "awbios": {
+    "title": "Atomiswave BIOS",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/awbios.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/awbios.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/awbios.mp4",
+    "local_snap": "assets/snaps/awbios.png",
+    "local_icon": "assets/icons/awbios.png",
+    "local_video": null
+  },
+  "bjourney": {
+    "title": "Blue's Journey / Raguy (ALM-001 ~ ALH-001)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/bjourney.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/bjourney.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/bjourney.mp4",
+    "local_snap": "assets/snaps/bjourney.png",
+    "local_icon": "assets/icons/bjourney.png",
+    "local_video": null
+  },
+  "breakrev": {
+    "title": "Breakers Revenge",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/breakrev.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/breakrev.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/breakrev.mp4",
+    "local_snap": "assets/snaps/breakrev.png",
+    "local_icon": "assets/icons/breakrev.png",
+    "local_video": null
+  },
+  "btoads": {
+    "title": "Battletoads",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/btoads.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/btoads.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/btoads.mp4",
+    "local_snap": "assets/snaps/btoads.png",
+    "local_icon": "assets/icons/btoads.png",
+    "local_video": null
+  },
+  "bub68705": {
+    "title": "Bubble Bobble (bootleg with 68705)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/bub68705.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/bub68705.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/bub68705.mp4",
+    "local_snap": "assets/snaps/bub68705.png",
+    "local_icon": "assets/icons/bub68705.png",
+    "local_video": null
+  },
+  "captcommb": {
+    "title": "Captain Commando (bootleg)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/captcommb.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/captcommb.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/captcommb.mp4",
+    "local_snap": "assets/snaps/captcommb.png",
+    "local_icon": "assets/icons/captcommb.png",
+    "local_video": null
+  },
+  "cawing": {
+    "title": "Carrier Air Wing (World 901012)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/cawing.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/cawing.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/cawing.mp4",
+    "local_snap": "assets/snaps/cawing.png",
+    "local_icon": "assets/icons/cawing.png",
+    "local_video": null
+  },
+  "contra": {
+    "title": "Contra (US / Asia, set 1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/contra.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/contra.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/contra.mp4",
+    "local_snap": "assets/snaps/contra.png",
+    "local_icon": "assets/icons/contra.png",
+    "local_video": null
+  },
+  "csclub": {
+    "title": "Capcom Sports Club (Europe 971017)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/csclub.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/csclub.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/csclub.mp4",
+    "local_snap": "assets/snaps/csclub.png",
+    "local_icon": "assets/icons/csclub.png",
+    "local_video": null
+  },
+  "ctribe": {
+    "title": "The Combatribes (US, rev 2, set 1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ctribe.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ctribe.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ctribe.mp4",
+    "local_snap": "assets/snaps/ctribe.png",
+    "local_icon": "assets/icons/ctribe.png",
+    "local_video": null
+  },
+  "dbz2": {
+    "title": "Dragon Ball Z 2 - Super Battle",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/dbz2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/dbz2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/dbz2.mp4",
+    "local_snap": "assets/snaps/dbz2.png",
+    "local_icon": "assets/icons/dbz2.png",
+    "local_video": null
+  },
+  "ddragon": {
+    "title": "Double Dragon (World set 1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ddragon.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ddragon.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ddragon.mp4",
+    "local_snap": "assets/snaps/ddragon.png",
+    "local_icon": "assets/icons/ddragon.png",
+    "local_video": null
+  },
+  "ddragon2": {
+    "title": "Double Dragon II: The Revenge (World)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ddragon2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ddragon2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ddragon2.mp4",
+    "local_snap": "assets/snaps/ddragon2.png",
+    "local_icon": "assets/icons/ddragon2.png",
+    "local_video": null
+  },
+  "ddragon3": {
+    "title": "Double Dragon 3: The Rosetta Stone (US)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ddragon3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ddragon3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ddragon3.mp4",
+    "local_snap": "assets/snaps/ddragon3.png",
+    "local_icon": "assets/icons/ddragon3.png",
+    "local_video": null
+  },
+  "ddsom": {
+    "title": "Dungeons & Dragons: Shadow over Mystara (Europe 960619)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ddsom.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ddsom.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ddsom.mp4",
+    "local_snap": "assets/snaps/ddsom.png",
+    "local_icon": "assets/icons/ddsom.png",
+    "local_video": null
+  },
+  "ddtod": {
+    "title": "Dungeons & Dragons: Tower of Doom (Europe 940412)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ddtod.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ddtod.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ddtod.mp4",
+    "local_snap": "assets/snaps/ddtod.png",
+    "local_icon": "assets/icons/ddtod.png",
+    "local_video": null
+  },
+  "deadconx": {
+    "title": "Dead Connection (World)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/deadconx.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/deadconx.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/deadconx.mp4",
+    "local_snap": "assets/snaps/deadconx.png",
+    "local_icon": "assets/icons/deadconx.png",
+    "local_video": null
+  },
+  "dino": {
+    "title": "Cadillacs and Dinosaurs (World 930201)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/dino.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/dino.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/dino.mp4",
+    "local_snap": "assets/snaps/dino.png",
+    "local_icon": "assets/icons/dino.png",
+    "local_video": null
+  },
+  "doubledr": {
+    "title": "Double Dragon (Neo-Geo)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/doubledr.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/doubledr.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/doubledr.mp4",
+    "local_snap": "assets/snaps/doubledr.png",
+    "local_icon": "assets/icons/doubledr.png",
+    "local_video": null
+  },
+  "dstlk": {
+    "title": "Darkstalkers: The Night Warriors (Europe 940705)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/dstlk.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/dstlk.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/dstlk.mp4",
+    "local_snap": "assets/snaps/dstlk.png",
+    "local_icon": "assets/icons/dstlk.png",
+    "local_video": null
+  },
+  "eightman": {
+    "title": "Eight Man (NGM-025 ~ NGH-025)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/eightman.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/eightman.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/eightman.mp4",
+    "local_snap": "assets/snaps/eightman.png",
+    "local_icon": "assets/icons/eightman.png",
+    "local_video": null
+  },
+  "elvactr": {
+    "title": "Elevator Action Returns (Ver 2.2O 1995/02/20)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/elvactr.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/elvactr.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/elvactr.mp4",
+    "local_snap": "assets/snaps/elvactr.png",
+    "local_icon": "assets/icons/elvactr.png",
+    "local_video": null
+  },
+  "fatfursp": {
+    "title": "Fatal Fury Special / Garou Densetsu Special (NGM-058 ~ NGH-058, set 1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/fatfursp.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/fatfursp.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/fatfursp.mp4",
+    "local_snap": "assets/snaps/fatfursp.png",
+    "local_icon": "assets/icons/fatfursp.png",
+    "local_video": null
+  },
+  "fatfury3": {
+    "title": "Fatal Fury 3 - Road to the Final Victory / Garou Densetsu 3 - Haruka-naru Tatakai (NGM-069 ~ NGH-069)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/fatfury3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/fatfury3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/fatfury3.mp4",
+    "local_snap": "assets/snaps/fatfury3.png",
+    "local_icon": "assets/icons/fatfury3.png",
+    "local_video": null
+  },
+  "ffight": {
+    "title": "Final Fight (World, set 1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ffight.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ffight.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ffight.mp4",
+    "local_snap": "assets/snaps/ffight.png",
+    "local_icon": "assets/icons/ffight.png",
+    "local_video": null
+  },
+  "ffight2b": {
+    "title": "Final Fight 2 (SNES bootleg)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ffight2b.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ffight2b.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ffight2b.mp4",
+    "local_snap": "assets/snaps/ffight2b.png",
+    "local_icon": "assets/icons/ffight2b.png",
+    "local_video": null
+  },
+  "ga2": {
+    "title": "Golden Axe: The Revenge of Death Adder (World, Rev B)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ga2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ga2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ga2.mp4",
+    "local_snap": "assets/snaps/ga2.png",
+    "local_icon": "assets/icons/ga2.png",
+    "local_video": null
+  },
+  "galaga": {
+    "title": "Galaga (Namco rev. B)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/galaga.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/galaga.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/galaga.mp4",
+    "local_snap": "assets/snaps/galaga.png",
+    "local_icon": "assets/icons/galaga.png",
+    "local_video": null
+  },
+  "galaga88": {
+    "title": "Galaga '88",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/galaga88.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/galaga88.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/galaga88.mp4",
+    "local_snap": "assets/snaps/galaga88.png",
+    "local_icon": "assets/icons/galaga88.png",
+    "local_video": null
+  },
+  "garou": {
+    "title": "Garou - Mark of the Wolves (NGM-2530)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/garou.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/garou.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/garou.mp4",
+    "local_snap": "assets/snaps/garou.png",
+    "local_icon": "assets/icons/garou.png",
+    "local_video": null
+  },
+  "ghouls": {
+    "title": "Ghouls'n Ghosts (World)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ghouls.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ghouls.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ghouls.mp4",
+    "local_snap": "assets/snaps/ghouls.png",
+    "local_icon": "assets/icons/ghouls.png",
+    "local_video": null
+  },
+  "goldnaxe": {
+    "title": "Golden Axe (set 6, US) (8751 317-123A)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/goldnaxe.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/goldnaxe.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/goldnaxe.mp4",
+    "local_snap": "assets/snaps/goldnaxe.png",
+    "local_icon": "assets/icons/goldnaxe.png",
+    "local_video": null
+  },
+  "hsf2": {
+    "title": "Hyper Street Fighter II: The Anniversary Edition (USA 040202)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/hsf2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/hsf2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/hsf2.mp4",
+    "local_snap": "assets/snaps/hsf2.png",
+    "local_icon": "assets/icons/hsf2.png",
+    "local_video": null
+  },
+  "joemacr": {
+    "title": "Joe & Mac Returns (World, Master Version 1.1, 1994.05.27)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/joemacr.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/joemacr.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/joemacr.mp4",
+    "local_snap": "assets/snaps/joemacr.png",
+    "local_icon": "assets/icons/joemacr.png",
+    "local_video": null
+  },
+  "jojobane": {
+    "title": "JoJo's Bizarre Adventure (Euro 990927, NO CD)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/jojobane.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/jojobane.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/jojobane.mp4",
+    "local_snap": "assets/snaps/jojobane.png",
+    "local_icon": "assets/icons/jojobane.png",
+    "local_video": null
+  },
+  "kf2k2mp2 (1)": {
+    "title": "The King of Fighters 2002 Magic Plus II (bootleg)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kf2k2mp2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kf2k2mp2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kf2k2mp2.mp4",
+    "local_snap": "assets/snaps/kf2k2mp2 (1).png",
+    "local_icon": "assets/icons/kf2k2mp2 (1).png",
+    "local_video": null
+  },
+  "kf2k2mp2": {
+    "title": "The King of Fighters 2002 Magic Plus II (bootleg)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kf2k2mp2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kf2k2mp2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kf2k2mp2.mp4",
+    "local_snap": "assets/snaps/kf2k2mp2.png",
+    "local_icon": "assets/icons/kf2k2mp2.png",
+    "local_video": null
+  },
+  "kf2k5uni": {
+    "title": "The King of Fighters 10th Anniversary 2005 Unique (bootleg of The King of Fighters 2002)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kf2k5uni.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kf2k5uni.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kf2k5uni.mp4",
+    "local_snap": "assets/snaps/kf2k5uni.png",
+    "local_icon": "assets/icons/kf2k5uni.png",
+    "local_video": null
+  },
+  "kf10thep": {
+    "title": "The King of Fighters 10th Anniversary Extra Plus (bootleg of The King of Fighters 2002)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kf10thep.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kf10thep.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kf10thep.mp4",
+    "local_snap": "assets/snaps/kf10thep.png",
+    "local_icon": "assets/icons/kf10thep.png",
+    "local_video": null
+  },
+  "kinst": {
+    "title": "Killer Instinct",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kinst.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kinst.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kinst.mp4",
+    "local_snap": "assets/snaps/kinst.png",
+    "local_icon": "assets/icons/kinst.png",
+    "local_video": null
+  },
+  "kinst2": {
+    "title": "Killer Instinct 2",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kinst2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kinst2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kinst2.mp4",
+    "local_snap": "assets/snaps/kinst2.png",
+    "local_icon": "assets/icons/kinst2.png",
+    "local_video": null
+  },
+  "kizuna": {
+    "title": "Kizuna Encounter - Super Tag Battle / Fu'un Super Tag Battle",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kizuna.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kizuna.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kizuna.mp4",
+    "local_snap": "assets/snaps/kizuna.png",
+    "local_icon": "assets/icons/kizuna.png",
+    "local_video": null
+  },
+  "knights": {
+    "title": "Knights of the Round (World 911127)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/knights.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/knights.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/knights.mp4",
+    "local_snap": "assets/snaps/knights.png",
+    "local_icon": "assets/icons/knights.png",
+    "local_video": null
+  },
+  "kof2k4se": {
+    "title": "The King of Fighters Special Edition 2004 (bootleg of The King of Fighters 2002)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof2k4se.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof2k4se.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kof2k4se.mp4",
+    "local_snap": "assets/snaps/kof2k4se.png",
+    "local_icon": "assets/icons/kof2k4se.png",
+    "local_video": null
+  },
+  "kof94": {
+    "title": "The King of Fighters '94 (NGM-055 ~ NGH-055)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof94.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof94.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kof94.mp4",
+    "local_snap": "assets/snaps/kof94.png",
+    "local_icon": "assets/icons/kof94.png",
+    "local_video": null
+  },
+  "kof95": {
+    "title": "The King of Fighters '95 (NGM-084)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof95.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof95.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kof95.mp4",
+    "local_snap": "assets/snaps/kof95.png",
+    "local_icon": "assets/icons/kof95.png",
+    "local_video": null
+  },
+  "kof96": {
+    "title": "The King of Fighters '96 (NGM-214)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof96.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof96.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kof96.mp4",
+    "local_snap": "assets/snaps/kof96.png",
+    "local_icon": "assets/icons/kof96.png",
+    "local_video": null
+  },
+  "kof97": {
+    "title": "The King of Fighters '97 (NGM-2320)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof97.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof97.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kof97.mp4",
+    "local_snap": "assets/snaps/kof97.png",
+    "local_icon": "assets/icons/kof97.png",
+    "local_video": null
+  },
+  "kof98": {
+    "title": "The King of Fighters '98 - The Slugfest / King of Fighters '98 - Dream Match Never Ends (NGM-2420)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof98.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof98.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kof98.mp4",
+    "local_snap": "assets/snaps/kof98.png",
+    "local_icon": "assets/icons/kof98.png",
+    "local_video": null
+  },
+  "kof99": {
+    "title": "The King of Fighters '99 - Millennium Battle (NGM-2510)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof99.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof99.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kof99.mp4",
+    "local_snap": "assets/snaps/kof99.png",
+    "local_icon": "assets/icons/kof99.png",
+    "local_video": null
+  },
+  "kof2000": {
+    "title": "The King of Fighters 2000 (NGM-2570 ~ NGH-2570)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof2000.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof2000.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kof2000.mp4",
+    "local_snap": "assets/snaps/kof2000.png",
+    "local_icon": "assets/icons/kof2000.png",
+    "local_video": null
+  },
+  "kof2001": {
+    "title": "The King of Fighters 2001 (NGM-262?)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof2001.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof2001.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kof2001.mp4",
+    "local_snap": "assets/snaps/kof2001.png",
+    "local_icon": "assets/icons/kof2001.png",
+    "local_video": null
+  },
+  "kof2002": {
+    "title": "The King of Fighters 2002 (NGM-2650 ~ NGH-2650)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof2002.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof2002.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kof2002.mp4",
+    "local_snap": "assets/snaps/kof2002.png",
+    "local_icon": "assets/icons/kof2002.png",
+    "local_video": null
+  },
+  "kof2003": {
+    "title": "The King of Fighters 2003 (NGM-2710, Export)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof2003.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/kof2003.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/kof2003.mp4",
+    "local_snap": "assets/snaps/kof2003.png",
+    "local_icon": "assets/icons/kof2003.png",
+    "local_video": null
+  },
+  "lastbld2": {
+    "title": "The Last Blade 2 / Bakumatsu Roman - Dai Ni Maku Gekka no Kenshi (NGM-2430 ~ NGH-2430)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/lastbld2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/lastbld2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/lastbld2.mp4",
+    "local_snap": "assets/snaps/lastbld2.png",
+    "local_icon": "assets/icons/lastbld2.png",
+    "local_video": null
+  },
+  "lbowling": {
+    "title": "League Bowling (NGM-019 ~ NGH-019)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/lbowling.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/lbowling.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/lbowling.mp4",
+    "local_snap": "assets/snaps/lbowling.png",
+    "local_icon": "assets/icons/lbowling.png",
+    "local_video": null
+  },
+  "magdrop3": {
+    "title": "Magical Drop III",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/magdrop3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/magdrop3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/magdrop3.mp4",
+    "local_snap": "assets/snaps/magdrop3.png",
+    "local_icon": "assets/icons/magdrop3.png",
+    "local_video": null
+  },
+  "majtitl2": {
+    "title": "Major Title 2 (World, set 1, 017 sound CPU)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/majtitl2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/majtitl2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/majtitl2.mp4",
+    "local_snap": "assets/snaps/majtitl2.png",
+    "local_icon": "assets/icons/majtitl2.png",
+    "local_video": null
+  },
+  "martmast": {
+    "title": "Martial Masters / Xing Yi Quan (ver. 104, 102, 102US)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/martmast.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/martmast.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/martmast.mp4",
+    "local_snap": "assets/snaps/martmast.png",
+    "local_icon": "assets/icons/martmast.png",
+    "local_video": null
+  },
+  "matrim": {
+    "title": "Matrimelee / Shin Gouketsuji Ichizoku Toukon (NGM-2660 ~ NGH-2660)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/matrim.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/matrim.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/matrim.mp4",
+    "local_snap": "assets/snaps/matrim.png",
+    "local_icon": "assets/icons/matrim.png",
+    "local_video": null
+  },
+  "megaman": {
+    "title": "Mega Man: The Power Battle (CPS1, USA 951006)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/megaman.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/megaman.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/megaman.mp4",
+    "local_snap": "assets/snaps/megaman.png",
+    "local_icon": "assets/icons/megaman.png",
+    "local_video": null
+  },
+  "megaman2": {
+    "title": "Mega Man 2: The Power Fighters (USA 960708)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/megaman2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/megaman2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/megaman2.mp4",
+    "local_snap": "assets/snaps/megaman2.png",
+    "local_icon": "assets/icons/megaman2.png",
+    "local_video": null
+  },
+  "mk": {
+    "title": "Mortal Kombat (rev 5.0 T-Unit 03/19/93)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mk.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mk.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mk.mp4",
+    "local_snap": "assets/snaps/mk.png",
+    "local_icon": "assets/icons/mk.png",
+    "local_video": null
+  },
+  "mk2": {
+    "title": "Mortal Kombat II (rev L3.1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mk2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mk2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mk2.mp4",
+    "local_snap": "assets/snaps/mk2.png",
+    "local_icon": "assets/icons/mk2.png",
+    "local_video": null
+  },
+  "mk4": {
+    "title": "Mortal Kombat 4 (version 3.0)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mk4.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mk4.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mk4.mp4",
+    "local_snap": "assets/snaps/mk4.png",
+    "local_icon": "assets/icons/mk4.png",
+    "local_video": null
+  },
+  "moomesa": {
+    "title": "Wild West C.O.W.-Boys of Moo Mesa (ver EAB)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/moomesa.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/moomesa.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/moomesa.mp4",
+    "local_snap": "assets/snaps/moomesa.png",
+    "local_icon": "assets/icons/moomesa.png",
+    "local_video": null
+  },
+  "mp_sor2": {
+    "title": "Streets of Rage II (Mega Play)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mp_sor2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mp_sor2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mp_sor2.mp4",
+    "local_snap": "assets/snaps/mp_sor2.png",
+    "local_icon": "assets/icons/mp_sor2.png",
+    "local_video": null
+  },
+  "msh": {
+    "title": "Marvel Super Heroes (Europe 951024)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/msh.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/msh.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/msh.mp4",
+    "local_snap": "assets/snaps/msh.png",
+    "local_icon": "assets/icons/msh.png",
+    "local_video": null
+  },
+  "mshvsf": {
+    "title": "Marvel Super Heroes Vs. Street Fighter (Europe 970625)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mshvsf.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mshvsf.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mshvsf.mp4",
+    "local_snap": "assets/snaps/mshvsf.png",
+    "local_icon": "assets/icons/mshvsf.png",
+    "local_video": null
+  },
+  "mslug": {
+    "title": "Metal Slug - Super Vehicle-001",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mslug.mp4",
+    "local_snap": "assets/snaps/mslug.png",
+    "local_icon": "assets/icons/mslug.png",
+    "local_video": null
+  },
+  "mslug2": {
+    "title": "Metal Slug 2 - Super Vehicle-001/II (NGM-2410 ~ NGH-2410)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mslug2.mp4",
+    "local_snap": "assets/snaps/mslug2.png",
+    "local_icon": "assets/icons/mslug2.png",
+    "local_video": null
+  },
+  "mslug3": {
+    "title": "Metal Slug 3 (NGM-2560)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mslug3.mp4",
+    "local_snap": "assets/snaps/mslug3.png",
+    "local_icon": "assets/icons/mslug3.png",
+    "local_video": null
+  },
+  "mslug3b6": {
+    "title": "Metal Slug 6 (bootleg of Metal Slug 3)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug3b6.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug3b6.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mslug3b6.mp4",
+    "local_snap": "assets/snaps/mslug3b6.png",
+    "local_icon": "assets/icons/mslug3b6.png",
+    "local_video": null
+  },
+  "mslug4": {
+    "title": "Metal Slug 4 (NGM-2630)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug4.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug4.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mslug4.mp4",
+    "local_snap": "assets/snaps/mslug4.png",
+    "local_icon": "assets/icons/mslug4.png",
+    "local_video": null
+  },
+  "mslug5": {
+    "title": "Metal Slug 5 (NGM-2680)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug5.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslug5.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mslug5.mp4",
+    "local_snap": "assets/snaps/mslug5.png",
+    "local_icon": "assets/icons/mslug5.png",
+    "local_video": null
+  },
+  "mslugx": {
+    "title": "Metal Slug X - Super Vehicle-001 (NGM-2500 ~ NGH-2500)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslugx.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mslugx.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mslugx.mp4",
+    "local_snap": "assets/snaps/mslugx.png",
+    "local_icon": "assets/icons/mslugx.png",
+    "local_video": null
+  },
+  "mvsc": {
+    "title": "Marvel Vs. Capcom: Clash of Super Heroes (Europe 980123)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mvsc.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mvsc.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mvsc.mp4",
+    "local_snap": "assets/snaps/mvsc.png",
+    "local_icon": "assets/icons/mvsc.png",
+    "local_video": null
+  },
+  "mwalk": {
+    "title": "Michael Jackson's Moonwalker (World) (FD1094/8751 317-0159)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mwalk.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/mwalk.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/mwalk.mp4",
+    "local_snap": "assets/snaps/mwalk.png",
+    "local_icon": "assets/icons/mwalk.png",
+    "local_video": null
+  },
+  "naomi": {
+    "title": "NAOMI BIOS",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/naomi.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/naomi.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/naomi.mp4",
+    "local_snap": "assets/snaps/naomi.png",
+    "local_icon": "assets/icons/naomi.png",
+    "local_video": null
+  },
+  "nbajam": {
+    "title": "NBA Jam (rev 3.01 4/07/93)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/nbajam.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/nbajam.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/nbajam.mp4",
+    "local_snap": "assets/snaps/nbajam.png",
+    "local_icon": "assets/icons/nbajam.png",
+    "local_video": null
+  },
+  "neobombe": {
+    "title": "Neo Bomberman",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/neobombe.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/neobombe.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/neobombe.mp4",
+    "local_snap": "assets/snaps/neobombe.png",
+    "local_icon": "assets/icons/neobombe.png",
+    "local_video": null
+  },
+  "neogeo": {
+    "title": "Neo-Geo MV-6F",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/neogeo.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/neogeo.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/neogeo.mp4",
+    "local_snap": "assets/snaps/neogeo.png",
+    "local_icon": "assets/icons/neogeo.png",
+    "local_video": null
+  },
+  "ninjamas": {
+    "title": "Ninja Master's - Haoh-ninpo-cho",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ninjamas.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ninjamas.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ninjamas.mp4",
+    "local_snap": "assets/snaps/ninjamas.png",
+    "local_icon": "assets/icons/ninjamas.png",
+    "local_video": null
+  },
+  "nss": {
+    "title": "Nintendo Super System BIOS",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/nss.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/nss.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/nss.mp4",
+    "local_snap": "assets/snaps/nss.png",
+    "local_icon": "assets/icons/nss.png",
+    "local_video": null
+  },
+  "nwarru": {
+    "title": "Night Warriors: Darkstalkers' Revenge (USA 950406)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/nwarru.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/nwarru.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/nwarru.mp4",
+    "local_snap": "assets/snaps/nwarru.png",
+    "local_icon": "assets/icons/nwarru.png",
+    "local_video": null
+  },
+  "outrun": {
+    "title": "Out Run (sitdown/upright, Rev B)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/outrun.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/outrun.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/outrun.mp4",
+    "local_snap": "assets/snaps/outrun.png",
+    "local_icon": "assets/icons/outrun.png",
+    "local_video": null
+  },
+  "pacplus": {
+    "title": "Pac-Man Plus",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/pacplus.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/pacplus.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/pacplus.mp4",
+    "local_snap": "assets/snaps/pacplus.png",
+    "local_icon": "assets/icons/pacplus.png",
+    "local_video": null
+  },
+  "pbobblen": {
+    "title": "Puzzle Bobble / Bust-A-Move (Neo-Geo, NGM-083)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/pbobblen.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/pbobblen.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/pbobblen.mp4",
+    "local_snap": "assets/snaps/pbobblen.png",
+    "local_icon": "assets/icons/pbobblen.png",
+    "local_video": null
+  },
+  "pcktgal": {
+    "title": "Pocket Gal (Japan)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/pcktgal.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/pcktgal.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/pcktgal.mp4",
+    "local_snap": "assets/snaps/pcktgal.png",
+    "local_icon": "assets/icons/pcktgal.png",
+    "local_video": null
+  },
+  "pgm": {
+    "title": "PGM (Polygame Master) System BIOS",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/pgm.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/pgm.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/pgm.mp4",
+    "local_snap": "assets/snaps/pgm.png",
+    "local_icon": "assets/icons/pgm.png",
+    "local_video": null
+  },
+  "prehisle": {
+    "title": "Prehistoric Isle in 1930 (World)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/prehisle.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/prehisle.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/prehisle.mp4",
+    "local_snap": "assets/snaps/prehisle.png",
+    "local_icon": "assets/icons/prehisle.png",
+    "local_video": null
+  },
+  "preisle2": {
+    "title": "Prehistoric Isle 2",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/preisle2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/preisle2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/preisle2.mp4",
+    "local_snap": "assets/snaps/preisle2.png",
+    "local_icon": "assets/icons/preisle2.png",
+    "local_video": null
+  },
+  "punisher": {
+    "title": "The Punisher (World 930422)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/punisher.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/punisher.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/punisher.mp4",
+    "local_snap": "assets/snaps/punisher.png",
+    "local_icon": "assets/icons/punisher.png",
+    "local_video": null
+  },
+  "qbert": {
+    "title": "Q*bert (US set 1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/qbert.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/qbert.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/qbert.mp4",
+    "local_snap": "assets/snaps/qbert.png",
+    "local_icon": "assets/icons/qbert.png",
+    "local_video": null
+  },
+  "qsound": {
+    "title": "QSound",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/qsound.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/qsound.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/qsound.mp4",
+    "local_snap": "assets/snaps/qsound.png",
+    "local_icon": "assets/icons/qsound.png",
+    "local_video": null
+  },
+  "rampage": {
+    "title": "Rampage (Rev 3, 8/27/86)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rampage.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rampage.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/rampage.mp4",
+    "local_snap": "assets/snaps/rampage.png",
+    "local_icon": "assets/icons/rampage.png",
+    "local_video": null
+  },
+  "rbffspec": {
+    "title": "Real Bout Fatal Fury Special / Real Bout Garou Densetsu Special",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rbffspec.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rbffspec.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/rbffspec.mp4",
+    "local_snap": "assets/snaps/rbffspec.png",
+    "local_icon": "assets/icons/rbffspec.png",
+    "local_video": null
+  },
+  "robocop2": {
+    "title": "Robocop 2 (Euro/Asia v0.10)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/robocop2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/robocop2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/robocop2.mp4",
+    "local_snap": "assets/snaps/robocop2.png",
+    "local_icon": "assets/icons/robocop2.png",
+    "local_video": null
+  },
+  "rotd": {
+    "title": "Rage of the Dragons (NGM-2640?)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rotd.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rotd.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/rotd.mp4",
+    "local_snap": "assets/snaps/rotd.png",
+    "local_icon": "assets/icons/rotd.png",
+    "local_video": null
+  },
+  "rtype": {
+    "title": "R-Type (World)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rtype.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rtype.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/rtype.mp4",
+    "local_snap": "assets/snaps/rtype.png",
+    "local_icon": "assets/icons/rtype.png",
+    "local_video": null
+  },
+  "rtype2": {
+    "title": "R-Type II (World)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rtype2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rtype2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/rtype2.mp4",
+    "local_snap": "assets/snaps/rtype2.png",
+    "local_icon": "assets/icons/rtype2.png",
+    "local_video": null
+  },
+  "rtypeleo": {
+    "title": "R-Type Leo (World)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rtypeleo.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/rtypeleo.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/rtypeleo.mp4",
+    "local_snap": "assets/snaps/rtypeleo.png",
+    "local_icon": "assets/icons/rtypeleo.png",
+    "local_video": null
+  },
+  "sailormn": {
+    "title": "Bishoujo Senshi Sailor Moon (Version 95/03/22B, Japan)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sailormn.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sailormn.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sailormn.mp4",
+    "local_snap": "assets/snaps/sailormn.png",
+    "local_icon": "assets/icons/sailormn.png",
+    "local_video": null
+  },
+  "samsh5sp": {
+    "title": "Samurai Shodown V Special / Samurai Spirits Zero Special (NGM-2720)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsh5sp.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsh5sp.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/samsh5sp.mp4",
+    "local_snap": "assets/snaps/samsh5sp.png",
+    "local_icon": "assets/icons/samsh5sp.png",
+    "local_video": null
+  },
+  "samsh5sp (1)": {
+    "title": "Samurai Shodown V Special / Samurai Spirits Zero Special (NGM-2720)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsh5sp.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsh5sp.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/samsh5sp.mp4",
+    "local_snap": "assets/snaps/samsh5sp (1).png",
+    "local_icon": "assets/icons/samsh5sp (1).png",
+    "local_video": null
+  },
+  "samsho": {
+    "title": "Samurai Shodown / Samurai Spirits (NGM-045)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsho.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsho.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/samsho.mp4",
+    "local_snap": "assets/snaps/samsho.png",
+    "local_icon": "assets/icons/samsho.png",
+    "local_video": null
+  },
+  "samsho2": {
+    "title": "Samurai Shodown II / Shin Samurai Spirits - Haohmaru Jigokuhen (NGM-063 ~ NGH-063)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsho2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsho2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/samsho2.mp4",
+    "local_snap": "assets/snaps/samsho2.png",
+    "local_icon": "assets/icons/samsho2.png",
+    "local_video": null
+  },
+  "samsho3": {
+    "title": "Samurai Shodown III / Samurai Spirits - Zankurou Musouken (NGM-087)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsho3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsho3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/samsho3.mp4",
+    "local_snap": "assets/snaps/samsho3.png",
+    "local_icon": "assets/icons/samsho3.png",
+    "local_video": null
+  },
+  "samsho4": {
+    "title": "Samurai Shodown IV - Amakusa's Revenge / Samurai Spirits - Amakusa Kourin (NGM-222 ~ NGH-222)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsho4.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/samsho4.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/samsho4.mp4",
+    "local_snap": "assets/snaps/samsho4.png",
+    "local_icon": "assets/icons/samsho4.png",
+    "local_video": null
+  },
+  "savagere": {
+    "title": "Savage Reign / Fu'un Mokushiroku - Kakutou Sousei",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/savagere.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/savagere.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/savagere.mp4",
+    "local_snap": "assets/snaps/savagere.png",
+    "local_icon": "assets/icons/savagere.png",
+    "local_video": null
+  },
+  "sdodgeb": {
+    "title": "Super Dodge Ball / Kunio no Nekketsu Toukyuu Densetsu",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sdodgeb.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sdodgeb.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sdodgeb.mp4",
+    "local_snap": "assets/snaps/sdodgeb.png",
+    "local_icon": "assets/icons/sdodgeb.png",
+    "local_video": null
+  },
+  "sengoku3": {
+    "title": "Sengoku 3 / Sengoku Densho 2001 (set 1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sengoku3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sengoku3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sengoku3.mp4",
+    "local_snap": "assets/snaps/sengoku3.png",
+    "local_icon": "assets/icons/sengoku3.png",
+    "local_video": null
+  },
+  "sf2": {
+    "title": "Street Fighter II: The World Warrior",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sf2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sf2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sf2.mp4",
+    "local_snap": "assets/snaps/sf2.png",
+    "local_icon": "assets/icons/sf2.png",
+    "local_video": null
+  },
+  "sf2ce": {
+    "title": "Street Fighter II': Champion Edition (World 920513)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sf2ce.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sf2ce.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sf2ce.mp4",
+    "local_snap": "assets/snaps/sf2ce.png",
+    "local_icon": "assets/icons/sf2ce.png",
+    "local_video": null
+  },
+  "sf2hf": {
+    "title": "Street Fighter II: Hyper Fighting",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sf2hf.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sf2hf.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sf2hf.mp4",
+    "local_snap": "assets/snaps/sf2hf.png",
+    "local_icon": "assets/icons/sf2hf.png",
+    "local_video": null
+  },
+  "sf2m7": {
+    "title": "Street Fighter II: Champion Edition (M7)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sf2m7.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sf2m7.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sf2m7.mp4",
+    "local_snap": "assets/snaps/sf2m7.png",
+    "local_icon": "assets/icons/sf2m7.png",
+    "local_video": null
+  },
+  "sf2m8": {
+    "title": "Street Fighter II: Champion Edition (M8)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sf2m8.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sf2m8.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sf2m8.mp4",
+    "local_snap": "assets/snaps/sf2m8.png",
+    "local_icon": "assets/icons/sf2m8.png",
+    "local_video": null
+  },
+  "sfa": {
+    "title": "Street Fighter Alpha: Warriors' Dreams",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfa.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfa.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sfa.mp4",
+    "local_snap": "assets/snaps/sfa.png",
+    "local_icon": "assets/icons/sfa.png",
+    "local_video": null
+  },
+  "sfa2u": {
+    "title": "Street Fighter Alpha 2 (USA)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfa2u.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfa2u.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sfa2u.mp4",
+    "local_snap": "assets/snaps/sfa2u.png",
+    "local_icon": "assets/icons/sfa2u.png",
+    "local_video": null
+  },
+  "sfa3": {
+    "title": "Street Fighter Alpha 3",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfa3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfa3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sfa3.mp4",
+    "local_snap": "assets/snaps/sfa3.png",
+    "local_icon": "assets/icons/sfa3.png",
+    "local_video": null
+  },
+  "sfex2pa": {
+    "title": "Street Fighter EX2 Plus",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfex2pa.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfex2pa.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sfex2pa.mp4",
+    "local_snap": "assets/snaps/sfex2pa.png",
+    "local_icon": "assets/icons/sfex2pa.png",
+    "local_video": null
+  },
+  "sfexpu1": {
+    "title": "Street Fighter EX Plus (USA 970311)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfexpu1.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfexpu1.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sfexpu1.mp4",
+    "local_snap": "assets/snaps/sfexpu1.png",
+    "local_icon": "assets/icons/sfexpu1.png",
+    "local_video": null
+  },
+  "sfiii": {
+    "title": "Street Fighter III: New Generation",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfiii.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfiii.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sfiii.mp4",
+    "local_snap": "assets/snaps/sfiii.png",
+    "local_icon": "assets/icons/sfiii.png",
+    "local_video": null
+  },
+  "sfiii2": {
+    "title": "Street Fighter III 2nd Impact",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfiii2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfiii2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sfiii2.mp4",
+    "local_snap": "assets/snaps/sfiii2.png",
+    "local_icon": "assets/icons/sfiii2.png",
+    "local_video": null
+  },
+  "sfiii2n": {
+    "title": "Street Fighter III 2nd Impact (Japan)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfiii2n.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfiii2n.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sfiii2n.mp4",
+    "local_snap": "assets/snaps/sfiii2n.png",
+    "local_icon": "assets/icons/sfiii2n.png",
+    "local_video": null
+  },
+  "sfiii3": {
+    "title": "Street Fighter III 3rd Strike",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfiii3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfiii3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sfiii3.mp4",
+    "local_snap": "assets/snaps/sfiii3.png",
+    "local_icon": "assets/icons/sfiii3.png",
+    "local_video": null
+  },
+  "sftm": {
+    "title": "Street Fighter: The Movie",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sftm.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sftm.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sftm.mp4",
+    "local_snap": "assets/snaps/sftm.png",
+    "local_icon": "assets/icons/sftm.png",
+    "local_video": null
+  },
+  "sfz2ald": {
+    "title": "Street Fighter Zero 2 Alpha (Japan)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfz2ald.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sfz2ald.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sfz2ald.mp4",
+    "local_snap": "assets/snaps/sfz2ald.png",
+    "local_icon": "assets/icons/sfz2ald.png",
+    "local_video": null
+  },
+  "sgemf": {
+    "title": "Super Gem Fighter: Mini Mix (USA 970904)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sgemf.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sgemf.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sgemf.mp4",
+    "local_snap": "assets/snaps/sgemf.png",
+    "local_icon": "assets/icons/sgemf.png",
+    "local_video": null
+  },
+  "shdancer": {
+    "title": "Shadow Dancer (World)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/shdancer.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/shdancer.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/shdancer.mp4",
+    "local_snap": "assets/snaps/shdancer.png",
+    "local_icon": "assets/icons/shdancer.png",
+    "local_video": null
+  },
+  "shinobi": {
+    "title": "Shinobi (set 6, System 16A) (unprotected)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/shinobi.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/shinobi.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/shinobi.mp4",
+    "local_snap": "assets/snaps/shinobi.png",
+    "local_icon": "assets/icons/shinobi.png",
+    "local_video": null
+  },
+  "shinobi1": {
+    "title": "Shinobi (set 1, System 16A) (FD1094 317-0050)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/shinobi1.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/shinobi1.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/shinobi1.mp4",
+    "local_snap": "assets/snaps/shinobi1.png",
+    "local_icon": "assets/icons/shinobi1.png",
+    "local_video": null
+  },
+  "shocktr2": {
+    "title": "Shock Troopers - 2nd Squad",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/shocktr2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/shocktr2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/shocktr2.mp4",
+    "local_snap": "assets/snaps/shocktr2.png",
+    "local_icon": "assets/icons/shocktr2.png",
+    "local_video": null
+  },
+  "simpsons": {
+    "title": "The Simpsons (4 Players World, set 1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/simpsons.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/simpsons.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/simpsons.mp4",
+    "local_snap": "assets/snaps/simpsons.png",
+    "local_icon": "assets/icons/simpsons.png",
+    "local_video": null
+  },
+  "snowbro2": {
+    "title": "Snow Bros. 2 - With New Elves / Otenki Paradise (Hanafram)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/snowbro2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/snowbro2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/snowbro2.mp4",
+    "local_snap": "assets/snaps/snowbro2.png",
+    "local_icon": "assets/icons/snowbro2.png",
+    "local_video": null
+  },
+  "snowbros": {
+    "title": "Snow Bros. - Nick & Tom (set 1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/snowbros.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/snowbros.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/snowbros.mp4",
+    "local_snap": "assets/snaps/snowbros.png",
+    "local_icon": "assets/icons/snowbros.png",
+    "local_video": null
+  },
+  "sonic2mb": {
+    "title": "Sonic The Hedgehog 2 (bootleg of Mega Drive version)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sonic2mb.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sonic2mb.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sonic2mb.mp4",
+    "local_snap": "assets/snaps/sonic2mb.png",
+    "local_icon": "assets/icons/sonic2mb.png",
+    "local_video": null
+  },
+  "sonicwi2": {
+    "title": "Aero Fighters 2 / Sonic Wings 2",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sonicwi2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sonicwi2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sonicwi2.mp4",
+    "local_snap": "assets/snaps/sonicwi2.png",
+    "local_icon": "assets/icons/sonicwi2.png",
+    "local_video": null
+  },
+  "sonicwi3": {
+    "title": "Aero Fighters 3 / Sonic Wings 3",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sonicwi3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/sonicwi3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/sonicwi3.mp4",
+    "local_snap": "assets/snaps/sonicwi3.png",
+    "local_icon": "assets/icons/sonicwi3.png",
+    "local_video": null
+  },
+  "soulclbr": {
+    "title": "Soul Calibur (World, SOC12/VER.A2)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/soulclbr.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/soulclbr.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/soulclbr.mp4",
+    "local_snap": "assets/snaps/soulclbr.png",
+    "local_icon": "assets/icons/soulclbr.png",
+    "local_video": null
+  },
+  "spang": {
+    "title": "Super Pang (World 900914)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/spang.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/spang.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/spang.mp4",
+    "local_snap": "assets/snaps/spang.png",
+    "local_icon": "assets/icons/spang.png",
+    "local_video": null
+  },
+  "spf2t": {
+    "title": "Super Puzzle Fighter II Turbo (Europe 960529)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/spf2t.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/spf2t.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/spf2t.mp4",
+    "local_snap": "assets/snaps/spf2t.png",
+    "local_icon": "assets/icons/spf2t.png",
+    "local_video": null
+  },
+  "spidman": {
+    "title": "Spider-Man: The Videogame (World)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/spidman.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/spidman.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/spidman.mp4",
+    "local_snap": "assets/snaps/spidman.png",
+    "local_icon": "assets/icons/spidman.png",
+    "local_video": null
+  },
+  "spinmast": {
+    "title": "Spin Master / Miracle Adventure",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/spinmast.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/spinmast.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/spinmast.mp4",
+    "local_snap": "assets/snaps/spinmast.png",
+    "local_icon": "assets/icons/spinmast.png",
+    "local_video": null
+  },
+  "ssf2": {
+    "title": "Super Street Fighter II",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ssf2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ssf2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ssf2.mp4",
+    "local_snap": "assets/snaps/ssf2.png",
+    "local_icon": "assets/icons/ssf2.png",
+    "local_video": null
+  },
+  "ssf2t": {
+    "title": "Super Street Fighter II Turbo",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ssf2t.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ssf2t.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ssf2t.mp4",
+    "local_snap": "assets/snaps/ssf2t.png",
+    "local_icon": "assets/icons/ssf2t.png",
+    "local_video": null
+  },
+  "ssideki3": {
+    "title": "Super Sidekicks 3 - The Next Glory / Tokuten Ou 3 - Eikou e no Chousen",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ssideki3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ssideki3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ssideki3.mp4",
+    "local_snap": "assets/snaps/ssideki3.png",
+    "local_icon": "assets/icons/ssideki3.png",
+    "local_video": null
+  },
+  "ssideki4": {
+    "title": "The Ultimate 11 - The SNK Football Championship / Tokuten Ou - Honoo no Libero",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ssideki4.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ssideki4.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ssideki4.mp4",
+    "local_snap": "assets/snaps/ssideki4.png",
+    "local_icon": "assets/icons/ssideki4.png",
+    "local_video": null
+  },
+  "ssriders": {
+    "title": "Sunset Riders (4 Players ver EAC)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ssriders.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/ssriders.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/ssriders.mp4",
+    "local_snap": "assets/snaps/ssriders.png",
+    "local_icon": "assets/icons/ssriders.png",
+    "local_video": null
+  },
+  "strhoop": {
+    "title": "Street Hoop / Street Slam / Dunk Dream (DEM-004 ~ DEH-004)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/strhoop.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/strhoop.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/strhoop.mp4",
+    "local_snap": "assets/snaps/strhoop.png",
+    "local_icon": "assets/icons/strhoop.png",
+    "local_video": null
+  },
+  "suprmrio": {
+    "title": "Vs. Super Mario Bros. (set SM4-4 E)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/suprmrio.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/suprmrio.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/suprmrio.mp4",
+    "local_snap": "assets/snaps/suprmrio.png",
+    "local_icon": "assets/icons/suprmrio.png",
+    "local_video": null
+  },
+  "svc": {
+    "title": "SNK vs. Capcom - SVC Chaos (NGM-2690 ~ NGH-2690)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/svc.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/svc.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/svc.mp4",
+    "local_snap": "assets/snaps/svc.png",
+    "local_icon": "assets/icons/svc.png",
+    "local_video": null
+  },
+  "svcsplus": {
+    "title": "SNK vs. Capcom - SVC Chaos Super Plus (bootleg)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/svcsplus.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/svcsplus.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/svcsplus.mp4",
+    "local_snap": "assets/snaps/svcsplus.png",
+    "local_icon": "assets/icons/svcsplus.png",
+    "local_video": null
+  },
+  "tekken3": {
+    "title": "Tekken 3 (World, TET2/VER.E1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tekken3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tekken3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/tekken3.mp4",
+    "local_snap": "assets/snaps/tekken3.png",
+    "local_icon": "assets/icons/tekken3.png",
+    "local_video": null
+  },
+  "tektagt": {
+    "title": "Tekken Tag Tournament (World, TEG2/VER.C1, set 1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tektagt.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tektagt.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/tektagt.mp4",
+    "local_snap": "assets/snaps/tektagt.png",
+    "local_icon": "assets/icons/tektagt.png",
+    "local_video": null
+  },
+  "tetrisp": {
+    "title": "Tetris Plus (ver 1.0)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tetrisp.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tetrisp.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/tetrisp.mp4",
+    "local_snap": "assets/snaps/tetrisp.png",
+    "local_icon": "assets/icons/tetrisp.png",
+    "local_video": null
+  },
+  "tmnt2": {
+    "title": "Teenage Mutant Ninja Turtles: Turtles in Time (4 Players ver UAA)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tmnt2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tmnt2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/tmnt2.mp4",
+    "local_snap": "assets/snaps/tmnt2.png",
+    "local_icon": "assets/icons/tmnt2.png",
+    "local_video": null
+  },
+  "tmnt22pu": {
+    "title": "Teenage Mutant Ninja Turtles: Turtles in Time (2 Players ver UDA)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tmnt22pu.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tmnt22pu.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/tmnt22pu.mp4",
+    "local_snap": "assets/snaps/tmnt22pu.png",
+    "local_icon": "assets/icons/tmnt22pu.png",
+    "local_video": null
+  },
+  "toki": {
+    "title": "Toki (World, set 1)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/toki.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/toki.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/toki.mp4",
+    "local_snap": "assets/snaps/toki.png",
+    "local_icon": "assets/icons/toki.png",
+    "local_video": null
+  },
+  "tumblep": {
+    "title": "Tumble Pop (World)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tumblep.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/tumblep.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/tumblep.mp4",
+    "local_snap": "assets/snaps/tumblep.png",
+    "local_icon": "assets/icons/tumblep.png",
+    "local_video": null
+  },
+  "twinspri": {
+    "title": "Twinkle Star Sprites",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/twinspri.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/twinspri.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/twinspri.mp4",
+    "local_snap": "assets/snaps/twinspri.png",
+    "local_icon": "assets/icons/twinspri.png",
+    "local_video": null
+  },
+  "umk3": {
+    "title": "Ultimate Mortal Kombat 3 (rev 1.2)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/umk3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/umk3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/umk3.mp4",
+    "local_snap": "assets/snaps/umk3.png",
+    "local_icon": "assets/icons/umk3.png",
+    "local_video": null
+  },
+  "vhunt2": {
+    "title": "Vampire Hunter 2: Darkstalkers Revenge (Japan 970929)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/vhunt2.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/vhunt2.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/vhunt2.mp4",
+    "local_snap": "assets/snaps/vhunt2.png",
+    "local_icon": "assets/icons/vhunt2.png",
+    "local_video": null
+  },
+  "vsavj": {
+    "title": "Vampire Savior: The Lord of Vampire (Japan 970519)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/vsavj.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/vsavj.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/vsavj.mp4",
+    "local_snap": "assets/snaps/vsavj.png",
+    "local_icon": "assets/icons/vsavj.png",
+    "local_video": null
+  },
+  "wakuwak7": {
+    "title": "Waku Waku 7",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/wakuwak7.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/wakuwak7.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/wakuwak7.mp4",
+    "local_snap": "assets/snaps/wakuwak7.png",
+    "local_icon": "assets/icons/wakuwak7.png",
+    "local_video": null
+  },
+  "whp": {
+    "title": "World Heroes Perfect",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/whp.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/whp.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/whp.mp4",
+    "local_snap": "assets/snaps/whp.png",
+    "local_icon": "assets/icons/whp.png",
+    "local_video": null
+  },
+  "wonder3": {
+    "title": "Wonder 3 (Japan 910520)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/wonder3.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/wonder3.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/wonder3.mp4",
+    "local_snap": "assets/snaps/wonder3.png",
+    "local_icon": "assets/icons/wonder3.png",
+    "local_video": null
+  },
+  "wwfmania": {
+    "title": "WWF: Wrestlemania (rev 1.30 08/10/95)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/wwfmania.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/wwfmania.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/wwfmania.mp4",
+    "local_snap": "assets/snaps/wwfmania.png",
+    "local_icon": "assets/icons/wwfmania.png",
+    "local_video": null
+  },
+  "xmcota": {
+    "title": "X-Men: Children of the Atom (Europe 950331)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/xmcota.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/xmcota.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/xmcota.mp4",
+    "local_snap": "assets/snaps/xmcota.png",
+    "local_icon": "assets/icons/xmcota.png",
+    "local_video": null
+  },
+  "xmvsfur1": {
+    "title": "X-Men Vs. Street Fighter (USA 961004)",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/xmvsfur1.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/xmvsfur1.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/xmvsfur1.mp4",
+    "local_snap": "assets/snaps/xmvsfur1.png",
+    "local_icon": "assets/icons/xmvsfur1.png",
+    "local_video": null
+  },
+  "zedblade": {
+    "title": "Zed Blade / Operation Ragnarok",
+    "has_snap": true,
+    "snap_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/zedblade.png",
+    "icon_url": "https://cdn.jsdelivr.net/gh/cordeiroalfa0-dev/master-games-arcade-system@main/snaps/zedblade.png",
+    "video_preview_url": "https://archive.org/download/mame-video-previews/zedblade.mp4",
+    "local_snap": "assets/snaps/zedblade.png",
+    "local_icon": "assets/icons/zedblade.png",
+    "local_video": null
+  }
+}
