@@ -1,0 +1,21 @@
+{
+  "name": "Master Games Arcade — Controle Remoto",
+  "short_name": "MGA Controle",
+  "description": "Controle remoto para jogar no Master Games Arcade.",
+  "id": "/controller",
+  "start_url": "/controller?controller=1&installed=1",
+  "scope": "/controller",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#101820",
+  "theme_color": "#101820",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/kali-dragon.png",
+      "sizes": "300x300",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

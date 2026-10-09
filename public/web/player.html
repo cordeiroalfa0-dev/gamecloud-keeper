@@ -1,0 +1,2251 @@
+<!doctype html>
+<html lang="pt-BR" translate="no" class="notranslate">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="google" content="notranslate">
+  <title>Master Games Arcade - Player</title>
+  <style>
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;touch-action:manipulation;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
+    #game{position:relative;width:var(--mga-vw,100dvw);height:var(--mga-vh,100dvh);background:#000;display:grid;place-items:center;overflow:hidden;--video-brightness:1;--video-contrast:1;--video-saturation:1}
+    /* Tira os elementos do EmulatorJS do fluxo: senão o canvas cresce a cada
+       medição do ResizeObserver e a tela fica preta. */
+    #game>*{position:absolute;top:0;left:0;width:100%;height:100%;max-width:100vw;max-height:100vh}
+    #game canvas,#game video{max-width:100vw!important;max-height:100vh!important;object-fit:contain}
+    #game canvas,#game video{image-rendering:pixelated;image-rendering:crisp-edges;filter:brightness(var(--video-brightness)) contrast(var(--video-contrast)) saturate(var(--video-saturation));}
+    body.video-aspect-43 #game canvas,body.video-aspect-43 #game video{width:min(100vw,133.333vh)!important;height:min(75vw,100vh)!important;object-fit:contain}
+    /* Preenche a viewport inteira. Em telas widescreen o arcade 4:3 é
+       esticado horizontalmente para eliminar as margens pretas laterais. */
+    body.video-stretch #game .ejs_canvas_parent,body.video-stretch #game canvas,body.video-stretch #game video{position:absolute!important;inset:0!important;width:100dvw!important;height:100dvh!important;max-width:none!important;max-height:none!important;object-fit:fill!important}
+    body.video-integer #game canvas,body.video-integer #game video{image-rendering:pixelated;transform:translateZ(0)}
+    body.video-scanlines #game::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:99998;background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.16) 3px,rgba(0,0,0,.16) 4px);mix-blend-mode:multiply}
+    body.video-vignette #game::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:99997;background:radial-gradient(ellipse at center,transparent 58%,rgba(0,0,0,.42) 100%)}
+    body.video-amber #game canvas,body.video-amber #game video{filter:brightness(var(--video-brightness)) contrast(calc(var(--video-contrast) * 1.08)) saturate(calc(var(--video-saturation) * .82)) sepia(.16)}
+    body.video-cool #game canvas,body.video-cool #game video{filter:brightness(var(--video-brightness)) contrast(var(--video-contrast)) saturate(calc(var(--video-saturation) * 1.12)) hue-rotate(8deg)}
+    body.video-soft #game canvas,body.video-soft #game video{image-rendering:auto;filter:brightness(var(--video-brightness)) contrast(.96) saturate(var(--video-saturation));}
+    @media (min-resolution:2dppx){#game canvas,#game video{image-rendering:pixelated}}
+    @media (orientation:portrait){body.video-auto #game canvas,body.video-auto #game video{max-width:100vw;max-height:75vh;object-fit:contain}}
+    /* O launcher mostra apenas o jogo, não a interface do emulador. */
+    #game button:not(.ejs_virtualGamepad_button),#game [role="button"]:not(.ejs_virtualGamepad_button),#game .ejs_menu_bar,#game .ejs_menu,
+    #game .ejs_context_menu,#game .ejs_volume_parent,#game [class*="ejs-menu"],
+    #game [class*="ejs_context"],#game [class*="ejs-start"]{
+      display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important
+    }
+    /* Os botões touch são a única interface do jogo no celular. A regra geral
+       acima oculta a UI interna do EmulatorJS, mas nunca pode ocultar CRÉDITO,
+       START, direcional e ataques do gamepad virtual. */
+    #game .ejs_virtualGamepad_button{
+      display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important
+    }
+    #status{position:fixed;inset:0;z-index:99999;display:grid;place-items:start center;background:linear-gradient(rgba(0,0,0,.94) 0,rgba(0,0,0,.94) 92px,transparent 92px);color:#00e5ff;font:700 16px monospace;text-align:center;padding:70px 24px 24px;box-sizing:border-box;white-space:pre-wrap;pointer-events:none;text-shadow:0 0 8px #000,0 0 14px #00e5ff}
+    #debug{position:fixed;left:10px;right:10px;bottom:10px;z-index:100000;max-height:42vh;overflow:auto;display:none;background:rgba(0,0,0,.9);border:1px solid #00e5ff;color:#00e5ff;padding:10px;box-sizing:border-box;font:12px/1.35 monospace;white-space:pre-wrap}
+    #manual-start{position:fixed;left:50%;top:112px;transform:translateX(-50%);z-index:100001;display:none;background:#08000f;color:#00e5ff;border:2px solid #00e5ff;box-shadow:0 0 18px #00e5ff66;padding:16px 24px;font:700 16px monospace;cursor:pointer}
+    #difficulty-setup{position:fixed;inset:0;z-index:100002;display:grid;place-items:center;background:linear-gradient(rgba(3,0,6,.68),rgba(3,0,6,.82)),url('/assets/game-loading-art.png') center/cover no-repeat;color:#fff;padding:24px;box-sizing:border-box;font-family:monospace}
+    #difficulty-setup .difficulty-card{width:min(560px,100%);border:1px solid #00e5ff55;background:rgba(5,0,11,.98);box-shadow:0 0 24px #00e5ff22;padding:24px;box-sizing:border-box;text-align:center}
+    #difficulty-setup h1{margin:0 0 10px;color:#00e5ff;font-size:20px}
+    #difficulty-setup p{margin:0 auto 20px;color:#aaa;font-size:12px;line-height:1.5;max-width:470px}
+    #difficulty-setup .difficulty-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    #difficulty-setup button{min-width:190px;padding:14px 18px;background:#08000f;font:bold 13px monospace;cursor:pointer}
+    #difficulty-setup button[data-difficulty=easy]{border:1px solid #39ff88;color:#39ff88}
+    #difficulty-setup button[data-difficulty=hard]{border:1px solid #ff2b6d;color:#ff6f9e}
+    #difficulty-setup button.selected{box-shadow:0 0 14px currentColor}
+    #difficulty-setup small{font-weight:normal;color:#bbb}
+    #difficulty-setup .config-section{margin:18px auto 0;padding-top:14px;border-top:1px solid #ffffff18;text-align:left;max-width:470px}
+    #difficulty-setup .config-title{color:#00e5ff;font-size:10px;letter-spacing:1px;margin-bottom:9px}
+    #difficulty-setup .config-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;color:#ccc;font-size:11px}
+    #difficulty-setup label{display:flex;align-items:center;gap:7px;padding:7px;background:#ffffff08;border:1px solid #ffffff12;cursor:pointer}
+    #difficulty-setup select{width:100%;padding:7px;background:#08000f;border:1px solid #00e5ff55;color:#fff;font:11px monospace}
+    #difficulty-setup .controls-note{color:#999;font-size:10px;line-height:1.45}
+    #difficulty-setup .mobile-only{display:none}
+    @media (hover:none) and (pointer:coarse){#difficulty-setup .mobile-only{display:flex}}
+    /* ===== Controles touch (layout de celular) =====
+       Tamanhos derivados da largura/altura da tela para nunca ficarem
+       pequenos demais no celular nem gigantes no tablet. */
+    #game .ejs_virtualGamepad_parent{
+      --mga-dpad:clamp(112px,34vw,184px);
+      --mga-btn:clamp(48px,13.5vw,74px);
+      --mga-gap:clamp(6px,2.2vw,14px);
+      --mga-side:max(12px,env(safe-area-inset-left));
+      --mga-floor:max(14px,env(safe-area-inset-bottom));
+      z-index:20;top:auto!important;bottom:0;height:auto;pointer-events:none
+    }
+    #game .ejs_virtualGamepad_parent>div{pointer-events:auto}
+    #game .ejs_virtualGamepad_top{display:none}
+    #game .ejs_virtualGamepad_button{
+      touch-action:none;border:2px solid rgba(0,229,255,.6);background:rgba(4,10,20,.42);
+      color:#eaffff;text-shadow:0 0 6px rgba(0,0,0,.9);box-shadow:0 0 12px rgba(0,229,255,.18);
+      backdrop-filter:blur(2px);-webkit-tap-highlight-color:transparent;transition:background .08s,transform .08s
+    }
+    #game .ejs_virtualGamepad_button_down{background:rgba(0,229,255,.5)!important;border-color:#fff!important;transform:scale(.94)}
+    #game .ejs_dpad_main{opacity:1;filter:drop-shadow(0 7px 12px rgba(0,0,0,.58))}
+    #game .ejs_dpad_horizontal,#game .ejs_dpad_vertical{
+      border-radius:13px;background:rgba(5,16,34,.5);box-shadow:0 0 0 1px rgba(0,229,255,.18),inset 0 0 14px rgba(0,229,255,.08)
+    }
+    #game .ejs_dpad_bar{
+      background:linear-gradient(145deg,rgba(26,51,79,.96),rgba(5,14,29,.97))!important;
+      border:1px solid rgba(89,224,255,.58);box-shadow:inset 0 2px 4px rgba(255,255,255,.16),inset 0 -4px 8px rgba(0,0,0,.42)
+    }
+    #game .ejs_dpad_main::after{
+      content:"";position:absolute;left:50%;top:50%;width:31%;height:31%;transform:translate(-50%,-50%);
+      border:1px solid rgba(134,237,255,.8);border-radius:50%;
+      background:radial-gradient(circle at 35% 30%,rgba(71,121,155,.95),rgba(7,19,37,.98) 72%);
+      box-shadow:0 0 10px rgba(0,213,255,.26),inset 0 2px 4px rgba(255,255,255,.18);pointer-events:none;z-index:3
+    }
+    #game .ejs_dpad_horizontal:before{border-right-color:#79eaff}
+    #game .ejs_dpad_horizontal:after{border-left-color:#79eaff}
+    #game .ejs_dpad_vertical:before{border-bottom-color:#79eaff}
+    #game .ejs_dpad_vertical:after{border-top-color:#79eaff}
+    #game .ejs_dpad_left_pressed .ejs_dpad_horizontal:before,
+    #game .ejs_dpad_right_pressed .ejs_dpad_horizontal:after,
+    #game .ejs_dpad_up_pressed .ejs_dpad_vertical:before,
+    #game .ejs_dpad_down_pressed .ejs_dpad_vertical:after{filter:drop-shadow(0 0 5px #fff)}
+    /* Modo leve: reduz composição GPU em celulares sem alterar o layout dos controles. */
+    @media (hover:none) and (pointer:coarse){
+      #game .ejs_virtualGamepad_button,
+      .mga-ctrl-btn,#btn-save,#btn-fullscreen,#mga-saves-modal{
+        backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none;text-shadow:none;transition:none
+      }
+      #game .ejs_virtualGamepad_button{border-width:1px}
+    }
+    /* Direcional */
+    #game .ejs_virtualGamepad_left{bottom:var(--mga-floor);left:var(--mga-side);width:var(--mga-dpad);height:var(--mga-dpad)}
+    #game .ejs_dpad_main{opacity:.88}
+    /* Quatro botões em diamante (B A Y X), com espaço para o dedo */
+    #game .ejs_virtualGamepad_right{
+      bottom:var(--mga-floor);right:var(--mga-side);
+      width:calc(var(--mga-btn)*3 + var(--mga-gap)*2);
+      height:calc(var(--mga-btn)*2 + var(--mga-gap))
+    }
+    #game .ejs_virtualGamepad_right .ejs_virtualGamepad_button{
+      position:absolute;width:var(--mga-btn)!important;height:var(--mga-btn)!important;
+      line-height:var(--mga-btn)!important;font-size:calc(var(--mga-btn)*.42)!important;
+      right:auto!important;bottom:auto!important
+    }
+    #game .ejs_virtualGamepad_right .b_b{left:0!important;top:calc(50% - var(--mga-btn)/2)!important}
+    #game .ejs_virtualGamepad_right .b_a{left:calc(var(--mga-btn) + var(--mga-gap))!important;top:0!important}
+    #game .ejs_virtualGamepad_right .b_y{left:calc(var(--mga-btn) + var(--mga-gap))!important;top:calc(var(--mga-btn) + var(--mga-gap))!important}
+    #game .ejs_virtualGamepad_right .b_x{left:calc((var(--mga-btn) + var(--mga-gap))*2)!important;top:calc(50% - var(--mga-btn)/2)!important}
+    #game .ejs_virtualGamepad_right .ejs_virtualGamepad_button{
+      border:2px solid var(--mga-action-highlight)!important;
+      background:radial-gradient(circle at 34% 27%,var(--mga-action-glow),var(--mga-action) 50%,var(--mga-action-deep) 100%)!important;
+      color:#fff!important;font-weight:900!important;text-shadow:0 2px 5px rgba(0,0,0,.85),0 0 8px rgba(255,255,255,.38)!important;
+      box-shadow:0 4px 0 var(--mga-action-deep),0 8px 16px rgba(0,0,0,.42),inset 0 2px 4px rgba(255,255,255,.55)!important;
+      transition:transform .12s ease,filter .12s ease!important
+    }
+    #game .ejs_virtualGamepad_right .b_a{--mga-action-glow:#ffd0ea;--mga-action:#ff4caa;--mga-action-deep:#8c174f;--mga-action-highlight:#ffe4f4}
+    #game .ejs_virtualGamepad_right .b_b{--mga-action-glow:#ccfaff;--mga-action:#10cfff;--mga-action-deep:#075d94;--mga-action-highlight:#d8fbff}
+    #game .ejs_virtualGamepad_right .b_x{--mga-action-glow:#fff1bd;--mga-action:#ffbf39;--mga-action-deep:#93500c;--mga-action-highlight:#fff0c9}
+    #game .ejs_virtualGamepad_right .b_y{--mga-action-glow:#d5ffd4;--mga-action:#52dd78;--mga-action-deep:#216b35;--mga-action-highlight:#e2ffe1}
+    #game .ejs_virtualGamepad_right .ejs_virtualGamepad_button_down{
+      transform:translateY(3px) scale(.95)!important;filter:brightness(1.14)!important;
+      box-shadow:0 1px 0 var(--mga-action-deep),0 3px 8px rgba(0,0,0,.4),inset 0 3px 8px rgba(255,255,255,.52)!important
+    }
+    /* CRÉDITO e START ficam numa faixa acima do direcional, sem disputar
+       espaço com ele em telas estreitas. */
+    #game .ejs_virtualGamepad_bottom{
+      left:50%!important;right:auto!important;margin-left:0!important;transform:translateX(-50%);
+      width:auto!important;height:auto!important;display:flex;gap:clamp(8px,3vw,16px);
+      bottom:calc(var(--mga-floor) + var(--mga-dpad) + 12px)
+    }
+    #game .ejs_virtualGamepad_bottom .ejs_virtualGamepad_button{
+      position:relative!important;left:auto!important;top:auto!important;
+      min-width:clamp(88px,26vw,124px);height:48px!important;line-height:48px!important;
+      font-size:12px!important;letter-spacing:1px;padding:0 14px;border-radius:24px;box-sizing:border-box
+    }
+    /* O botão de menu do EmulatorJS é filho direto de #game e herdava
+       width/height 100% da regra acima, cobrindo a tela inteira com
+       z-index 999 e engolindo todos os toques (direção e crédito).
+       Ele não é usado pelo launcher: fica desativado. */
+    #game>.ejs_virtualGamepad_open{display:none!important;pointer-events:none!important;width:24px!important;height:24px!important;top:5px!important;left:auto!important;right:5px!important}
+    @media (hover:none) and (pointer:coarse){
+      #game .ejs_virtualGamepad_parent{display:block!important}
+    }
+    /* Retrato no celular: o jogo ocupa a área de cima (o máximo possível) e os
+       controles ganham uma faixa própria embaixo, sem cobrir a imagem.
+       As medidas ficam em variáveis para o canvas e os botões usarem o mesmo
+       cálculo e nunca se sobreporem. */
+    @media (hover:none) and (pointer:coarse) and (orientation:portrait){
+      body{
+        --mga-p-dpad:clamp(112px,34vw,184px);
+        --mga-p-floor:max(14px,env(safe-area-inset-bottom));
+        --mga-p-top:calc(max(8px,env(safe-area-inset-top)) + 44px);
+        --mga-p-band:calc(var(--mga-p-dpad) + var(--mga-p-floor) + 66px);
+        --mga-p-game:calc(100dvh - var(--mga-p-top) - var(--mga-p-band));
+        --mga-p-scale:1;
+      }
+      body.mga-embedded{
+        --mga-p-top:calc(max(8px,env(safe-area-inset-top)) + var(--mga-header-h) + 44px);
+      }
+      #game .ejs_virtualGamepad_parent{
+        position:fixed!important;left:0!important;right:0!important;bottom:0!important;
+        top:auto!important;height:var(--mga-p-band);
+        background:linear-gradient(rgba(3,0,8,0),rgba(3,0,8,.72) 28%,rgba(3,0,8,.94))
+      }
+      /* Move o contêiner inteiro do jogo. Antes apenas o canvas recebia top,
+         mas o wrapper do EmulatorJS continuava preso no topo da viewport. */
+      #game{
+        position:absolute!important;top:var(--mga-p-top)!important;left:0!important;
+        width:100dvw!important;height:var(--mga-p-game)!important;
+      }
+      /* CRÉDITO/START numa linha própria, acima do direcional e dos botões */
+      #game .ejs_virtualGamepad_bottom{
+        bottom:calc(var(--mga-p-floor) + var(--mga-p-dpad) + 10px)!important
+      }
+      #game .ejs_virtualGamepad_bottom .ejs_virtualGamepad_button{
+        min-width:clamp(96px,30vw,140px);height:46px!important;line-height:46px!important
+      }
+      #game .ejs_canvas_parent{
+        top:0!important;bottom:auto!important;left:0!important;right:0!important;
+        width:min(calc(100dvw - 24px),calc(var(--mga-p-game) * 1.333333))!important;
+        height:var(--mga-p-game)!important;
+        max-width:100dvw!important;max-height:none!important;
+        margin-left:auto!important;margin-right:auto!important;
+        transform:none!important
+      }
+      body.video-stretch #game .ejs_canvas_parent,
+      #game .ejs_canvas_parent{
+        /* Margens automáticas centralizam mesmo quando o EmulatorJS recalcula
+           a posição do canvas durante o carregamento. */
+        left:0!important;right:0!important;
+        margin-left:auto!important;margin-right:auto!important;
+        transform:none!important
+      }
+      body.video-stretch #game canvas,body.video-stretch #game video,
+      #game canvas,#game video{
+        top:0!important;bottom:auto!important;left:0!important;
+        width:100%!important;height:100%!important;
+        max-width:100%!important;max-height:none!important;
+        /* Mantém o canvas dentro da área arcade já centralizada. */
+        object-fit:contain!important;transform:none!important;transform-origin:center top
+      }
+    }
+    /* Paisagem no celular: o jogo ocupa 100% da altura da tela (100dvh)
+       para maximizar o tamanho da tela do jogo em celulares horizontais.
+       Os controles e botões de CRÉDITO/START flutuam nas laterais e na base. */
+    @media (hover:none) and (pointer:coarse) and (orientation:landscape){
+      body{
+        --mga-l-strip:calc(38px + max(8px, env(safe-area-inset-bottom)));
+        --mga-l-game:calc(100dvh - var(--mga-l-strip));
+        /* Reserva espaço real para o direcional e os botões, deixando a
+           imagem do jogo no centro em vez de colocar os controles por cima. */
+        --mga-l-side:calc(max(clamp(112px,34vw,184px),calc(clamp(48px,13.5vw,74px)*3 + clamp(6px,2.2vw,14px)*2)) + 24px);
+      }
+      body.mga-game-started{
+        --mga-l-strip:0px;
+        --mga-l-game:100dvh;
+        --mga-l-side:0px;
+      }
+      #game{
+        position:fixed!important;inset:0!important;
+        width:100dvw!important;height:100dvh!important;
+        overflow:visible!important;transform:none!important
+      }
+      #game .ejs_virtualGamepad_parent{
+        position:absolute!important;inset:0!important;
+        width:100%!important;height:100%!important;
+        z-index:99999!important;background:none;pointer-events:none!important
+      }
+      #game .ejs_virtualGamepad_parent>div,
+      #game .ejs_virtualGamepad_left,
+      #game .ejs_virtualGamepad_right,
+      #game .ejs_virtualGamepad_bottom,
+      #game .ejs_virtualGamepad_button,
+      #game .ejs_dpad_main,
+      #game .ejs_dpad_main *{
+        pointer-events:auto!important;
+        touch-action:none!important
+      }
+      #game .ejs_canvas_parent{
+        position:absolute!important;top:0!important;bottom:var(--mga-l-strip)!important;
+        left:0!important;right:0!important;margin-left:auto!important;margin-right:auto!important;
+        width:min(calc(100dvw - var(--mga-l-side)*2),calc(var(--mga-l-game) * 1.333333))!important;
+        height:var(--mga-l-game)!important;
+        max-width:100dvw!important;max-height:var(--mga-l-game)!important;
+        object-fit:fill!important;z-index:1;transform:none!important
+      }
+      #game canvas,#game video{
+        position:absolute!important;top:0!important;bottom:auto!important;
+        left:0!important;right:auto!important;margin:0!important;
+        width:100%!important;height:100%!important;
+        max-width:100%!important;max-height:100%!important;
+        object-fit:fill!important;z-index:1;transform:none!important
+      }
+      /* A regra stretch global preenche a viewport inteira; no celular ela
+         também precisa respeitar as duas faixas laterais reservadas. */
+      body.video-stretch #game .ejs_canvas_parent{
+        top:0!important;left:0!important;right:0!important;bottom:var(--mga-l-strip)!important;
+        width:min(calc(100dvw - var(--mga-l-side)*2),calc(var(--mga-l-game) * 1.333333))!important;
+        height:var(--mga-l-game)!important;max-width:100dvw!important;max-height:var(--mga-l-game)!important;
+        margin-left:auto!important;margin-right:auto!important;
+        transform:none!important;object-fit:fill!important;z-index:1
+      }
+      body.video-stretch #game canvas,body.video-stretch #game video{
+        top:0!important;left:0!important;right:auto!important;bottom:auto!important;
+        width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;
+        transform:none!important;object-fit:fill!important;z-index:1
+      }
+      /* CRÉDITO/START centralizados na base com fundo semitransparente */
+      #game .ejs_virtualGamepad_bottom{
+        bottom:max(6px,env(safe-area-inset-bottom))!important;gap:12px;
+        left:0!important;right:0!important;transform:none!important;justify-content:center;
+        pointer-events:none!important;z-index:99999!important
+      }
+      body.mga-game-started #game .b_start.mga-control-used{display:none!important}
+      body.mga-game-started.mga-manually-hide-credit-start #game .b_credit,
+      body.mga-game-started.mga-manually-hide-credit-start #game .b_start{display:none!important}
+      body.mga-game-started.mga-manually-show-credit-start #game .b_credit,
+      body.mga-game-started.mga-manually-show-credit-start #game .b_start{
+        display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important
+      }
+      #game .ejs_virtualGamepad_bottom .ejs_virtualGamepad_button{
+        pointer-events:auto!important;touch-action:none!important;
+        min-width:88px;height:36px!important;line-height:36px!important;font-size:11px!important;
+        background:rgba(4,10,20,.65)!important;backdrop-filter:blur(4px)
+      }
+      /* Direcional no canto esquerdo; botões no canto direito */
+      #game .ejs_virtualGamepad_left{
+        position:absolute!important;top:auto!important;right:auto!important;
+        left:max(10px,env(safe-area-inset-left))!important;
+        bottom:max(8px,env(safe-area-inset-bottom))!important;
+        width:var(--mga-dpad)!important;height:var(--mga-dpad)!important;
+        z-index:99999!important
+      }
+      #game .ejs_virtualGamepad_right{
+        position:absolute!important;top:auto!important;left:auto!important;
+        right:max(10px,env(safe-area-inset-right))!important;
+        bottom:max(8px,env(safe-area-inset-bottom))!important;
+        width:calc(var(--mga-btn)*3 + var(--mga-gap)*2)!important;
+        height:calc(var(--mga-btn)*2 + var(--mga-gap))!important;
+        overflow:visible!important;
+        z-index:99999!important
+      }
+      #game .ejs_virtualGamepad_bottom{
+        position:absolute!important;top:auto!important;
+        width:100%!important;height:36px!important;
+      }
+    }
+      @media (orientation:landscape) and (max-height:600px){
+      #game .ejs_virtualGamepad_parent{
+        /* Direcional e botões maiores na horizontal: ocupam as faixas
+           laterais livres, sem cobrir a tela do jogo centralizada. */
+        --mga-dpad:clamp(128px,34vh,180px);
+        --mga-btn:clamp(54px,14.5vh,76px);
+        --mga-gap:clamp(6px,1.6vh,12px);
+        --mga-side:max(10px,env(safe-area-inset-left));
+        --mga-floor:max(8px,env(safe-area-inset-bottom))
+      }
+      body{--mga-l-side:calc(max(128px,calc(54px*3 + 6px*2)) + 24px)}
+      #difficulty-setup{padding:10px max(12px,env(safe-area-inset-left)) 10px}
+      #difficulty-setup .difficulty-card{width:min(620px,100%);max-height:calc(100vh - 20px);overflow:auto;padding:8px 12px}
+      #difficulty-setup .difficulty-card>div:first-child{margin-bottom:6px!important;font-size:10px!important}
+      #difficulty-setup .difficulty-card>div:last-child{margin-top:4px!important;font-size:8px!important}
+      #difficulty-setup h1{font-size:16px;margin-bottom:5px}
+      #difficulty-setup p{margin-bottom:9px;font-size:10px;line-height:1.25}
+      #difficulty-setup .difficulty-actions{gap:8px}
+      #difficulty-setup button{min-width:145px;padding:6px 12px;font-size:11px}
+      #difficulty-setup .config-section{margin-top:6px;padding-top:6px}
+      #difficulty-setup .config-grid{gap:5px;font-size:10px}
+      #difficulty-setup label{padding:5px}
+      #difficulty-setup select{padding:5px;font-size:10px}
+      #difficulty-setup .controls-note{font-size:9px;line-height:1.25}
+    }
+    @media (orientation:portrait) and (max-width:600px){
+      #difficulty-setup{padding:16px max(12px,env(safe-area-inset-left)) max(16px,env(safe-area-inset-bottom))}
+      #difficulty-setup .difficulty-card{max-height:calc(100vh - 32px);overflow:auto;padding:18px 16px}
+      #difficulty-setup .difficulty-actions{gap:8px}
+      #difficulty-setup button{min-width:0;flex:1;padding:12px 8px}
+    }
+    #loading-art{position:fixed;inset:0;z-index:99990;background:#030006 url('/assets/game-loading-art.png') center/cover no-repeat;transition:opacity .35s ease;}
+    #loading-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.62));}
+    #loading-art.hidden{opacity:0;pointer-events:none;}
+    #mga-rotate-warning{position:fixed;inset:0;z-index:100020;display:none;place-items:center;background:rgba(3,0,8,.96);color:#00e5ff;text-align:center;padding:24px;box-sizing:border-box;font:bold 16px monospace;line-height:1.6;text-shadow:0 0 10px #00e5ff}
+    #mga-rotate-warning.show{display:grid!important}
+    @media (orientation:portrait), (max-aspect-ratio:3/4){
+      #loading-art{background-image:url('/assets/fighters-loading-portrait.png');}
+      #difficulty-setup{background-image:linear-gradient(rgba(3,0,6,.68),rgba(3,0,6,.82)),url('/assets/fighters-loading-portrait.png');}
+    }
+    @media (min-aspect-ratio:7/5) and (orientation:landscape){
+      #loading-art{background-image:url('/assets/game-loading-art.png');}
+      #difficulty-setup{background-image:linear-gradient(rgba(3,0,6,.68),rgba(3,0,6,.82)),url('/assets/game-loading-art.png');}
+    }
+    /* O wrapper externo já fornece o único botão FECHAR. Os controles internos
+       ficam abaixo do cabeçalho externo para nunca ocuparem o mesmo espaço. */
+    #player-controls{position:fixed;top:4px;right:60px;z-index:100003;display:flex;flex-flow:row nowrap;align-items:center;gap:8px;width:max-content;max-width:calc(100vw - 72px);overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none}
+    #player-controls::-webkit-scrollbar{display:none}
+    #player-controls>button{flex:0 0 auto}
+    #btn-close{display:none!important}
+    #mga-mobile-quick-save{position:fixed;top:max(8px,env(safe-area-inset-top));left:max(8px,env(safe-area-inset-left));z-index:100004;display:none;min-height:44px;padding:0 13px;align-items:center;justify-content:center;gap:6px;background:rgba(8,0,18,.92);border:1px solid #39ff88;color:#8dffb8;box-shadow:0 0 12px rgba(57,255,136,.32);border-radius:8px;font:bold 12px monospace;letter-spacing:.04em;cursor:pointer;backdrop-filter:blur(5px);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    #mga-mobile-quick-save:active{transform:scale(.96);background:rgba(57,255,136,.2)}
+    #mga-mobile-quick-save:disabled{opacity:.62;cursor:wait}
+    #btn-fullscreen{width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);border:1px solid #00e5ff66;color:#00e5ff;font-size:20px;cursor:pointer;backdrop-filter:blur(4px);transition:opacity .2s;border-radius:4px;touch-action:manipulation;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+    #btn-close:hover,#btn-fullscreen:hover{background:rgba(0,0,0,.8);border-color:#00e5ff}
+    #player-controls.hidden{opacity:0;pointer-events:none}
+    #mga-credit-start-toggle{
+      position:fixed;top:max(8px,env(safe-area-inset-top));right:max(8px,env(safe-area-inset-right));z-index:100004;
+      height:34px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;
+      border:1px solid #00e5ff;background:rgba(4,10,20,.9);color:#87f4ff;border-radius:6px;
+      box-shadow:0 0 12px rgba(0,229,255,.28);font:700 10px monospace;letter-spacing:.04em;
+      cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent
+    }
+    #mga-credit-start-toggle[hidden]{display:none!important}
+    #mga-credit-start-toggle:active{background:rgba(0,229,255,.28);transform:scale(.96)}
+    body.mga-embedded #mga-credit-start-toggle{
+      top:calc(max(8px,env(safe-area-inset-top)) + var(--mga-header-h) + 4px);
+      right:max(8px,env(safe-area-inset-right))
+    }
+    body.mga-embedded #mga-credit-start-toggle{display:none!important}
+    @media (hover:none) and (pointer:coarse){
+      #loading-art{background-image:url('/assets/fighters-loading-portrait.png');}
+      #btn-close,#btn-fullscreen{width:36px;height:36px;padding:0;font-size:19px}
+      /* No celular o launcher já entra em tela cheia automaticamente; os
+         controles de desktop não devem ocupar espaço sobre o arcade. */
+      #btn-fullscreen,#btn-haptic,#mga-open-inputs{display:none!important}
+      #player-controls{top:max(8px,env(safe-area-inset-top));right:calc(max(8px,env(safe-area-inset-right)) + 50px);gap:6px;max-width:calc(100vw - 68px)}
+      #mga-mobile-quick-save.show{display:flex}
+      #difficulty-setup label:has([data-setting="scanlines"]),
+      #difficulty-setup label:has([data-setting="vignette"]){display:none!important}
+    }
+    @media (hover:none) and (pointer:coarse) and (orientation:landscape){
+      /* A arte é vertical; no celular deitado, mostre a composição inteira
+         em vez de ampliar e cortar as personagens nas laterais. */
+      #loading-art{background-size:contain;background-color:#030006;}
+    }
+
+    /* Dentro do launcher (iframe) o cabeçalho externo já tem Saves (1-15) e
+       Fechar e fica por cima do canto superior direito. Então o botão Saves
+       interno some (o externo abre o mesmo painel via postMessage) e os demais
+       botões descem para logo abaixo do cabeçalho. Ajuste --mga-header-h (ou
+       use ?headerH=NN na URL) se o cabeçalho tiver outra altura. */
+    body.mga-embedded #btn-save{display:none!important}
+    body.mga-embedded #player-controls{
+      top:calc(max(8px,env(safe-area-inset-top)) + var(--mga-header-h));
+      right:max(10px,env(safe-area-inset-right))
+    }
+    @media (hover:none) and (pointer:coarse){
+      body.mga-embedded #mga-mobile-quick-save.show{
+        top:calc(max(8px,env(safe-area-inset-top)) + var(--mga-header-h) + 6px)
+      }
+    }
+
+    /* No launcher, mantenha os controles internos abaixo do cabeçalho externo
+       para que nenhum botão superior fique sobre outro. */
+    @media (hover:none) and (pointer:coarse) and (orientation:landscape){
+      body.mga-embedded #player-controls{
+        top:calc(max(8px,env(safe-area-inset-top)) + var(--mga-header-h) + 4px);
+        left:max(8px,env(safe-area-inset-left));
+        right:max(8px,env(safe-area-inset-right));
+        max-width:none;justify-content:flex-end;gap:4px
+      }
+    }
+
+    :root{--mga-pad-opacity:0.75;--mga-header-h:52px;}
+    html,body,#game{overscroll-behavior:none!important;-webkit-overscroll-behavior:none!important;-webkit-touch-callout:none}
+    #game .ejs_virtualGamepad_parent{opacity:var(--mga-pad-opacity,0.75)!important;transition:opacity .2s ease}
+
+    .mga-ctrl-btn{height:36px;padding:0 9px;display:flex;align-items:center;justify-content:center;gap:4px;background:rgba(8,0,18,.8);border:1px solid #00e5ffaa;box-shadow:0 0 8px rgba(0,229,255,.3);color:#00e5ff;font:bold 11px monospace;cursor:pointer;backdrop-filter:blur(4px);transition:opacity .2s,background .2s;border-radius:4px;touch-action:manipulation;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+    .mga-ctrl-btn:hover{background:rgba(0,229,255,.25);border-color:#00e5ff}
+    @media (hover:none) and (pointer:coarse){
+      .mga-ctrl-btn{height:36px;padding:0 7px;font-size:11px}
+    }
+
+    #btn-save{height:36px;padding:0 10px;display:flex;align-items:center;justify-content:center;gap:4px;background:rgba(8,0,18,.8);border:1px solid #00e5ffaa;box-shadow:0 0 8px rgba(0,229,255,.3);color:#00e5ff;font:bold 11px monospace;cursor:pointer;backdrop-filter:blur(4px);transition:opacity .2s,background .2s;border-radius:4px;touch-action:manipulation;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+    #btn-save:hover{background:rgba(0,229,255,.25);border-color:#00e5ff}
+    @media (hover:none) and (pointer:coarse){
+      #btn-save{height:36px;padding:0 8px;font-size:11px}
+    }
+    #mga-saves-modal{position:fixed;inset:0;z-index:100005;background:rgba(2,0,6,.88);backdrop-filter:blur(8px);display:none;place-items:center;padding:max(8px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));box-sizing:border-box;font-family:monospace;color:#fff}
+    #mga-saves-modal.open{display:grid!important}
+    .mga-modal-dialog{width:min(660px,100%);max-height:min(90dvh,540px);background:#070012;border:2px solid #00e5ff;box-shadow:0 0 24px rgba(0,229,255,.35);border-radius:8px;display:flex;flex-direction:column;overflow:hidden}
+    .mga-modal-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#100022;border-bottom:1px solid #00e5ff44}
+    .mga-modal-title{color:#00e5ff;font-size:13px;font-weight:bold;letter-spacing:1px;text-shadow:0 0 8px #00e5ff88}
+    .mga-modal-close{background:transparent;border:1px solid #ff2b6d;color:#ff6f9e;width:30px;height:30px;display:grid;place-items:center;font-size:18px;cursor:pointer;border-radius:4px;line-height:1}
+    .mga-modal-actions{display:flex;gap:8px;padding:8px 14px;background:rgba(0,229,255,.05);border-bottom:1px solid #ffffff15;flex-wrap:wrap;align-items:center}
+    .mga-btn-action{background:#120224;border:1px solid #00e5ff88;color:#00e5ff;padding:6px 12px;font:bold 11px monospace;cursor:pointer;border-radius:4px;display:inline-flex;align-items:center;gap:6px;min-height:30px}
+    .mga-btn-action:hover{background:#00e5ff22}
+    .mga-btn-return{border-color:#39ff88;color:#39ff88}
+    .mga-btn-return:hover{background:#39ff8822}
+    .mga-slots-grid{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
+    .mga-slot-card{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(0,229,255,.2);border-radius:6px;gap:8px}
+    .mga-slot-card.has-data{border-color:rgba(57,255,136,.4);background:rgba(57,255,136,.04)}
+    .mga-slot-left{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+    .mga-slot-badge{font-size:11px;font-weight:bold;color:#00e5ff}
+    .mga-slot-card.has-data .mga-slot-badge{color:#39ff88}
+    .mga-slot-time{font-size:10px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mga-slot-btns{display:flex;gap:6px;align-items:center;flex-shrink:0}
+    .mga-btn-save{background:#062238;border:1px solid #00e5ff;color:#00e5ff;padding:5px 9px;font:bold 11px monospace;cursor:pointer;border-radius:4px;min-height:32px}
+    .mga-btn-load{background:#06381b;border:1px solid #39ff88;color:#39ff88;padding:5px 9px;font:bold 11px monospace;cursor:pointer;border-radius:4px;min-height:32px}
+    .mga-btn-load:disabled{opacity:.3;border-color:#555;color:#777;cursor:not-allowed}
+    .mga-btn-del{background:#380611;border:1px solid #ff2b6d;color:#ff6f9e;padding:5px 8px;font:bold 11px monospace;cursor:pointer;border-radius:4px;min-height:32px}
+    .mga-btn-del:disabled{opacity:.2;border-color:#555;color:#777;cursor:not-allowed}
+    #mga-toast{position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:100010;background:rgba(8,0,18,.96);border:1px solid #00e5ff;box-shadow:0 0 16px rgba(0,229,255,.5);color:#00e5ff;padding:8px 16px;border-radius:20px;font:bold 12px monospace;pointer-events:none;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap}
+    #mga-toast.show{opacity:1;transform:translateX(-50%) translateY(4px)}
+    #mga-input-modal{position:fixed;inset:0;z-index:100006;display:none;place-items:center;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));box-sizing:border-box;background:rgba(1,0,8,.88);font-family:monospace;color:#eafcff}
+    #mga-input-modal.open{display:grid!important}
+    .mga-input-dialog{width:min(680px,100%);max-height:min(92dvh,680px);display:flex;flex-direction:column;overflow:hidden;background:#070012;border:1px solid #00e5ff88;border-radius:12px;box-shadow:0 0 28px #00e5ff33}
+    .mga-input-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;background:#100022;border-bottom:1px solid #00e5ff33}
+    .mga-input-title{margin:0;color:#00e5ff;font-size:14px;letter-spacing:.05em}
+    .mga-input-content{overflow:auto;padding:14px 16px;display:grid;gap:13px;-webkit-overflow-scrolling:touch}
+    .mga-input-note{margin:0;color:#b9bac6;font-size:11px;line-height:1.5}
+    .mga-input-device{padding:10px 12px;border:1px solid #ffffff20;border-radius:8px;background:#ffffff08;font-size:11px;line-height:1.5;white-space:pre-line}
+    .mga-input-device strong{color:#39ff88}
+    .mga-input-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+    .mga-input-select{min-height:40px;flex:1;min-width:210px;padding:8px 10px;background:#10051b;border:1px solid #00e5ff88;border-radius:6px;color:#fff;font:12px monospace}
+    .mga-input-action{min-height:40px;padding:8px 12px;background:#10051b;border:1px solid #00e5ff88;border-radius:6px;color:#8af5ff;font:bold 11px monospace;cursor:pointer;touch-action:manipulation}
+    .mga-input-action:focus-visible,.mga-modal-close:focus-visible,.mga-input-select:focus-visible{outline:2px solid #fff;outline-offset:2px}
+    .mga-input-players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .mga-input-player{padding:11px;border:1px solid #00e5ff33;border-radius:8px;background:#00e5ff08}
+    .mga-input-player b{display:block;margin-bottom:5px;color:#00e5ff;font-size:11px}
+    .mga-input-player span{color:#d6d7e1;font-size:10px;line-height:1.5}
+    @media(max-width:520px){.mga-input-players{grid-template-columns:1fr}.mga-input-dialog{max-height:94dvh}.mga-input-content{padding:12px}}
+
+   </style>
+</head>
+<body translate="no" class="notranslate">
+  <div id="game"></div>
+  <div id="loading-art" aria-label="Imagem de carregamento"></div>
+  <div id="mga-rotate-warning" role="status">GIRE O CELULAR<br><small style="color:#fff;font-size:12px">Este jogo funciona na horizontal.</small></div>
+  <div id="status">CARREGANDO...</div>
+  <pre id="debug"></pre>
+  <button id="manual-start" type="button">▶ CLIQUE PARA INICIAR</button>
+  
+  <div id="player-controls">
+    <button id="btn-pause" class="mga-ctrl-btn" type="button" title="Pausar / Retomar Jogo" aria-label="Pausa">⏸</button>
+    <button id="btn-haptic" class="mga-ctrl-btn" type="button" title="Vibração Tátil nos Botões (Haptic)" aria-label="Vibração">📳</button>
+    <button id="btn-opacity" class="mga-ctrl-btn" type="button" title="Ajustar Opacidade dos Controles Virtuais" aria-label="Opacidade">👁 75%</button>
+    <button id="mga-open-inputs" class="mga-ctrl-btn" type="button" title="Teclado e controles P1/P2" aria-label="Teclado e controles P1/P2">🎮</button>
+    <button id="btn-fullscreen" type="button" title="Tela cheia" aria-label="Tela cheia">⛶</button>
+    <button id="btn-close" type="button" title="Fechar" aria-label="Fechar">✕</button>
+  </div>
+  <button id="mga-credit-start-toggle" type="button" aria-label="Mostrar Crédito e Start" aria-pressed="false" hidden>MOSTRAR C/S</button>
+
+
+  <div id="mga-input-modal" role="dialog" aria-modal="true" aria-labelledby="mga-input-modal-title">
+    <section class="mga-input-dialog">
+      <header class="mga-input-header"><h2 id="mga-input-modal-title" class="mga-input-title">CONTROLES · JOGADORES 1 E 2</h2><button id="mga-input-close" class="mga-modal-close" type="button" aria-label="Fechar configurações de controles">✕</button></header>
+      <div class="mga-input-content">
+        <p class="mga-input-note">Controles USB, Bluetooth, XInput, DirectInput, DualShock e genéricos usam a Gamepad API do navegador. O primeiro controle conectado é atribuído ao Jogador 1; o segundo ao Jogador 2. Controles especiais podem ser remapeados abaixo.</p>
+        <div id="mga-input-gamepads" class="mga-input-device" role="status" aria-live="polite">Verificando controles conectados…</div>
+        <div class="mga-input-controls">
+          <label for="mga-keyboard-profile" class="mga-input-note">Layout do teclado</label>
+          <select id="mga-keyboard-profile" class="mga-input-select">
+            <option value="arcade">Arcade · P1 setas + Z/X/A/S · P2 T/F/G/H + J/K/U/I</option>
+            <option value="alternate">Alternativo · P1 WASD + J/K/U/I · P2 setas + teclado numérico</option>
+          </select>
+        </div>
+        <div class="mga-input-controls"><button id="mga-keyboard-mode" class="mga-input-action" type="button" aria-pressed="true">⌨ Modo teclado: ligado</button><button id="mga-refresh-gamepads" class="mga-input-action" type="button">↻ Atualizar controles</button></div>
+        <div class="mga-input-players">
+          <div class="mga-input-player"><b>PLAYER 1 · PADRÃO</b><span id="mga-player1-keys">Setas · Z/X/A/S · C crédito · Enter start</span></div>
+          <div class="mga-input-player"><b>PLAYER 2 · PADRÃO</b><span id="mga-player2-keys">T/F/G/H · J/K/U/I · V crédito · B start</span></div>
+        </div>
+        <p class="mga-input-note">Os atalhos usam a posição física das teclas (KeyboardEvent.code), não as letras impressas; funcionam em QWERTY, AZERTY, QWERTZ e ABNT2. Para trocar qualquer botão individualmente, use o remapeador por jogador.</p>
+        <button id="mga-open-remap" class="mga-input-action" type="button">🎮 Remapear botões individuais · P1/P2</button>
+        <p class="mga-input-note">No remapeador, escolha P1 ou P2, toque em “Set” no botão desejado e pressione uma tecla ou botão do controle. O remapeamento individual salvo prevalece sobre o perfil universal.</p>
+      </div>
+    </section>
+  </div>
+  <div id="mga-toast"></div>
+
+<script>
+(async()=>{
+  let cloudAccessToken='';
+  window.addEventListener('message',e=>{
+    if(e.source!==window.parent||e.origin!==location.origin)return;
+    if(e.data?.type!=='mga-set-cloud-access-token')return;
+    const token=e.data.accessToken;
+    cloudAccessToken=typeof token==='string'&&token.length<=8192?token:'';
+  });
+  window.parent.postMessage({type:'mga-request-cloud-access-token'},location.origin);
+  try {
+    if (screen.orientation?.lock) {
+      screen.orientation.lock("landscape").catch(()=>{});
+    }
+  } catch {}
+  const q=new URLSearchParams(location.search);
+  const rom=q.get('rom');
+  const biosUrl=q.get('bios')||'';
+  const biosName=q.get('biosName')||'';
+  const name=q.get('name')||'Master Games Arcade';
+  const status=document.getElementById('status');
+  const loadingArt=document.getElementById('loading-art');
+  const loadingStartedAt=Date.now();
+  let loadingArtHidden=false;
+  const debug=document.getElementById('debug');
+  const manual=document.getElementById('manual-start');
+  const rotateWarning=document.getElementById('mga-rotate-warning');
+  const logs=[];
+  let difficulty;
+
+  // O salvamento e a retomada são automáticos; não há mais painel de saves.
+  const earlyInputModal=document.getElementById('mga-input-modal');
+  const earlyProfileSelect=document.getElementById('mga-keyboard-profile');
+  const earlyKeyboardButton=document.getElementById('mga-keyboard-mode');
+  const earlyGamepadStatus=document.getElementById('mga-input-gamepads');
+  let earlyInputGamepadTimer=null;
+  let keyboardEnabled=localStorage.getItem('mga_keyboard_enabled')!=='0';
+  if(earlyProfileSelect){
+    earlyProfileSelect.value=localStorage.getItem('mga_keyboard_profile')==='alternate'?'alternate':'arcade';
+    earlyProfileSelect.addEventListener('change',()=>{
+      const alternate=earlyProfileSelect.value==='alternate';
+      try{localStorage.setItem('mga_keyboard_profile',alternate?'alternate':'arcade')}catch{}
+      const p1=document.getElementById('mga-player1-keys');
+      const p2=document.getElementById('mga-player2-keys');
+      if(p1)p1.textContent=alternate?'W/A/S/D · J/K/U/I · H crédito · G start':'Setas · Z/X/A/S · C crédito · Enter start';
+      if(p2)p2.textContent=alternate?'Setas · numpad 1/3/7/9 · 0 crédito · Enter start':'T/F/G/H · J/K/U/I · V crédito · B start';
+      window.MGA_onKeyboardProfileChange?.(alternate?'alternate':'arcade');
+    });
+  }
+  const earlyUpdateKeyboardButton=()=>{
+    if(!earlyKeyboardButton)return;
+    earlyKeyboardButton.setAttribute('aria-pressed',String(keyboardEnabled));
+    earlyKeyboardButton.textContent=keyboardEnabled?'⌨ Modo teclado: ligado':'⌨ Modo teclado: desligado';
+  };
+  earlyUpdateKeyboardButton();
+  earlyKeyboardButton?.addEventListener('click',()=>{
+    keyboardEnabled=!keyboardEnabled;
+    try{localStorage.setItem('mga_keyboard_enabled',keyboardEnabled?'1':'0')}catch{}
+    earlyUpdateKeyboardButton();
+    window.MGA_onKeyboardModeChange?.(keyboardEnabled);
+  });
+  const earlyListGamepads=()=>{
+    let pads=[];
+    try{pads=[...navigator.getGamepads()].filter(pad=>pad?.connected).sort((a,b)=>a.index-b.index)}catch{}
+    if(earlyGamepadStatus)earlyGamepadStatus.textContent=pads.length?pads.map((pad,index)=>`Controle ${index+1} · ${pad.id||'Controle'} — conectado (índice ${pad.index})`).join('\n'):'Nenhum controle conectado. Conecte USB/Bluetooth e toque em “Atualizar controles”.';
+    return pads;
+  };
+  const earlyOpenInputSettings=()=>{
+    earlyInputModal?.classList.add('open');
+    earlyListGamepads();
+    if(earlyInputGamepadTimer)clearInterval(earlyInputGamepadTimer);
+    earlyInputGamepadTimer=setInterval(earlyListGamepads,1200);
+    document.getElementById('mga-input-close')?.focus();
+  };
+  const earlyCloseInputSettings=()=>{
+    earlyInputModal?.classList.remove('open');
+    if(earlyInputGamepadTimer){clearInterval(earlyInputGamepadTimer);earlyInputGamepadTimer=null;}
+  };
+  window.MGA_openInputSettings=earlyOpenInputSettings;
+  window.MGA_closeInputSettings=earlyCloseInputSettings;
+  document.getElementById('mga-open-inputs')?.addEventListener('click',earlyOpenInputSettings);
+  document.getElementById('mga-input-close')?.addEventListener('click',earlyCloseInputSettings);
+  earlyInputModal?.addEventListener('click',event=>{if(event.target===earlyInputModal)earlyCloseInputSettings()});
+  document.getElementById('mga-refresh-gamepads')?.addEventListener('click',earlyListGamepads);
+  addEventListener('gamepadconnected',earlyListGamepads);
+  addEventListener('gamepaddisconnected',earlyListGamepads);
+  window.MGA_setCreditStartVisibility=visible=>{
+    const show=Boolean(visible);
+    document.body.classList.toggle('mga-manually-hide-credit-start',!show);
+    document.body.classList.toggle('mga-manually-show-credit-start',show);
+    if(show)document.querySelector('#game .b_start')?.classList.remove('mga-control-used');
+    const toggle=document.getElementById('mga-credit-start-toggle');
+    if(toggle){
+      toggle.textContent=show?'OCULTAR C/S':'MOSTRAR C/S';
+      toggle.setAttribute('aria-label',show?'Ocultar Crédito e Start':'Mostrar Crédito e Start');
+      toggle.setAttribute('aria-pressed',String(show));
+    }
+  };
+  window.addEventListener('message',e=>{
+    if(e.source===window.parent&&e.origin===location.origin&&e.data?.type==='mga-set-credit-start-visible'){
+      window.MGA_setCreditStartVisibility(e.data.visible);
+    }
+  });
+
+  // Escapa texto vindo da URL antes de inserir em innerHTML (evita XSS via ?name=).
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  const difficultyStorageKey='mga-difficulty-mode-v1';
+  const gameKey=(name||rom).replace(/\.(zip|7z|chd)$/i,'').toLowerCase();
+  const readDifficulty=()=>{
+    try{
+      const saved=JSON.parse(localStorage.getItem(difficultyStorageKey)||'{}');
+      return saved[gameKey]==='hard'?'hard':'easy';
+    }catch{return 'easy';}
+  };
+  const saveDifficulty=mode=>{
+    try{
+      const saved=JSON.parse(localStorage.getItem(difficultyStorageKey)||'{}');
+      saved[gameKey]=mode==='hard'?'hard':'easy';
+      localStorage.setItem(difficultyStorageKey,JSON.stringify(saved));
+    }catch{}
+  };
+  // A configuração antiga continua sendo lida silenciosamente para preservar
+  // preferências já salvas, sem interromper o início da partida com um painel.
+  let ready=false;
+  let started=false;
+  let attempting=false;
+  let retriesLeft=3;
+  let retryTimer=null;
+  let startWatchdog=null;
+
+  const log=x=>{
+    logs.push(`[${new Date().toLocaleTimeString()}] ${x}`);
+    if(logs.length>80)logs.shift();
+    debug.textContent=logs.join('\n');
+    console.log('[MGA]',x);
+  };
+
+  const VISUAL_KEY='mga-video-profile-v2';
+  // Perfil inicial mais nítido e colorido para sprites pixelados. A imagem
+  // original continua intacta; os ajustes acontecem apenas na saída de vídeo.
+  const visualDefaults={aspect:'stretch',integer:true,scanlines:false,vignette:true,palette:'normal',brightness:1.02,contrast:1.06,saturation:1.08};
+  let visual={...visualDefaults};
+  try{visual={...visual, ...JSON.parse(localStorage.getItem(VISUAL_KEY)||'{}')}}catch{}
+  // Perfis antigos usavam "auto" (contain), que deixava barras laterais.
+  // Migra somente esse modo; preferências explícitas 4:3/stretch continuam.
+  visual.aspect='stretch';
+  // Em telas de toque (celular) scanlines e vinheta ficam sempre desligados.
+  // (Única declaração de isTouchDevice: a duplicada foi removida.)
+  const isTouchDevice=navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches;
+  if(isTouchDevice){visual.scanlines=false;visual.vignette=false;}
+  // Rodando dentro do launcher (iframe)? Então o cabeçalho externo cobre o topo.
+  let embedded=false;
+  try{embedded=window.self!==window.top}catch{embedded=true}
+  document.body.classList.toggle('mga-embedded',embedded);
+  {
+    const headerH=parseInt(q.get('headerH')||'',10);
+    if(embedded&&headerH>0)document.documentElement.style.setProperty('--mga-header-h',headerH+'px');
+  }
+  const applyVisual=()=>{
+    document.body.classList.toggle('video-auto',visual.aspect==='auto');
+    document.body.classList.toggle('video-aspect-43',visual.aspect==='4:3');
+    document.body.classList.toggle('video-stretch',visual.aspect==='stretch');
+    document.body.classList.toggle('video-integer',!!visual.integer);
+    document.body.classList.toggle('video-scanlines',!!visual.scanlines&&!isTouchDevice);
+    document.body.classList.toggle('video-vignette',!!visual.vignette&&!isTouchDevice);
+    document.body.classList.toggle('video-amber',visual.palette==='amber');
+    document.body.classList.toggle('video-cool',visual.palette==='cool');
+    document.body.classList.toggle('video-soft',visual.palette==='soft');
+    document.getElementById('game')?.style.setProperty('--video-brightness',visual.brightness);
+    document.getElementById('game')?.style.setProperty('--video-contrast',visual.contrast);
+    document.getElementById('game')?.style.setProperty('--video-saturation',visual.saturation);
+    try{localStorage.setItem(VISUAL_KEY,JSON.stringify(visual))}catch{}
+  };
+  const visualHelp=()=>log('Vídeo: F1 shader SABR | F2 scanlines | F3 escala inteira | F5 paleta | F6 brilho | F7 contraste | F8 saturação | F10 vinheta');
+  applyVisual();
+  let pixelEnhancement=!isTouchDevice;
+  const applyPixelEnhancement=()=>{
+    const emulator=window.EJS_emulator;
+    if(!emulator?.enableShader)return;
+    try{
+      emulator.enableShader(pixelEnhancement?'sabr':'disabled');
+      log('Shader de pixels: '+(pixelEnhancement?'SABR ligado':'desligado'));
+    }catch(e){
+      pixelEnhancement=false;
+      log('Shader indisponível; mantendo filtro seguro de vídeo: '+(e?.message||e));
+    }
+  };
+  difficulty=readDifficulty();
+
+  const fail=x=>{
+    status.textContent=x;
+    status.style.color='#ff2bd6';
+    debug.style.display='block';
+    manual.style.display='none';
+    log('ERRO: '+x);
+    try{parent.postMessage({type:'mga-emulator-error',message:x},location.origin)}catch{}
+  };
+
+  if(!rom){
+    fail('ROM NÃO INFORMADA');
+    return;
+  }
+
+  const updateRotationNotice=()=>{
+    const portrait=isTouchDevice&&matchMedia('(orientation:portrait)').matches;
+    rotateWarning?.classList.toggle('show',portrait);
+    document.body.classList.toggle('mga-portrait-blocked',portrait);
+  };
+  updateRotationNotice();
+  addEventListener('resize',updateRotationNotice,{passive:true});
+  addEventListener('orientationchange',updateRotationNotice,{passive:true});
+
+  const romUrl=new URL(rom,location.origin).href;
+  log('Jogo: '+name);
+  log('Modo de dificuldade: '+(difficulty==='hard'?'Difícil':'Fácil'));
+  log('ROM URL: '+romUrl);
+  if(biosUrl){
+    log('BIOS: '+(biosName||'dependência')+' — '+new URL(biosUrl,location.origin).href);
+  }
+
+  // EmulatorJS Arcade utiliza o core FBNeo nesta configuração.
+  // A ROM ZIP deve ser compatível com o romset FBNeo.
+  // ATENÇÃO: com EJS_dontExtractBIOS=true o EmulatorJS 4.2.3 usa a string da
+  // URL da BIOS como caminho de gravação no sistema de arquivos do core
+  // (FS.writeFile(url)). Por isso ela precisa ser um caminho relativo simples
+  // na raiz, como "/neogeo.zip" — nada de URL absoluta nem query string.
+  const biosFile=(biosName||biosUrl.split('/').pop()||'').split('?')[0].split('#')[0];
+  window.EJS_biosUrl=biosFile?'/'+biosFile:'';
+  window.EJS_gameParentUrl='';
+  window.EJS_externalFiles={};
+
+  // Mantém o ZIP da BIOS intacto para o core fazer o merge com o romset.
+  window.EJS_dontExtractBIOS=true;
+
+  if(window.EJS_biosUrl){
+    log('BIOS configurado via EJS_biosUrl: '+window.EJS_biosUrl);
+    // Diagnóstico não deve bloquear o início do emulador: alguns CDNs e
+    // navegadores móveis atrasam ou recusam HEAD mesmo aceitando GET.
+    fetch(window.EJS_biosUrl,{method:'HEAD'}).then(head=>{
+      const len=head.headers.get('content-length');
+      log('Checagem HEAD da BIOS: status '+head.status+', tamanho '+(len||'desconhecido')+' bytes');
+      if(!head.ok)log('AVISO: endpoint da BIOS não respondeu OK — o core pode falhar ao montar o arquivo.');
+    }).catch(e=>log('Checagem HEAD da BIOS falhou: '+(e?.message||e)+' (pode ser CORS ou rede)'));
+  }
+
+  // Jogos CPS2 precisam de arquivo .key nos romsets para o FBNeo (core "arcade").
+  // Os romsets hospedados são de época anterior a essa exigência, então os jogos
+  // CPS2 usam o core fbalpha2012_cps2, que tem as chaves de decriptação embutidas.
+  const CPS2_GAMES=new Set([
+    'avsp','avspu','ddsom','ddtod','dstlk','hsf2','megaman2','msh','mshvsf',
+    'mvsc','nwarr','nwarru','sfa','sfa2','sfa2u','sfa3','sfz2al','sfz2ald','sgemf',
+    'spf2t','ssf2','ssf2t','vhunt2','vsav','vsavj','xmcota','xmvsf','xmvsfe',
+    'xmvsfu','xmvsfur1','xmvsfj','armwar','cybots','gigawing','mmatrix','progear'
+  ]);
+  const romBase=name.replace(/\.(zip|7z|chd)$/i,'').toLowerCase();
+  const core=CPS2_GAMES.has(romBase)?'fbalpha2012_cps2':'arcade';
+  const coreLabel=core==='arcade'?'Arcade (FBNeo)':'CPS2 (FBAlpha 2012)';
+
+  status.textContent='INICIANDO '+coreLabel+' — '+name+'...';
+
+  // Perfil touch explícito para o arcade. O perfil padrão do EmulatorJS pode
+  // variar por core e não expõe crédito/Start de forma consistente.
+  window.EJS_VirtualGamepadSettings=[
+    {type:'dpad',id:'dpad',location:'left',left:'50%',top:'50%',joystickInput:false,inputValues:[4,5,6,7]},
+    {type:'button',text:'B',id:'b',location:'right',left:0,top:42,bold:true,input_value:0},
+    {type:'button',text:'A',id:'a',location:'right',left:58,top:0,bold:true,input_value:8},
+    {type:'button',text:'Y',id:'y',location:'right',left:58,top:84,bold:true,input_value:1},
+    {type:'button',text:'X',id:'x',location:'right',left:116,top:42,bold:true,input_value:9},
+    {type:'button',text:'CRÉDITO',id:'credit',location:'center',left:-48,top:0,fontSize:11,block:true,input_value:2},
+    {type:'button',text:'START',id:'start',location:'center',left:38,top:0,fontSize:11,block:true,input_value:3}
+  ];
+  window.EJS_player='#game';
+  window.EJS_core=core;
+  window.EJS_gameName=name.replace(/\.(zip|7z|chd)$/i,'');
+  // Cada ROM precisa de um perfil próprio. Antes, todos os jogos arcade
+  // compartilhavam o perfil "ejs-arcade-settings"; um core salvo ou inválido
+  // podia fazer o próximo título abrir apenas o menu do EmulatorJS.
+  let gameId=0;
+  // O perfil anterior podia ter salvo controles com o jogador 2 bloqueado.
+  // Mudar a assinatura força o EmulatorJS a criar um perfil novo com P1 e P2
+  // disponíveis, sem apagar volume ou outras preferências do usuário.
+  const CONTROL_PROFILE_VERSION='mga-players-credits-p1-p2-enabled-v4';
+  for(const char of `${CONTROL_PROFILE_VERSION}:${romBase}`) gameId=((gameId*31)+char.charCodeAt(0))>>>0;
+  window.EJS_gameID=gameId||1;
+  // Define o core esperado mesmo quando há configurações antigas salvas.
+  window.EJS_defaultOptions={retroarch_core:core==='arcade'?'fbneo':'fbalpha2012_cps2'};
+  // O modo é mantido no perfil do jogo para que uma futura integração DIP
+  // possa aplicar valores específicos sem alterar o romset ou o core.
+  window.MGA_difficulty={mode:difficulty,rom:romBase,automatic:false};
+  window.EJS_gameUrl=romUrl;
+
+  // Versão fixada para evitar alterações automáticas no core.
+  const EJS_PINNED_VERSION='4.2.3';
+  // Self-hosted: EmulatorJS 4.2.3 + cores FBNeo/FBAlpha2012 CPS2 vivem em
+  // /web/emulatorjs-data/ dentro do próprio repo (sem depender do CDN
+  // público). O CDN só é usado como failsafe automático (emulator.js já
+  // tenta cdn.emulatorjs.org sozinho se algum arquivo local faltar).
+  window.EJS_pathtodata='/web/emulatorjs-data/';
+  // A ROM deve iniciar diretamente ao abrir o jogo, inclusive no celular.
+  // Deixar false no touch fazia o EmulatorJS cair no menu interno do RetroArch
+  // quando o botão manual não era criado a tempo. O botão próprio do player
+  // continua disponível apenas como fallback se o carregamento falhar.
+  window.EJS_startOnLoaded=true;
+  window.EJS_alignStartButton='center';
+  window.EJS_language='en-US';
+  window.EJS_disableAutoLang=true;
+  // O som do jogo precisa tocar durante a partida. Antes o volume nascia em 0
+  // (mudo) e nunca era religado.
+  window.EJS_volume=1;
+  window.EJS_color='#00e5ff';
+  window.EJS_backgroundColor='#000';
+  window.EJS_DEBUG_XX=true;
+
+  const hide=()=>{
+    if(loadingArtHidden)return;
+    const wait=Math.max(0,1400-(Date.now()-loadingStartedAt));
+    if(wait){
+      setTimeout(hide,wait);
+      return;
+    }
+    loadingArtHidden=true;
+    status.style.display='none';
+    manual.style.display='none';
+    loadingArt.classList.add('hidden');
+  };
+
+  // ---------------------------------------------------------------
+  // Os valores value2 mantêm o mapeamento padrão do Gamepad API para qualquer
+  // controle reconhecido pelo navegador. A entrada de teclado é tratada abaixo
+  // por KeyboardEvent.code, independente do idioma impresso nas teclas.
+  window.EJS_defaultControls={
+    0:{
+      0:{value:'',value2:'BUTTON_2'},1:{value:'',value2:'BUTTON_4'},
+      2:{value:'',value2:'SELECT'},3:{value:'',value2:'START'},
+      4:{value:'',value2:'DPAD_UP'},5:{value:'',value2:'DPAD_DOWN'},
+      6:{value:'',value2:'DPAD_LEFT'},7:{value:'',value2:'DPAD_RIGHT'},
+      8:{value:'',value2:'BUTTON_1'},9:{value:'',value2:'BUTTON_3'},
+      10:{value:'',value2:'LEFT_TOP_SHOULDER'},11:{value:'',value2:'RIGHT_TOP_SHOULDER'},
+      12:{value:'',value2:'LEFT_BOTTOM_SHOULDER'},13:{value:'',value2:'RIGHT_BOTTOM_SHOULDER'},
+      14:{value:'',value2:'LEFT_STICK'},15:{value:'',value2:'RIGHT_STICK'},
+      16:{value:'',value2:'LEFT_STICK_X:+1'},17:{value:'',value2:'LEFT_STICK_X:-1'},
+      18:{value:'',value2:'LEFT_STICK_Y:+1'},19:{value:'',value2:'LEFT_STICK_Y:-1'},
+      20:{value:'',value2:'RIGHT_STICK_X:+1'},21:{value:'',value2:'RIGHT_STICK_X:-1'},
+      22:{value:'',value2:'RIGHT_STICK_Y:+1'},23:{value:'',value2:'RIGHT_STICK_Y:-1'},
+      24:{value:''},25:{value:''},26:{value:''},27:{},28:{},29:{}
+    },
+    1:{
+      0:{value:'',value2:'BUTTON_2'},1:{value:'',value2:'BUTTON_4'},
+      2:{value:'',value2:'SELECT'},3:{value:'',value2:'START'},
+      4:{value:'',value2:'DPAD_UP'},5:{value:'',value2:'DPAD_DOWN'},
+      6:{value:'',value2:'DPAD_LEFT'},7:{value:'',value2:'DPAD_RIGHT'},
+      8:{value:'',value2:'BUTTON_1'},9:{value:'',value2:'BUTTON_3'},
+      10:{value:'',value2:'LEFT_TOP_SHOULDER'},11:{value:'',value2:'RIGHT_TOP_SHOULDER'},
+      12:{value:'',value2:'LEFT_BOTTOM_SHOULDER'},13:{value:'',value2:'RIGHT_BOTTOM_SHOULDER'}
+    },
+    2:{},3:{}
+  };
+
+  const goFullscreen=()=>{
+    try{
+      const el=document.documentElement;
+      if(document.fullscreenElement)return;
+      const req=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;
+      if(req){
+        const p=req.call(el,{navigationUI:'hide'});
+        if(p&&p.then)p.then(()=>{
+          // Ao abrir o jogo, trava a tela em horizontal automaticamente.
+          if(isTouchDevice&&screen.orientation?.lock){
+            screen.orientation.lock('landscape').catch(err=>log('Bloqueio de orientação recusado: '+(err?.message||err)));
+          }
+        }).catch(err=>log('Tela cheia recusada: '+(err?.message||err)));
+        log('Tela cheia solicitada');
+      }
+    }catch(e){
+      log('Tela cheia falhou: '+(e?.message||e));
+    }
+  };
+
+  document.addEventListener('fullscreenchange',()=>{
+    if(!document.fullscreenElement&&screen.orientation?.unlock){
+      try{screen.orientation.unlock()}catch{}
+    }
+  },{passive:true});
+
+  // F11 alterna tela cheia; F9 mostra diagnóstico; Escape fecha o player.
+  addEventListener('keydown',e=>{
+    if(e.key==='F11'||e.code==='F11'){
+      e.preventDefault();
+      document.fullscreenElement?document.exitFullscreen():goFullscreen();
+    }
+    if(e.key==='F9'||e.code==='F9'){
+      e.preventDefault();
+      // O #debug começa oculto pelo CSS (não por style inline), então o estado
+      // real precisa vir de getComputedStyle; senão o 1º F9 não fazia nada.
+      debug.style.display=getComputedStyle(debug).display==='none'?'block':'none';
+    }
+    if(e.key==='F1'){e.preventDefault();pixelEnhancement=!pixelEnhancement;applyPixelEnhancement();}
+    if(e.key==='F2'){e.preventDefault();visual.scanlines=!visual.scanlines;applyVisual();log('Scanlines: '+(visual.scanlines?'ligadas':'desligadas'));}
+    if(e.key==='F3'){e.preventDefault();visual.integer=!visual.integer;applyVisual();log('Escala inteira: '+(visual.integer?'ligada':'desligada'));}
+    if(e.key==='F5'){e.preventDefault();visual.palette=visual.palette==='normal'?'amber':visual.palette==='amber'?'cool':visual.palette==='cool'?'soft':'normal';applyVisual();log('Paleta: '+visual.palette);}
+    if(e.key==='F6'){e.preventDefault();visual.brightness=visual.brightness>=1.25?.85:+(visual.brightness+.1).toFixed(2);applyVisual();log('Brilho: '+visual.brightness);}
+    if(e.key==='F7'){e.preventDefault();visual.contrast=visual.contrast>=1.3?.85:+(visual.contrast+.1).toFixed(2);applyVisual();log('Contraste: '+visual.contrast);}
+    if(e.key==='F8'){e.preventDefault();visual.saturation=visual.saturation>=1.4?.75:+(visual.saturation+.15).toFixed(2);applyVisual();log('Saturação: '+visual.saturation);}
+    if(e.key==='F10'){e.preventDefault();visual.vignette=!visual.vignette;applyVisual();log('Vinheta: '+(visual.vignette?'ligada':'desligada'));}
+    if(e.key==='?'||e.key==='h'){e.preventDefault();visualHelp();}
+    if(e.key==='Escape'&&!e.target.matches('input,textarea,button')){
+      try{parent.postMessage({type:'mga-emulator-exit-requested'},location.origin)}catch{}
+    }
+  });
+
+  // Botões flutuantes: fechar e tela cheia
+  const playerControls=document.getElementById('player-controls');
+  const btnClose=document.getElementById('btn-close');
+  const btnFullscreen=document.getElementById('btn-fullscreen');
+  btnClose.addEventListener('click',()=>{
+    try{parent.postMessage({type:'mga-emulator-exit-requested'},location.origin)}catch{}
+  });
+  btnFullscreen.addEventListener('click',goFullscreen);
+
+  // Toque longo no Android/iOS não deve abrir menu de contexto sobre o jogo.
+  if(isTouchDevice)addEventListener('contextmenu',e=>e.preventDefault());
+
+  // Mantém a tela ligada durante o jogo (suportado no Chrome/Edge Android).
+  let wakeLock=null;
+  const requestWakeLock=async()=>{
+    if(!isTouchDevice||!('wakeLock' in navigator))return;
+    try{wakeLock=await navigator.wakeLock.request('screen');log('Tela mantida ligada (wake lock)')}catch(e){log('Wake lock: '+(e?.message||e))}
+  };
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden&&started)requestWakeLock();
+  },{passive:true});
+
+  // Auto-esconde os botões após 3s de inatividade (apenas desktop)
+  let controlsHideTimer;
+  const showPlayerControls=()=>{
+    playerControls.classList.remove('hidden');
+    clearTimeout(controlsHideTimer);
+    if(!isTouchDevice){
+      controlsHideTimer=setTimeout(()=>playerControls.classList.add('hidden'),3000);
+    }
+  };
+  addEventListener('mousemove',showPlayerControls,{passive:true});
+  addEventListener('touchstart',showPlayerControls,{passive:true,capture:true});
+  showPlayerControls();
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden) log('Player retomado após retorno à aba.');
+  });
+  // Alguns navegadores móveis atualizam o viewport depois do evento resize.
+  // Reemite resize em dois frames para o EmulatorJS recalcular o canvas e o
+  // gamepad depois de uma rotação, sem forçar a orientação do aparelho.
+  let orientationResizeTimer;
+  let orientationResizeFrame=0;
+  let lastViewportWidth=innerWidth;
+  let lastViewportHeight=innerHeight;
+  const refreshAfterOrientation=()=>{
+    clearTimeout(orientationResizeTimer);
+    cancelAnimationFrame(orientationResizeFrame);
+    const refresh=()=>{
+      if(innerWidth===lastViewportWidth&&innerHeight===lastViewportHeight)return;
+      lastViewportWidth=innerWidth;
+      lastViewportHeight=innerHeight;
+      window.dispatchEvent(new Event('resize'));
+    };
+    orientationResizeFrame=requestAnimationFrame(refresh);
+    orientationResizeTimer=setTimeout(refresh,220);
+  };
+  addEventListener('orientationchange',refreshAfterOrientation,{passive:true});
+  const updateViewport=()=>{
+    document.documentElement.style.setProperty('--mga-vw',`${innerWidth}px`);
+    document.documentElement.style.setProperty('--mga-vh',`${innerHeight}px`);
+    document.body.classList.toggle('mga-portrait',innerHeight>=innerWidth);
+    document.body.classList.toggle('mga-landscape',innerWidth>innerHeight);
+    fitMobileGameViewport();
+  };
+  const fitMobileGameViewport=()=>{
+    if(!isTouchDevice||innerWidth<=innerHeight)return;
+    const game=document.getElementById('game');
+    const parent=game?.querySelector('.ejs_canvas_parent');
+    const canvas=game?.querySelector('canvas,video');
+    if(!game||!parent||!canvas)return;
+    parent.style.setProperty('height','var(--mga-l-game)','important');
+    parent.style.setProperty('top','0px','important');
+    canvas.style.setProperty('height','var(--mga-l-game)','important');
+    canvas.style.setProperty('transform','none','important');
+    canvas.style.setProperty('object-fit','fill','important');
+  };
+  addEventListener('resize',updateViewport,{passive:true});
+  visualViewport?.addEventListener('resize',refreshAfterOrientation,{passive:true});
+  updateViewport();
+
+  const chooseCoreOptionValue=(options,mode,kind)=>{
+    const values=options.map(value=>({raw:value,label:value.replace(/^\([^)]*\)\s*/,'').trim()}));
+    if(kind==='difficulty'){
+      const pattern=mode==='hard'?/(hardest|hard|difficult|expert|high)/i:/(easiest|easy|beginner|low)/i;
+      return values.find(item=>pattern.test(item.label))?.raw||null;
+    }
+    if(kind==='lives'){
+      const numeric=values.filter(item=>/\b\d+\b/.test(item.label));
+      if(!numeric.length)return null;
+      numeric.sort((a,b)=>parseInt(a.label.match(/\d+/)[0])-parseInt(b.label.match(/\d+/)[0]));
+      return (mode==='hard'?numeric[0]:numeric[numeric.length-1]).raw;
+    }
+    if(kind==='continue'){
+      const pattern=mode==='hard'?/(off|disabled|no|none)/i:/(on|enabled|yes)/i;
+      return values.find(item=>pattern.test(item.label))?.raw||null;
+    }
+    return null;
+  };
+  const applyDifficultyToCore=()=>{
+    const manager=window.EJS_emulator?.gameManager;
+    const getOptions=manager?.functions?.getCoreOptions;
+    const setVariable=manager?.functions?.setVariable;
+    if(typeof getOptions!=='function'||typeof setVariable!=='function'){
+      log('DIP: API de opções do core não disponível; modo não aplicado.');
+      return false;
+    }
+    let raw='';
+    try{raw=getOptions.call(manager)||''}catch(e){log('DIP: falha ao ler opções: '+(e?.message||e));return false}
+    const applied=[];
+    for(const line of String(raw).split(/\r?\n/)){
+      if(!line.includes('; '))continue;
+      const [definition,choices]=line.split('; ');
+      const optionName=definition.split('|')[0].trim();
+      const optionValues=choices.split('|').map(value=>value.trim()).filter(Boolean);
+      const label=optionName.replace(/^[^|]*[-_]/,'').replace(/[_-]/g,' ');
+      const kind=/difficulty|level/i.test(label)?'difficulty':/lives|stock|life/i.test(label)?'lives':/continue/i.test(label)?'continue':null;
+      if(!kind)continue;
+      const value=chooseCoreOptionValue(optionValues,difficulty,kind);
+      if(!value)continue;
+      try{setVariable.call(manager,optionName,value);applied.push(`${label}=${value}`)}catch(e){log('DIP: falha em '+optionName+': '+(e?.message||e))}
+    }
+    if(applied.length){
+      log('DIP aplicado no core: '+applied.join(', '));
+      window.MGA_difficulty.automatic=true;
+      window.MGA_difficulty.applied=applied;
+      return true;
+    }
+    log('DIP: este jogo/core não expôs opções de dificuldade, vidas ou continue.');
+    return false;
+  };
+
+  // ---------------------------------------------------------------
+  // Áudio: navegadores (principalmente iOS/Android) só liberam som depois
+  // de um toque/clique. Além disso, um perfil antigo do EmulatorJS pode ter
+  // volume 0 salvo. Aqui forçamos volume cheio, desmutamos e retomamos o
+  // AudioContext do core em qualquer gesto do usuário. Não reiniciamos o
+  // loop principal: fazer isso a cada toque pode introduzir cortes no áudio.
+  // ---------------------------------------------------------------
+  const MGA_VOLUME=1;
+  let mgaAudioConfigured=false;
+  const mgaAudioResumePending=new WeakSet();
+  const resumeAudioContexts=()=>{
+    const emu=window.EJS_emulator;
+    const mod=emu?.gameManager?.Module||window.Module;
+    const ctxs=[emu?.audioContext,mod?.SDL2?.audioContext,mod?.audioContext,window.MGA_audioCtx];
+    ctxs.forEach(ctx=>{
+      if(!ctx||ctx.state==='running'||mgaAudioResumePending.has(ctx))return;
+      try{
+        const resume=ctx.resume?.();
+        if(resume?.finally){
+          mgaAudioResumePending.add(ctx);
+          resume.catch(()=>{}).finally(()=>mgaAudioResumePending.delete(ctx));
+        }
+      }catch(e){}
+    });
+  };
+  const enableGameAudio=()=>{
+    const emu=window.EJS_emulator;
+    try{
+      if(emu&&!mgaAudioConfigured){
+        emu.muted=false;
+        if(typeof emu.setVolume==='function')emu.setVolume(MGA_VOLUME);
+        else emu.volume=MGA_VOLUME;
+        emu.gameManager?.setVolume?.(MGA_VOLUME);
+      }
+    }catch(e){log('Áudio: '+(e?.message||e))}
+    try{
+      document.querySelectorAll('#game audio,#game video').forEach(el=>{
+        if(!mgaAudioConfigured){el.muted=false;el.volume=MGA_VOLUME;}
+      });
+      if(emu&&!mgaAudioConfigured)mgaAudioConfigured=true;
+    }catch(e){}
+    resumeAudioContexts();
+  };
+  window.MGA_enableGameAudio=enableGameAudio;
+  ['pointerdown','touchstart','touchend','keydown','click'].forEach(evt=>{
+    addEventListener(evt,enableGameAudio,{passive:true});
+  });
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden)enableGameAudio();
+  });
+  // No celular o som pode ser suspenso sozinho (chamada, notificação, tela
+  // apagada) e não volta mais: o jogo continua mas o áudio fica "travado".
+  // Este vigia religa o contexto de áudio assim que ele sai do ar.
+  // No celular, visibilitychange/focus/pageshow já cobrem a retomada sem
+  // manter um loop periódico concorrendo com o core.
+  if(!isTouchDevice)setInterval(()=>{
+    if(document.hidden)return;
+    const emu=window.EJS_emulator;
+    const mod=emu?.gameManager?.Module||window.Module;
+    const suspended=[emu?.audioContext,mod?.SDL2?.audioContext,mod?.audioContext,window.MGA_audioCtx]
+      .some(ctx=>ctx&&ctx.state!=='running');
+    if(suspended)resumeAudioContexts();
+  },2000);
+  addEventListener('focus',()=>{if(!document.hidden)resumeAudioContexts()});
+  addEventListener('pageshow',()=>resumeAudioContexts());
+
+  // ---------------------------------------------------------------
+  // Progresso: salva o estado completo do jogo no navegador. Cada ROM tem
+  // uma chave própria, então Metal Slug, Street Fighter etc. não sobrescrevem
+  // o progresso uns dos outros. O estado é salvo periodicamente e quando o
+  // usuário troca de aplicativo/fecha a aba; ao voltar, é restaurado sozinho.
+  // ---------------------------------------------------------------
+  // ---------------------------------------------------------------
+  // Gerenciador de Partidas: Sistema de Salvamento com 15 Slots + Auto-save
+  // Otimizado para telas touch/mobile e persistente em IndexedDB.
+  // ---------------------------------------------------------------
+  const MGA_SAVE_DB='mga-progress-v1';
+  const MGA_SAVE_STORE='states';
+  // O escopo local acompanha a conta autenticada quando o token já está
+  // disponível no storage. Convidados continuam isolados no próprio perfil.
+  const MGA_SAVE_SCOPE=(()=>{
+    try{
+      for(let i=0;i<localStorage.length;i++){
+        const key=localStorage.key(i);
+        if(!key||!/^sb-.+-auth-token$/.test(key))continue;
+        const raw=JSON.parse(localStorage.getItem(key)||'null');
+        const token=raw?.access_token||raw?.currentSession?.access_token||raw?.session?.access_token||'';
+        const payload=token.split('.')[1];
+        const sub=payload?JSON.parse(atob(payload.replace(/-/g,'+').replace(/_/g,'/')))?.sub:'';
+        if(typeof sub==='string'&&sub)return `user:${sub}`;
+      }
+    }catch{}
+    return 'guest';
+  })();
+  const MGA_SAVE_KEY=`${MGA_SAVE_SCOPE}:${romBase}:${core}`;
+  const MGA_SAVE_BACKUP_KEY=`${MGA_SAVE_KEY}:backup`;
+  const MGA_TOTAL_SLOTS=15;
+  let mgaSaveTimer=null;
+  let mgaSaveBusy=false;
+  let mgaSaveQueued=false;
+  let mgaLoadBusy=false;
+  let mgaInitialLoadTimer=null;
+  let mgaInitialLoadStarted=false;
+  let lastCloudSyncAt=0;
+  const cloudSyncInterval=isTouchDevice?5*60*1000:60*1000;
+
+  const showToast=(msg,duration=2600)=>{
+    const toast=document.getElementById('mga-toast');
+    if(!toast)return;
+    toast.textContent=msg;
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer=setTimeout(()=>toast.classList.remove('show'),duration);
+  };
+
+  const openProgressDb=()=>new Promise((resolve,reject)=>{
+    if(!window.indexedDB)return reject(new Error('IndexedDB indisponível'));
+    const req=indexedDB.open(MGA_SAVE_DB,1);
+    req.onupgradeneeded=()=>req.result.createObjectStore(MGA_SAVE_STORE);
+    req.onsuccess=()=>{
+      // Em navegadores móveis, o armazenamento de origem pode ser removido
+      // sob pressão de espaço. Solicitar persistência não é obrigatório para
+      // funcionar e é ignorado silenciosamente quando o navegador não dá
+      // suporte ou não concede a permissão.
+      try{navigator.storage?.persist?.().catch?.(()=>{})}catch{}
+      resolve(req.result);
+    };
+    req.onerror=()=>reject(req.error||new Error('Falha no banco de progresso'));
+  });
+
+  const withProgressDb=async task=>{
+    const db=await openProgressDb();
+    try{return await task(db)}finally{db.close()}
+  };
+
+  const checkpointCompare=(a,b)=>{
+    if(!a||!b)return 0;
+    const at=Number(a.savedAt)||0, bt=Number(b.savedAt)||0;
+    if(at!==bt)return at>bt?1:-1;
+    const av=Number(a.checkpointVersion)||0, bv=Number(b.checkpointVersion)||0;
+    return av===bv?0:(av>bv?1:-1);
+  };
+  const putAndVerifyRecord=async(db,key,record,backupKey='')=>{
+    const stored=await new Promise((resolve,reject)=>{
+      const req=db.transaction(MGA_SAVE_STORE,'readonly').objectStore(MGA_SAVE_STORE).get(key);
+      req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+    });
+    if(isValidSavedRecord(stored)&&checkpointCompare(stored,record)>0)return false;
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction(MGA_SAVE_STORE,'readwrite');
+      const store=tx.objectStore(MGA_SAVE_STORE);
+      const fail=error=>reject(error||tx.error||new Error('Falha na transação do save'));
+      tx.oncomplete=resolve;tx.onerror=()=>fail(tx.error);tx.onabort=()=>fail(tx.error);
+      const writeCurrent=()=>{
+        try{store.put(record,key)}catch(e){try{tx.abort()}catch{}fail(e)}
+      };
+      if(backupKey){
+        const previous=store.get(key);
+        previous.onsuccess=()=>{
+          try{
+            if(isValidSavedRecord(previous.result))store.put({...previous.result,preview:''},backupKey);
+            writeCurrent();
+          }catch(e){try{tx.abort()}catch{}fail(e)}
+        };
+        previous.onerror=()=>fail(previous.error);
+      }else writeCurrent();
+    });
+    const persisted=await new Promise((resolve,reject)=>{
+      const req=db.transaction(MGA_SAVE_STORE,'readonly').objectStore(MGA_SAVE_STORE).get(key);
+      req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+    });
+    if(!isValidSavedRecord(persisted))throw new Error('Estado não confirmado no IndexedDB');
+    return true;
+  };
+
+  const getSlotKey=slot=>`${MGA_SAVE_KEY}:slot_${slot}`;
+
+  const getLastSlot=()=>{
+    const val=parseInt(localStorage.getItem(`mga_last_slot_${romBase}`)||'1',10);
+    return isNaN(val)||val<1||val>MGA_TOTAL_SLOTS?1:val;
+  };
+
+  const setLastSlot=slot=>{
+    try{localStorage.setItem(`mga_last_slot_${romBase}`,String(slot))}catch{}
+  };
+
+  // IndexedDB pode devolver ArrayBuffer ou Uint8Array dependendo do navegador.
+  // Normalizar sempre para uma cópia independente evita salvar um buffer vazio,
+  // truncado ou ligado à memória interna do EmulatorJS.
+  const normalizeStateBytes=state=>{
+    if(state==null)return null;
+    try{
+      const bytes=new Uint8Array(state);
+      return bytes.byteLength?new Uint8Array(bytes):null;
+    }catch{return null}
+  };
+
+  const isValidSavedRecord=record=>{
+    const bytes=normalizeStateBytes(record?.state);
+    if(!bytes)return false;
+    return !record.stateSize||record.stateSize===bytes.byteLength;
+  };
+
+  // Nuvem: o save local continua sendo a fonte de fallback, mas o último
+  // momento também é sincronizado por usuário/jogo quando o login Google e o
+  // Postgres da produção estão configurados.
+  const bytesToBase64=bytes=>{
+    let out='';
+    const chunk=0x8000;
+    for(let i=0;i<bytes.length;i+=chunk){
+      out+=String.fromCharCode(...bytes.subarray(i,Math.min(i+chunk,bytes.length)));
+    }
+    return btoa(out);
+  };
+  const base64ToBytes=value=>{
+    try{
+      const bin=atob(String(value||''));
+      const bytes=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+      return bytes;
+    }catch{return null}
+  };
+  const cloudUrl=`/api/saves/?rom=${encodeURIComponent(romBase)}&core=${encodeURIComponent(core)}`;
+  // O login do site fica salvo neste mesmo endereço; lemos o token atual a cada
+  // chamada (ele é renovado pelo site), sem depender de uma resposta da página pai.
+  const readStoredAccessToken=()=>{
+    const scan=store=>{
+      try{
+        for(let i=0;i<store.length;i++){
+          const k=store.key(i);
+          if(!k||!/^sb-.+-auth-token$/.test(k))continue;
+          const v=JSON.parse(store.getItem(k)||'null');
+          const s=v?.access_token?v:(v?.currentSession||v?.session||null);
+          if(s?.access_token&&(!s.expires_at||s.expires_at*1000>Date.now()+5000))return s.access_token;
+        }
+      }catch{}
+      return '';
+    };
+    let t=scan(localStorage);
+    try{if(!t&&window.parent!==window)t=scan(window.parent.localStorage)}catch{}
+    return t;
+  };
+  const cloudAuthHeaders=()=>{
+    const token=readStoredAccessToken()||cloudAccessToken;
+    return token?{Authorization:`Bearer ${token}`}:{};
+  };
+  let cloudAvailable=null;
+  let lastCloudSaveStatus='unknown';
+  const syncCloudSave=async record=>{
+    let cloudTimeout;
+    try{
+      const bytes=normalizeStateBytes(record?.state);
+      if(!bytes){lastCloudSaveStatus='failed';return false}
+      const stateB64=bytesToBase64(bytes);
+      const controller=new AbortController();
+      cloudTimeout=setTimeout(()=>controller.abort(),8000);
+      const response=await fetch('/api/saves/',{
+        method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json',...cloudAuthHeaders()},
+        signal:controller.signal,
+        body:JSON.stringify({rom:romBase,core,stateB64,preview:record.preview||'',savedAt:record.savedAt,checkpointVersion:record.checkpointVersion,dateStr:record.dateStr})
+      });
+      const result=await response.json().catch(()=>null);
+      if(response.status===401){cloudAvailable=false;lastCloudSaveStatus='local-only';return false}
+      if(response.status===409&&result?.reason==='newer_remote'){
+        cloudAvailable=true;lastCloudSaveStatus='remote-newer';
+        log('Nuvem já possui um checkpoint mais novo; save local preservado');
+        return true;
+      }
+      if(!response.ok||result?.ok!==true){lastCloudSaveStatus='failed';return false}
+      // Confirma a leitura do mesmo estado após o POST. Um 2xx isolado não
+      // garante que a versão correta ficou disponível para o próximo login.
+      const verified=await readCloudSave();
+      if(verified&&checkpointCompare(verified,record)>0){
+        cloudAvailable=true;lastCloudSaveStatus='remote-newer';
+        log('Outro dispositivo gravou um checkpoint mais novo durante a sincronização');
+        return true;
+      }
+      if(!verified||checkpointCompare(verified,record)<0||verified.stateB64!==stateB64){
+        cloudAvailable=false;lastCloudSaveStatus='failed';
+        log('Nuvem: escrita respondeu, mas a verificação não encontrou o mesmo checkpoint');
+        return false;
+      }
+      cloudAvailable=true;
+      lastCloudSaveStatus='synced';
+      log('Save sincronizado na nuvem');
+      return true;
+    }catch(e){
+      cloudAvailable=false;
+      lastCloudSaveStatus='failed';
+      log('Nuvem indisponível; mantendo save local ('+(e?.message||e)+')');
+      return false;
+    }finally{clearTimeout(cloudTimeout)}
+  };
+  const readCloudSave=async()=>{
+    let cloudTimeout;
+    try{
+      // Uma API remota lenta não deve impedir a retomada do save local.
+      const controller=new AbortController();
+      cloudTimeout=setTimeout(()=>controller.abort(),6000);
+      const response=await fetch(cloudUrl,{credentials:'same-origin',cache:'no-store',headers:{...cloudAuthHeaders(),'Cache-Control':'no-cache'},signal:controller.signal});
+      if(response.status===401){cloudAvailable=false;return null}
+      if(!response.ok){cloudAvailable=false;return null}
+      const data=await response.json();
+      const remote=data?.save;
+      const state=base64ToBytes(remote?.stateB64);
+      if(!state||!remote?.stateB64||remote.stateB64.length>8_000_000)return null;
+      cloudAvailable=true;
+      return {state,stateB64:remote.stateB64,stateSize:state.byteLength,savedAt:Number(remote.savedAt)||0,checkpointVersion:Number(remote.checkpointVersion)||0,dateStr:remote.dateStr||'',preview:remote.preview||''};
+    }catch(e){
+      cloudAvailable=false;
+      log('Nuvem indisponível/timeout ao carregar; usando save local');
+      return null;
+    }finally{clearTimeout(cloudTimeout)}
+  };
+
+  const mgaSleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+  // O carregamento só funciona depois que o core realmente iniciou a ROM.
+  // Antes disso o loadState era descartado em silêncio e a partida sumia.
+  const waitForGameReady=async(timeout=25000)=>{
+    const coreCanLoad=()=>{
+      const manager=window.EJS_emulator?.gameManager;
+      // Aguarda a API pública do GameManager; ela também cancela o timer de
+      // reset do EmulatorJS antes de aplicar o estado restaurado.
+      return !!(started&&typeof manager?.loadState==='function');
+    };
+    const deadline=Date.now()+timeout;
+    while(Date.now()<deadline){
+      if(coreCanLoad())return true;
+      await mgaSleep(250);
+    }
+    return coreCanLoad();
+  };
+
+  // Se o jogo estiver pausado, o core não processa o estado restaurado.
+  const resumeIfPaused=()=>{
+    const emu=window.EJS_emulator;
+    if(!emu)return;
+    try{
+      if(emu.paused){
+        if(typeof emu.play==='function')emu.play();
+        else emu.togglePlaying?.();
+      }
+    }catch(e){log('Progresso: falha ao retomar o jogo ('+(e?.message||e)+')');}
+  };
+
+  const applyStateWithRetry=async(state,label)=>{
+    const bytes=normalizeStateBytes(state);
+    if(!bytes)throw new Error('Estado vazio ou inválido');
+    for(let attempt=1;attempt<=3;attempt++){
+      const manager=window.EJS_emulator?.gameManager;
+      if(manager?.loadState){
+        const emulator=window.EJS_emulator;
+        try{
+          // Use a API oficial: além de gravar e carregar o arquivo, ela
+          // cancela EJS.resetTimeout. Chamar functions.loadState diretamente
+          // deixava o reset pendente sobrescrever o checkpoint recém-aplicado.
+          // O core CPS2 (FBAlpha 2012) só aceita um estado depois de calcular
+          // o tamanho do save nesta sessão (retro_serialize_size). Num jogo
+          // recém-aberto isso nunca aconteceu e o load falhava em silêncio.
+          try{manager.getState()}catch(e){log(`${label}: preparo do estado falhou (${e?.message||e})`)}
+          manager.loadState(bytes);
+          if(emulator?.paused){
+            if(typeof emulator.play==='function')emulator.play(true);
+            else manager.toggleMainLoop?.(1);
+          }
+          await mgaSleep(1500);
+          await mgaSleep(250);
+          log(`${label}: estado aplicado (tentativa ${attempt})`);
+          return true;
+        }catch(e){
+          try{
+            if(emulator?.paused&&typeof emulator?.play==='function')emulator.play(true);
+            else if(emulator?.paused)manager.toggleMainLoop?.(1);
+          }catch{}
+          log(`${label}: tentativa ${attempt} falhou (${e?.message||e})`);
+        }
+      }
+      await mgaSleep(800);
+    }
+    return false;
+  };
+
+  const readSlotRecord=async key=>{
+    return withProgressDb(db=>new Promise((resolve,reject)=>{
+      const req=db.transaction(MGA_SAVE_STORE,'readonly').objectStore(MGA_SAVE_STORE).get(key);
+      req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+    }));
+  };
+
+  const saveProgress=async(silent=false,forceCloud=false)=>{
+    const manager=window.EJS_emulator?.gameManager;
+    if(!manager||!started||mgaLoadBusy)return false;
+    if(mgaSaveBusy){
+      // visibilitychange e pagehide podem chegar quase juntos no celular.
+      // Não descarte o segundo pedido: ele será executado assim que o save
+      // atual terminar, antes de o iframe ser removido pelo launcher.
+      mgaSaveQueued=true;
+      return false;
+    }
+    mgaSaveBusy=true;
+    const emulator=window.EJS_emulator;
+    const wasPaused=!!emulator?.paused;
+    try{
+      if(!wasPaused){
+        if(typeof emulator?.pause==='function')emulator.pause(true);
+        else manager.toggleMainLoop?.(0);
+        await mgaSleep(150);
+      }
+      const state=normalizeStateBytes(manager.getState());
+      if(!state)throw new Error('Estado vazio ou inválido');
+      const now=Date.now();
+      const dateStr=new Date(now).toLocaleString('pt-BR');
+      // A versão desempata relógios iguais e impede uma gravação atrasada de
+      // substituir um checkpoint mais novo.
+      const previous=await readSlotRecord(MGA_SAVE_KEY).catch(()=>null);
+      const backup=await readSlotRecord(MGA_SAVE_BACKUP_KEY).catch(()=>null);
+      const checkpointVersion=Math.max(Number(previous?.checkpointVersion)||0,Number(backup?.checkpointVersion)||0,now)+1;
+      // Saves armazenam somente o estado binário; nenhuma imagem de prévia é gerada.
+      const record={state,stateSize:state.byteLength,savedAt:now,checkpointVersion,dateStr,rom:romBase,core,preview:''};
+      await withProgressDb(async db=>{
+        try{
+          await putAndVerifyRecord(db,MGA_SAVE_KEY,record,MGA_SAVE_BACKUP_KEY);
+        }catch(backupError){
+          // Se o backup não couber no armazenamento ou falhar por outro
+          // motivo, priorize gravar o checkpoint atual sem a cópia anterior.
+          log('Backup local não atualizado; tentando salvar só o checkpoint atual ('+(backupError?.message||backupError)+')');
+          await putAndVerifyRecord(db,MGA_SAVE_KEY,record);
+        }
+      });
+      if(!silent){
+        try{parent.postMessage({type:'mga-emulator-checkpoint-saved',rom:romBase,savedAt:now},location.origin)}catch{}
+        showToast('✅ Checkpoint salvo neste aparelho');
+      }
+      const shouldSyncCloud=forceCloud||!silent||Date.now()-lastCloudSyncAt>=cloudSyncInterval;
+      let cloudSynced=true;
+      if(shouldSyncCloud){
+        cloudSynced=await syncCloudSave(record);
+        lastCloudSyncAt=Date.now();
+      }else{
+        lastCloudSaveStatus='local-only';
+      }
+      if(!silent&&!cloudSynced){
+        showToast(lastCloudSaveStatus==='local-only'
+          ?'✅ Save confirmado neste aparelho; sem nuvem. Não apague os dados do navegador.'
+          :'⚠️ Save local confirmado; falha ao confirmar backup na nuvem.',6000);
+      }
+      return true;
+    }catch(e){
+      log('Progresso: falha ao salvar auto '+(e?.message||e));
+      if(!silent)showToast('❌ Falha ao salvar o checkpoint. Tente novamente.',4000);
+      return false;
+    }
+    finally{
+      if(!wasPaused){
+        try{
+          if(typeof emulator?.play==='function')emulator.play(true);
+          else manager.toggleMainLoop?.(1);
+        }catch(e){log('Progresso: falha ao retomar após auto-save ('+(e?.message||e)+')')}
+      }
+      mgaSaveBusy=false
+      if(mgaSaveQueued){
+        mgaSaveQueued=false;
+        setTimeout(()=>saveProgress(true),0);
+      }
+    }
+  };
+
+  const saveWhenReady=async()=>{
+    const deadline=Date.now()+10000;
+    while(mgaSaveBusy||mgaLoadBusy){
+      if(Date.now()>=deadline){
+        showToast('⏳ Salvamento anterior ainda está em andamento.',4000);
+        return false;
+      }
+      await mgaSleep(100);
+    }
+    return saveProgress(false);
+  };
+
+  const loadProgress=async(manual=false)=>{
+    if(mgaLoadBusy||mgaSaveBusy)return false;
+    if(mgaInitialLoadStarted&&!manual)return false;
+    mgaInitialLoadStarted=true;
+    mgaLoadBusy=true;
+    try{
+      const readLocalRecord=async key=>{
+        try{return await readSlotRecord(key)}
+        catch(e){log('Save local indisponível para '+key+' ('+(e?.message||e)+')');return null}
+      };
+      const localSaved=await readLocalRecord(MGA_SAVE_KEY);
+      const backupSaved=await readLocalRecord(MGA_SAVE_BACKUP_KEY);
+      const recoverableLocal=isValidSavedRecord(localSaved)?localSaved:backupSaved;
+      const cloudSaved=await readCloudSave();
+      const saved=isValidSavedRecord(cloudSaved)&&(!isValidSavedRecord(recoverableLocal)||checkpointCompare(cloudSaved,recoverableLocal)>0)
+        ? cloudSaved : recoverableLocal;
+      if(!isValidSavedRecord(saved))return false;
+      if(saved===cloudSaved){
+        try{
+          await withProgressDb(async db=>{
+            try{await putAndVerifyRecord(db,MGA_SAVE_KEY,saved,MGA_SAVE_BACKUP_KEY)}
+            catch{await putAndVerifyRecord(db,MGA_SAVE_KEY,saved)}
+          });
+          log('Save da nuvem baixado para este dispositivo');
+        }catch(e){
+          log('Save da nuvem disponível; cache local não pôde ser atualizado ('+(e?.message||e)+')');
+        }
+      }else if(saved===backupSaved&&!isValidSavedRecord(localSaved)){
+        try{
+          await withProgressDb(db=>putAndVerifyRecord(db,MGA_SAVE_KEY,backupSaved));
+          log('Checkpoint local recuperado do backup');
+        }catch(e){
+          log('Backup válido em memória; não foi possível reparar o checkpoint principal ('+(e?.message||e)+')');
+        }
+      }
+      const ready=await waitForGameReady();
+      if(!ready){
+        log('Progresso: jogo não iniciou a tempo para restaurar o save automático');
+        if(manual)showToast('⏳ O jogo ainda está iniciando. Tente novamente.',4000);
+        return false;
+      }
+      const ok=await applyStateWithRetry(saved.state,'Save automático');
+      if(!ok){
+        if(manual)showToast('❌ Não foi possível retornar ao momento salvo.',4000);
+        return false;
+      }
+      log('Progresso anterior restaurado');
+      showToast('🎮 Último checkpoint restaurado');
+      return true;
+    }catch(e){log('Progresso: nenhum save auto restaurado ('+(e?.message||e)+')');return false}
+    finally{mgaLoadBusy=false}
+  };
+
+  const saveAndExit=async()=>{
+    try{
+      showToast('💾 Salvando antes de sair...',30000);
+      const deadline=Date.now()+20000;
+      let idleSince=0;
+      while(Date.now()<deadline){
+        if(!mgaSaveBusy&&!mgaLoadBusy){
+          if(!idleSince)idleSince=Date.now();
+          if(Date.now()-idleSince>=150)break;
+        }else idleSince=0;
+        await mgaSleep(100);
+      }
+      if(mgaSaveBusy||mgaLoadBusy)throw new Error('Uma gravação ou restauração anterior continua em andamento.');
+      const ok=await saveProgress(true,true);
+      if(ok&&lastCloudSaveStatus==='failed'){
+        parent.postMessage({
+          type:'mga-emulator-cloud-save-failed',
+          message:'O save local foi confirmado, mas não foi possível confirmar a cópia na nuvem.'
+        },location.origin);
+        return;
+      }
+      const cloudStatus=lastCloudSaveStatus;
+      parent.postMessage({
+        type:ok?'mga-emulator-save-complete':'mga-emulator-save-failed',
+        cloudStatus,
+        message:!ok?'Não foi possível confirmar o save local.':cloudStatus==='synced'
+          ?'Save confirmado neste aparelho e na nuvem.'
+          :cloudStatus==='remote-newer'
+          ?'A nuvem já possui um checkpoint mais novo; ele foi preservado.'
+          :'Save confirmado neste aparelho; sem nuvem. Não apague os dados do navegador.'
+      },location.origin);
+    }catch(e){
+      log('Progresso: falha ao salvar antes de sair '+(e?.message||e));
+      parent.postMessage({type:'mga-emulator-save-failed',message:'Falha ao salvar antes de sair.'},location.origin);
+    }
+  };
+  window.addEventListener('message',e=>{
+    if(e.source!==window.parent||e.origin!==location.origin)return;
+    if(e.data?.type==='mga-request-save-exit')saveAndExit();
+    if(e.data?.type==='mga-remote-command'){
+      if(e.data.command==='toggle-pause')window.MGA_togglePause?.();
+      if(e.data.command==='save-and-exit')saveAndExit();
+      if(e.data.command==='toggle-game-fullscreen'){
+        document.fullscreenElement?document.exitFullscreen():goFullscreen();
+      }
+    }
+    if(e.data?.type==='mga-remote-input'){
+      const player=Math.max(0,Math.min(1,Number(e.data.player)-1));
+      const input=Math.max(0,Math.min(9,Number(e.data.input)));
+      const pressed=e.data.pressed?1:0;
+      try{window.EJS_emulator?.gameManager?.simulateInput(player,input,pressed)}catch(error){log('Controle remoto: '+(error?.message||error))}
+    }
+  });
+
+  // Sem painel de saves: o progresso é salvo e restaurado automaticamente.
+
+  // ===============================================================
+  // MELHORIAS MOBILE: Haptic Feedback, Pausa Rápida, Opacidade & Anti-Gestos
+  // ===============================================================
+  let mgaHapticEnabled = localStorage.getItem('mga_haptic_enabled') !== '0';
+  const triggerHaptic = (ms = 14) => {
+    if (!mgaHapticEnabled || !navigator.vibrate) return;
+    try { navigator.vibrate(ms); } catch (_) {}
+  };
+
+  const btnHaptic = document.getElementById('btn-haptic');
+  const updateHapticUI = () => {
+    if (!btnHaptic) return;
+    btnHaptic.textContent = mgaHapticEnabled ? '📳' : '📳✕';
+    btnHaptic.style.color = mgaHapticEnabled ? '#00e5ff' : '#777';
+    btnHaptic.title = mgaHapticEnabled ? 'Vibração: Ativada' : 'Vibração: Desativada';
+  };
+  updateHapticUI();
+  if (btnHaptic) {
+    btnHaptic.addEventListener('click', () => {
+      mgaHapticEnabled = !mgaHapticEnabled;
+      try { localStorage.setItem('mga_haptic_enabled', mgaHapticEnabled ? '1' : '0'); } catch (_) {}
+      updateHapticUI();
+      if (mgaHapticEnabled) triggerHaptic(20);
+      showToast(mgaHapticEnabled ? '📳 Vibração ativada' : '📳 Vibração desativada');
+    });
+  }
+
+  // Opacidade rápida dos controles touch no celular (para não cobrir o jogo)
+  const PAD_OPACITIES = [
+    { label: '👁 100%', val: '1.0' },
+    { label: '👁 75%', val: '0.75' },
+    { label: '👁 50%', val: '0.50' },
+    { label: '👁 25%', val: '0.25' }
+  ];
+  let currentOpIdx = parseInt(localStorage.getItem('mga_pad_op_idx') || '1', 10);
+  if (isNaN(currentOpIdx) || currentOpIdx < 0 || currentOpIdx >= PAD_OPACITIES.length) currentOpIdx = 1;
+  const applyPadOpacity = (idx, silent = false) => {
+    currentOpIdx = idx % PAD_OPACITIES.length;
+    const item = PAD_OPACITIES[currentOpIdx];
+    document.documentElement.style.setProperty('--mga-pad-opacity', item.val);
+    const btnOp = document.getElementById('btn-opacity');
+    if (btnOp) btnOp.textContent = item.label;
+    try { localStorage.setItem('mga_pad_op_idx', String(currentOpIdx)); } catch (_) {}
+    if (!silent) showToast('Controles: ' + item.label.replace('👁 ', '') + ' de opacidade');
+  };
+  applyPadOpacity(currentOpIdx, true);
+  const btnOpacity = document.getElementById('btn-opacity');
+  if (btnOpacity) {
+    btnOpacity.addEventListener('click', () => {
+      applyPadOpacity(currentOpIdx + 1);
+      triggerHaptic(12);
+    });
+  }
+
+  // Pausa rápida para celular (atender ligação / notificações sem perder vida)
+  const btnPause = document.getElementById('btn-pause');
+  const togglePause = () => {
+    const emu = window.EJS_emulator;
+    if (!emu || !started) return;
+    emu.togglePlaying?.();
+    const isPaused = !!emu.paused;
+    if (btnPause) {
+      btnPause.textContent = isPaused ? '▶' : '⏸';
+      btnPause.title = isPaused ? 'Retomar Emulação' : 'Pausar Emulação';
+      btnPause.style.color = isPaused ? '#ffbb00' : '#00e5ff';
+    }
+    showToast(isPaused ? '⏸ Jogo Pausado' : '▶ Jogo Retomado');
+    triggerHaptic(20);
+  };
+  window.MGA_togglePause = togglePause;
+  if (btnPause) {
+    btnPause.addEventListener('click', togglePause);
+  }
+
+  // Hooking de toque no Gamepad touch para Haptic Feedback imediato
+  document.addEventListener('touchstart', (e) => {
+    const target = e.target;
+    if (target && target.closest && target.closest('.ejs_virtualGamepad_parent, .ejs_dpad_main, .ejs_virtualGamepad_button, .mga-btn-action, .mga-ctrl-btn')) {
+      triggerHaptic(15);
+    }
+    requestWakeLock();
+  }, { passive: true, capture: true });
+
+  window.MGA_saveProgress=()=>saveProgress(false);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)saveProgress(true);
+  });
+  addEventListener('pagehide',()=>saveProgress(true),{capture:true});
+
+
+  window.EJS_onGameStart=()=>{
+    if(started)return;
+    started=true;
+    try{window.EJS_emulator?.gameManager?.setKeyboardEnabled?.(keyboardEnabled)}catch{}
+    attempting=false;
+    if(retryTimer)clearTimeout(retryTimer);
+    if(startWatchdog)clearTimeout(startWatchdog);
+    // Um perfil antigo do EmulatorJS pode restaurar o gamepad como oculto.
+    // Em dispositivos touch, os controles precisam aparecer ao iniciar;
+    // em desktop, preservamos a experiência sem sobreposição.
+    const touchDevice=navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches;
+    if(touchDevice){
+      document.body.classList.add('mga-game-started');
+      const creditStartToggle=document.getElementById('mga-credit-start-toggle');
+      if(creditStartToggle){
+        creditStartToggle.hidden=false;
+        const creditStartVisible=!document.body.classList.contains('mga-manually-hide-credit-start');
+        window.MGA_setCreditStartVisibility(creditStartVisible);
+        creditStartToggle.addEventListener('click',()=>{
+          const show=document.body.classList.contains('mga-manually-hide-credit-start');
+          window.MGA_setCreditStartVisibility(show);
+        });
+      }
+      const waitForStartRecognition=()=>{
+        let attempts=0;
+        const attach=()=>{
+          const button=document.querySelector('#game .b_start');
+          if(!button){if(++attempts<40)setTimeout(attach,100);return}
+          if(button.dataset.mgaStartAckWatcher)return;
+          button.dataset.mgaStartAckWatcher='true';
+          const signature=()=>{
+            try{
+              const source=document.querySelector('#game canvas');
+              if(!source?.width||!source?.height)return null;
+              const sample=document.createElement('canvas');sample.width=24;sample.height=18;
+              const ctx=sample.getContext('2d',{willReadFrequently:true});
+              ctx.drawImage(source,0,0,24,18);
+              return ctx.getImageData(0,0,24,18).data;
+            }catch{return null}
+          };
+          const sceneChanged=(before,after)=>{
+            if(!before||!after||before.length!==after.length)return false;
+            let changed=0,total=0;
+            for(let i=0;i<before.length;i+=4){
+              const delta=Math.max(Math.abs(before[i]-after[i]),Math.abs(before[i+1]-after[i+1]),Math.abs(before[i+2]-after[i+2]));
+              total+=delta;if(delta>=56)changed++;
+            }
+            const pixels=before.length/4;
+            return changed/pixels>=.38&&total/pixels>=28;
+          };
+          let before=null,watching=false;
+          const watchForAcknowledgement=()=>{
+            if(watching)return;
+            if(!before)before=signature();
+            if(!before)return;
+            watching=true;let checks=0,changedFrames=0;
+            const inspect=()=>{
+              const current=signature();
+              changedFrames=sceneChanged(before,current)?changedFrames+1:0;
+              if(changedFrames>=4){
+                button.classList.add('mga-control-used');
+                log('Start reconhecido pela mudança visual do jogo');
+                return;
+              }
+              if(++checks<40){setTimeout(inspect,160);return}
+              watching=false;before=signature();
+              log('Start ainda não reconhecido; botão permanece disponível');
+            };
+            setTimeout(inspect,160);
+          };
+          button.addEventListener('pointerdown',()=>{before=signature()},{passive:true});
+          button.addEventListener('touchstart',()=>{before=signature()},{passive:true});
+          button.addEventListener('pointerup',watchForAcknowledgement);
+          button.addEventListener('touchend',watchForAcknowledgement,{passive:true});
+          button.addEventListener('click',watchForAcknowledgement);
+        };
+        attach();
+      };
+      waitForStartRecognition();
+      try{window.EJS_emulator?.toggleVirtualGamepad?.(true)}catch(e){log('Gamepad touch: '+(e?.message||e))}
+      try{
+        const pad=window.EJS_emulator?.virtualGamepad;
+        if(pad){pad.style.display='';pad.style.opacity='';}
+        // Remove qualquer sobreposição do menu do EmulatorJS que fique
+        // acima dos controles de toque.
+        document.querySelectorAll('#game>.ejs_virtualGamepad_open').forEach(el=>el.remove());
+      }catch(e){log('Ajuste do gamepad touch: '+(e?.message||e))}
+    }
+    hide();
+    // Durante a partida, deixe somente a área do jogo e os controles touch
+    // indispensáveis; a barra de navegação não deve cobrir a imagem.
+    document.getElementById('player-controls')?.classList.add('hidden');
+    if(isTouchDevice){
+      const quickSaveButton=document.getElementById('mga-mobile-quick-save');
+      quickSaveButton?.classList.add('show');
+      if(quickSaveButton)quickSaveButton.disabled=false;
+    }
+    log('Arcade/FBNeo iniciou o jogo');
+    [0,250,1000].forEach(ms=>setTimeout(fitMobileGameViewport,ms));
+    applyDifficultyToCore();
+    // Garante o som logo ao entrar no jogo (e de novo depois, pois o core
+    // cria o contexto de áudio poucos instantes após o start).
+    enableGameAudio();
+    [300,1200].forEach(ms=>setTimeout(enableGameAudio,ms));
+    // Restaura o último ponto em qualquer dispositivo. O core precisa de um
+    // pouco mais de tempo no celular para criar o estado antes do loadState;
+    // deixar esse caminho fora do touch fazia o jogo reabrir sempre do zero.
+    mgaInitialLoadTimer=setTimeout(()=>{
+      mgaInitialLoadTimer=null;
+      loadProgress();
+    },isTouchDevice?3500:2500);
+    // Mantém checkpoints locais frequentes em todas as plataformas: fechar a
+    // aba encerra o JS e não garante que o save assíncrono de pagehide termine.
+    if(mgaSaveTimer)clearInterval(mgaSaveTimer);
+    // O fechamento imediato ainda pode perder alguns segundos; para sair sem
+    // perda, use o botão Sair do jogo e espere a confirmação do launcher.
+    mgaSaveTimer=setInterval(()=>{if(!document.hidden)saveProgress(true)},60000);
+    // O shader só pode ser ativado depois de o contexto gráfico do core existir.
+    setTimeout(applyPixelEnhancement,0);
+    requestWakeLock();
+
+    try{
+      const fs=window.EJS_emulator?.gameManager?.FS;
+      if(fs){
+        const expected=biosName||'BIOS';
+        const checks=[
+          `/${expected}`,
+          '/home/web_user/retroarch/userdata/system/'+expected,
+          '/home/web_user/retroarch/userdata/system/fbneo/'+expected
+        ];
+        const found=checks.filter(p=>{
+          try{fs.stat(p);return true}catch{return false}
+        });
+        log(expected+' encontrado no FS: '+(found.length?found.join(' | '):'não exposto pelo wrapper'));
+      }
+    }catch(e){
+      log('Diagnóstico FS: '+(e?.message||e));
+    }
+
+    try{parent.postMessage({type:'mga-emulator-started'},location.origin)}catch{}
+  };
+
+  // Teclado universal por posição física (KeyboardEvent.code), independente
+  // das letras impressas em QWERTY, AZERTY, QWERTZ ou ABNT2.
+  const inputModal=document.getElementById('mga-input-modal');
+  const profileSelect=document.getElementById('mga-keyboard-profile');
+  const keyboardModeButton=document.getElementById('mga-keyboard-mode');
+  const gamepadStatus=document.getElementById('mga-input-gamepads');
+  let keyboardProfile=localStorage.getItem('mga_keyboard_profile')==='alternate'?'alternate':'arcade';
+  const pressedInputs=new Map();
+  if(profileSelect)profileSelect.value=keyboardProfile;
+
+  const keyboardMaps={
+    arcade:{
+      KeyZ:[0,0],KeyX:[0,1],KeyC:[0,2],Enter:[0,3],ArrowUp:[0,4],ArrowDown:[0,5],ArrowLeft:[0,6],ArrowRight:[0,7],KeyA:[0,8],KeyS:[0,9],
+      KeyJ:[1,0],KeyK:[1,1],KeyV:[1,2],KeyB:[1,3],KeyT:[1,4],KeyG:[1,5],KeyF:[1,6],KeyH:[1,7],KeyU:[1,8],KeyI:[1,9]
+    },
+    alternate:{
+      KeyJ:[0,0],KeyK:[0,1],KeyH:[0,2],KeyG:[0,3],KeyW:[0,4],KeyS:[0,5],KeyA:[0,6],KeyD:[0,7],KeyU:[0,8],KeyI:[0,9],
+      Numpad1:[1,0],Numpad3:[1,1],Numpad0:[1,2],NumpadEnter:[1,3],ArrowUp:[1,4],ArrowDown:[1,5],ArrowLeft:[1,6],ArrowRight:[1,7],Numpad7:[1,8],Numpad9:[1,9]
+    }
+  };
+  const releaseAllMappedKeys=()=>{
+    for(const [code,input] of pressedInputs){
+      try{window.EJS_emulator?.gameManager?.simulateInput(input[0],input[1],0)}catch{}
+      pressedInputs.delete(code);
+    }
+  };
+  const canUseKeyboard=()=>{
+    const remapPopup=window.EJS_emulator?.controlPopup?.parentElement?.parentElement;
+    const remapping=remapPopup&&!remapPopup.hasAttribute('hidden');
+    return keyboardEnabled&&started&&!remapping&&!inputModal?.classList.contains('open')&&!document.getElementById('mga-saves-modal')?.classList.contains('open')&&!document.activeElement?.matches('input,textarea,select,[contenteditable="true"]');
+  };
+  document.addEventListener('keydown',event=>{
+    if(pressedInputs.has(event.code)){event.preventDefault();return}
+    if(!canUseKeyboard())return;
+    const input=keyboardMaps[keyboardProfile]?.[event.code];
+    if(!input)return;
+    const manager=window.EJS_emulator?.gameManager;
+    if(typeof manager?.simulateInput!=='function')return;
+    const nativeKey=manager.controls?.[input[0]]?.[input[1]]?.value;
+    if(nativeKey!==undefined&&nativeKey!==null&&nativeKey!==''&&Number(nativeKey)>0)return;
+    event.preventDefault();
+    try{manager.simulateInput(input[0],input[1],1);pressedInputs.set(event.code,input)}catch(error){log('Teclado arcade: '+(error?.message||error))}
+  },true);
+  document.addEventListener('keyup',event=>{
+    const input=pressedInputs.get(event.code);
+    if(!input)return;
+    event.preventDefault();
+    try{window.EJS_emulator?.gameManager?.simulateInput(input[0],input[1],0)}catch{}
+    pressedInputs.delete(event.code);
+  },true);
+  addEventListener('blur',releaseAllMappedKeys);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseAllMappedKeys()});
+
+  const updateKeyboardProfileUI=()=>{
+    if(profileSelect)profileSelect.value=keyboardProfile;
+    const p1=document.getElementById('mga-player1-keys');
+    const p2=document.getElementById('mga-player2-keys');
+    if(p1)p1.textContent=keyboardProfile==='arcade'?'Setas · Z/X/A/S · C crédito · Enter start':'W/A/S/D · J/K/U/I · H crédito · G start';
+    if(p2)p2.textContent=keyboardProfile==='arcade'?'T/F/G/H · J/K/U/I · V crédito · B start':'Setas · numpad 1/3/7/9 · 0 crédito · Enter start';
+  };
+  const updateKeyboardModeUI=()=>{
+    if(!keyboardModeButton)return;
+    keyboardModeButton.setAttribute('aria-pressed',String(keyboardEnabled));
+    keyboardModeButton.textContent=keyboardEnabled?'⌨ Modo teclado: ligado':'⌨ Modo teclado: desligado';
+  };
+  updateKeyboardProfileUI();updateKeyboardModeUI();
+  window.MGA_onKeyboardProfileChange=profile=>{
+    releaseAllMappedKeys();keyboardProfile=profile==='alternate'?'alternate':'arcade';
+    updateKeyboardProfileUI();showToast(keyboardProfile==='arcade'?'Perfil arcade P1/P2 ativado':'Perfil alternativo P1/P2 ativado');
+  };
+  window.MGA_onKeyboardModeChange=enabled=>{
+    keyboardEnabled=Boolean(enabled);
+    if(!keyboardEnabled)releaseAllMappedKeys();
+    try{window.EJS_emulator?.gameManager?.setKeyboardEnabled?.(keyboardEnabled)}catch{}
+    updateKeyboardModeUI();
+    if(typeof showToast==='function')showToast(keyboardEnabled?'Teclado ativado':'Teclado desativado');
+  };
+
+  const listGamepads=()=>{
+    let pads=[];
+    try{pads=[...navigator.getGamepads()].filter(pad=>pad?.connected).sort((a,b)=>a.index-b.index)}catch{}
+    if(gamepadStatus){
+      gamepadStatus.innerHTML=pads.length?pads.map((pad,index)=>{
+        const safeId=String(pad.id||'Controle').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+      const selection=window.EJS_emulator?.gamepadSelection||[];
+      const playerIndex=selection.indexOf(`${pad.id}_${pad.index}`);
+      const playerLabel=playerIndex>=0?`P${playerIndex+1}`:`Controle ${index+1}`;
+      const mapping=pad.mapping==='standard'?'padrão':'genérico';
+      return `<strong>${playerLabel} · ${safeId}</strong> — conectado · ${mapping} (índice ${pad.index})`;
+      }).join('<br>'):'Nenhum controle conectado. Conecte USB/Bluetooth e toque em “Atualizar controles”.';
+    }
+    return pads;
+  };
+  // Fallback independente do mapeamento do EmulatorJS. Alguns controles USB,
+  // Bluetooth, arcade sticks e adaptadores baratos aparecem como "genérico"
+  // e não recebem um perfil automático do navegador. Neste caso, traduzimos
+  // a Gamepad API diretamente para os 10 inputs do arcade, com suporte a dois
+  // jogadores e ao analógico como D-pad alternativo.
+  const gamepadPressed=new Map();
+  let gamepadPollFrame=0;
+  const gamepadCanInput=()=>started&&!inputModal?.classList.contains('open')&&!document.activeElement?.matches('input,textarea,select,[contenteditable="true"]');
+  const gamepadDown=(pad,index)=>Boolean(pad.buttons?.[index]?.pressed||Number(pad.buttons?.[index]?.value)>0.5);
+  const gamepadAxis=(pad,index,positive)=>{
+    const value=Number(pad.axes?.[index]||0);
+    return positive?value>0.45:value<-0.45;
+  };
+  const releaseGamepadInputs=()=>{
+    const manager=window.EJS_emulator?.gameManager;
+    if(typeof manager?.simulateInput==='function'){
+      for(const key of gamepadPressed.keys()){
+        const [player,input]=key.split(':').map(Number);
+        try{manager.simulateInput(player,input,0)}catch{}
+      }
+    }
+    gamepadPressed.clear();
+  };
+  const pollGamepads=()=>{
+    gamepadPollFrame=0;
+    let pads=[];
+    try{pads=[...navigator.getGamepads()].filter(pad=>pad?.connected).sort((a,b)=>a.index-b.index)}catch{}
+    if(!pads.length||!gamepadCanInput()){
+      if(gamepadPressed.size)releaseGamepadInputs();
+      if(pads.length)gamepadPollFrame=window.requestAnimationFrame(pollGamepads);
+      return;
+    }
+    const next=new Set();
+    const add=(player,input,active)=>{if(active)next.add(`${player}:${input}`)};
+    pads.slice(0,2).forEach((pad,player)=>{
+      // Face buttons: A/B/X/Y e os equivalentes do layout genérico.
+      add(player,0,gamepadDown(pad,0));
+      add(player,1,gamepadDown(pad,1));
+      add(player,8,gamepadDown(pad,2));
+      add(player,9,gamepadDown(pad,3));
+      // Select/Start e o D-pad padrão.
+      add(player,2,gamepadDown(pad,8));
+      add(player,3,gamepadDown(pad,9));
+      add(player,4,gamepadDown(pad,12)||gamepadAxis(pad,1,false));
+      add(player,5,gamepadDown(pad,13)||gamepadAxis(pad,1,true));
+      add(player,6,gamepadDown(pad,14)||gamepadAxis(pad,0,false));
+      add(player,7,gamepadDown(pad,15)||gamepadAxis(pad,0,true));
+    });
+    const manager=window.EJS_emulator?.gameManager;
+    if(typeof manager?.simulateInput==='function'){
+      for(const key of gamepadPressed){
+        if(next.has(key))continue;
+        const [player,input]=key.split(':').map(Number);
+        try{manager.simulateInput(player,input,0)}catch{}
+      }
+      for(const key of next){
+        if(gamepadPressed.has(key))continue;
+        const [player,input]=key.split(':').map(Number);
+        try{manager.simulateInput(player,input,1)}catch{}
+      }
+    }
+    gamepadPressed.clear();
+    next.forEach(key=>gamepadPressed.set(key,true));
+    gamepadPollFrame=window.requestAnimationFrame(pollGamepads);
+  };
+  const startGamepadPolling=()=>{
+    if(!gamepadPollFrame)gamepadPollFrame=window.requestAnimationFrame(pollGamepads);
+  };
+  const closeInputModal=()=>window.MGA_closeInputSettings?.();
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&inputModal?.classList.contains('open')){
+      event.preventDefault();event.stopPropagation();closeInputModal();
+    }
+  },true);
+  document.getElementById('mga-refresh-gamepads')?.addEventListener('click',()=>{
+    const pads=listGamepads();
+    try{window.EJS_emulator?.updateGamepadLabels?.();window.EJS_emulator?.checkGamepadInputs?.()}catch{}
+    startGamepadPolling();
+    showToast(pads.length?`${pads.length} controle(s) detectado(s)`:'Nenhum controle detectado');
+  });
+  addEventListener('gamepadconnected',()=>{listGamepads();startGamepadPolling()});
+  addEventListener('gamepaddisconnected',()=>{listGamepads();startGamepadPolling()});
+  addEventListener('blur',releaseGamepadInputs);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseGamepadInputs()});
+  startGamepadPolling();
+  document.getElementById('mga-open-remap')?.addEventListener('click',()=>{
+    closeInputModal();
+    const emulator=window.EJS_emulator;
+    const remapButton=emulator?.elements?.bottomBar?.gamepad?.[0];
+    if(remapButton){remapButton.click();return}
+    const settingsButton=emulator?.elements?.bottomBar?.settings?.[0];
+    if(settingsButton){settingsButton.click();showToast('Abra “Control Settings” nas configurações');return}
+    showToast('Remapeador ainda carregando; tente novamente em alguns segundos');
+  });
+
+  // Inicia somente uma vez. O clique duplicado era capaz de chamar
+  // toggleMainLoop antes de o módulo interno do EmulatorJS estar pronto.
+  const findStartButton=()=>{
+    // Só o botão de início real do EmulatorJS (tela de start), nunca os
+    // botões da barra de controles (play/pause etc.), que chamam
+    // toggleMainLoop antes de o core existir.
+    const real=document.querySelector(
+      '.ejs_start_button,.ejs_startbutton,#ejs_start_button,.ejs_start_screen button,[class*="ejs-start"] button,[class*="ejs_start"] button'
+    );
+    if(real) return real;
+    const els=[...document.querySelectorAll('.ejs_start_screen button,.ejs_start_screen [role="button"]')];
+    return els.find(e=>/^\s*(start game|start|play)\s*$/i.test((e.textContent||'').trim()))||null;
+  };
+
+  const tryStart=()=>{
+    if(started||attempting)return false;
+
+    // Com início automático ligado não clicamos em nada: o EmulatorJS
+    // inicia sozinho e qualquer clique cairia na barra de controles.
+    if(window.EJS_startOnLoaded){
+      log('Início automático ativo; nenhum clique sintético será feito.');
+      return false;
+    }
+
+    const b=findStartButton();
+    if(!b){
+      log('Botão de início real do EmulatorJS ainda não existe.');
+      return false;
+    }
+
+    attempting=true;
+    b.click();
+    log('Botão de início real acionado uma única vez');
+
+    setTimeout(()=>{
+      if(!started){
+        attempting=false;
+        if(!window.EJS_startOnLoaded)showManualStart();
+        log('O core ainda não iniciou; nova tentativa poderá ser feita manualmente.');
+      }
+    },5000);
+
+    return true;
+  };
+
+  const showManualStart=()=>{
+    if(!started){
+      status.style.display='none';
+      manual.style.display='block';
+      log('Aguardando clique do usuário para iniciar o Arcade/FBNeo');
+    }
+  };
+
+  manual.addEventListener('click',()=>{
+    manual.style.display='none';
+    const b=findStartButton();
+    if(b&&!started){
+      attempting=true;
+      b.click();
+      log('Início manual: botão real do EmulatorJS acionado');
+      setTimeout(()=>{if(!started)attempting=false;},5000);
+    }else{
+      log('Sem botão de início real; aguardando o início automático do core.');
+      if(!started) showManualStart();
+    }
+  });
+
+  // Não usamos listener global de clique: ele podia capturar o clique
+  // sintético do EmulatorJS e iniciar o core duas vezes.
+
+  const hideEmulatorUi=()=>{
+    document.querySelectorAll('#game button:not(.ejs_virtualGamepad_button),#game [role="button"]:not(.ejs_virtualGamepad_button),#game .ejs_menu_bar,#game .ejs_menu,#game .ejs_context_menu,#game .ejs_volume_parent').forEach(el=>{
+      el.style.display='none';
+    });
+  };
+  let hideUiFrame=0;
+  const scheduleHideEmulatorUi=()=>{
+    if(hideUiFrame)return;
+    hideUiFrame=requestAnimationFrame(()=>{
+      hideUiFrame=0;
+      hideEmulatorUi();
+    });
+  };
+
+  window.EJS_ready=()=>{
+    ready=true;
+    log(window.EJS_startOnLoaded
+      ? 'EmulatorJS pronto; o jogo será iniciado automaticamente'
+      : 'EmulatorJS pronto; aguardando toque para iniciar no celular');
+    // No celular, tente o botão interno apenas se ele já existir; caso
+    // contrário, mostre o botão manual sem manter uma tentativa concorrente.
+    setTimeout(()=>{
+      if(!started&&!attempting&&!window.EJS_startOnLoaded){
+        const didStart=tryStart();
+        if(!didStart)showManualStart();
+      }
+    },700);
+    hideEmulatorUi();
+    setTimeout(hideEmulatorUi,300);
+    setTimeout(hideEmulatorUi,1500);
+  };
+
+  addEventListener('error',e=>{
+    log('window.error: '+(e.message||'erro mascarado pelo CDN'));
+    if(attempting&&!started&&retriesLeft>0&&!window.EJS_startOnLoaded){
+      retriesLeft--;
+      attempting=false;
+      log('Possível corrida de inicialização — tentando novamente em 2.5s ('+retriesLeft+' restantes)');
+      retryTimer=setTimeout(()=>{
+        if(!started)tryStart();
+      },2500);
+    }
+  });
+
+  addEventListener('unhandledrejection',e=>{
+    log('unhandledrejection: '+(e.reason?.message||e.reason));
+  });
+
+  new MutationObserver(scheduleHideEmulatorUi).observe(document.getElementById('game'),{childList:true,subtree:true});
+
+  startWatchdog=setTimeout(()=>{
+    if(!ready&&!started){
+      fail('Arcade não carregou em 30s. Verifique a ROM, o BIOS e o endpoint de download.');
+    }
+  },30000);
+
+  setTimeout(()=>{
+    if(ready&&!started){
+      fail('EmulatorJS ficou pronto, mas o core Arcade (FBNeo) não iniciou a ROM. Confirme o romset e o BIOS.');
+    }
+  },45000);
+
+  // Os controles de teclado e gamepad são tratados pelo próprio EmulatorJS
+  // através de EJS_defaultControls (mapa acima). Nenhum remapeamento manual.
+
+  const script=document.createElement('script');
+  script.src=window.EJS_pathtodata+'loader.js';
+  script.async=true;
+  script.onerror=()=>{
+    log('loader.js local falhou — tentando fallback pelo CDN oficial.');
+    window.EJS_pathtodata='https://cdn.emulatorjs.org/'+EJS_PINNED_VERSION+'/data/';
+    const fallback=document.createElement('script');
+    fallback.src=window.EJS_pathtodata+'loader.js';
+    fallback.async=true;
+    fallback.crossOrigin='anonymous';
+    fallback.onerror=()=>fail('Não foi possível carregar o EmulatorJS (local nem CDN).');
+    document.head.appendChild(fallback);
+  };
+  document.head.appendChild(script);
+})();
+</script>
+</body>
+</html>

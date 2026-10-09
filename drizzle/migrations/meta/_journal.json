@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790639294539,
+      "tag": "0000_create_mga_saves",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790893252183,
+      "tag": "0001_create_mga_saves_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791027264509,
+      "tag": "0002_mga_upsert_save_function",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791240000000,
+      "tag": "0003_checkpoint_version",
+      "breakpoints": true
+    }
+  ]
+}

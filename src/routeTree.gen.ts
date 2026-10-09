@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BiosFileRouteImport } from './routes/$biosFile'
+import { Route as ControllerRouteImport } from './routes/controller'
+import { Route as AssetsSplatRouteImport } from './routes/assets/$'
+import { Route as FontsSplatRouteImport } from './routes/fonts/$'
+import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
+import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
+import { Route as ApiAuthSessionRouteImport } from './routes/api/auth/session'
+import { Route as ApiSavesIndexRouteImport } from './routes/api/saves/index'
+import { Route as ApiRomIdNameRouteImport } from './routes/api/rom/$id/$name'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BiosFileRoute = BiosFileRouteImport.update({
+  id: '/$biosFile',
+  path: '/$biosFile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ControllerRoute = ControllerRouteImport.update({
+  id: '/controller',
+  path: '/controller',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssetsSplatRoute = AssetsSplatRouteImport.update({
+  id: '/assets/$',
+  path: '/assets/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FontsSplatRoute = FontsSplatRouteImport.update({
+  id: '/fonts/$',
+  path: '/fonts/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
+  id: '/api/auth/logout',
+  path: '/api/auth/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthMeRoute = ApiAuthMeRouteImport.update({
+  id: '/api/auth/me',
+  path: '/api/auth/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSessionRoute = ApiAuthSessionRouteImport.update({
+  id: '/api/auth/session',
+  path: '/api/auth/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSavesIndexRoute = ApiSavesIndexRouteImport.update({
+  id: '/api/saves/',
+  path: '/api/saves/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRomIdNameRoute = ApiRomIdNameRouteImport.update({
+  id: '/api/rom/$id/$name',
+  path: '/api/rom/$id/$name',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$biosFile': typeof BiosFileRoute
+  '/controller': typeof ControllerRoute
+  '/assets/$': typeof AssetsSplatRoute
+  '/fonts/$': typeof FontsSplatRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/saves/': typeof ApiSavesIndexRoute
+  '/api/rom/$id/$name': typeof ApiRomIdNameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$biosFile': typeof BiosFileRoute
+  '/controller': typeof ControllerRoute
+  '/assets/$': typeof AssetsSplatRoute
+  '/fonts/$': typeof FontsSplatRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/saves': typeof ApiSavesIndexRoute
+  '/api/rom/$id/$name': typeof ApiRomIdNameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$biosFile': typeof BiosFileRoute
+  '/controller': typeof ControllerRoute
+  '/assets/$': typeof AssetsSplatRoute
+  '/fonts/$': typeof FontsSplatRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/saves/': typeof ApiSavesIndexRoute
+  '/api/rom/$id/$name': typeof ApiRomIdNameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/$biosFile'
+    | '/controller'
+    | '/assets/$'
+    | '/fonts/$'
+    | '/api/auth/logout'
+    | '/api/auth/me'
+    | '/api/auth/session'
+    | '/api/saves/'
+    | '/api/rom/$id/$name'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/$biosFile'
+    | '/controller'
+    | '/assets/$'
+    | '/fonts/$'
+    | '/api/auth/logout'
+    | '/api/auth/me'
+    | '/api/auth/session'
+    | '/api/saves'
+    | '/api/rom/$id/$name'
+  id:
+    | '__root__'
+    | '/'
+    | '/$biosFile'
+    | '/controller'
+    | '/assets/$'
+    | '/fonts/$'
+    | '/api/auth/logout'
+    | '/api/auth/me'
+    | '/api/auth/session'
+    | '/api/saves/'
+    | '/api/rom/$id/$name'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BiosFileRoute: typeof BiosFileRoute
+  ControllerRoute: typeof ControllerRoute
+  AssetsSplatRoute: typeof AssetsSplatRoute
+  FontsSplatRoute: typeof FontsSplatRoute
+  ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiAuthMeRoute: typeof ApiAuthMeRoute
+  ApiAuthSessionRoute: typeof ApiAuthSessionRoute
+  ApiSavesIndexRoute: typeof ApiSavesIndexRoute
+  ApiRomIdNameRoute: typeof ApiRomIdNameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +169,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$biosFile': {
+      id: '/$biosFile'
+      path: '/$biosFile'
+      fullPath: '/$biosFile'
+      preLoaderRoute: typeof BiosFileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/controller': {
+      id: '/controller'
+      path: '/controller'
+      fullPath: '/controller'
+      preLoaderRoute: typeof ControllerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assets/$': {
+      id: '/assets/$'
+      path: '/assets/$'
+      fullPath: '/assets/$'
+      preLoaderRoute: typeof AssetsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fonts/$': {
+      id: '/fonts/$'
+      path: '/fonts/$'
+      fullPath: '/fonts/$'
+      preLoaderRoute: typeof FontsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/logout': {
+      id: '/api/auth/logout'
+      path: '/api/auth/logout'
+      fullPath: '/api/auth/logout'
+      preLoaderRoute: typeof ApiAuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/me': {
+      id: '/api/auth/me'
+      path: '/api/auth/me'
+      fullPath: '/api/auth/me'
+      preLoaderRoute: typeof ApiAuthMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/session': {
+      id: '/api/auth/session'
+      path: '/api/auth/session'
+      fullPath: '/api/auth/session'
+      preLoaderRoute: typeof ApiAuthSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/saves/': {
+      id: '/api/saves/'
+      path: '/api/saves'
+      fullPath: '/api/saves/'
+      preLoaderRoute: typeof ApiSavesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rom/$id/$name': {
+      id: '/api/rom/$id/$name'
+      path: '/api/rom/$id/$name'
+      fullPath: '/api/rom/$id/$name'
+      preLoaderRoute: typeof ApiRomIdNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BiosFileRoute: BiosFileRoute,
+  ControllerRoute: ControllerRoute,
+  AssetsSplatRoute: AssetsSplatRoute,
+  FontsSplatRoute: FontsSplatRoute,
+  ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiAuthMeRoute: ApiAuthMeRoute,
+  ApiAuthSessionRoute: ApiAuthSessionRoute,
+  ApiSavesIndexRoute: ApiSavesIndexRoute,
+  ApiRomIdNameRoute: ApiRomIdNameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
