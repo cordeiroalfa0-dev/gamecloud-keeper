@@ -130,7 +130,7 @@ const prettyFallback = (name: string) =>
 async function waitForBridge(): Promise<void> {
   await new Promise<void>((resolve) => {
     const script = document.createElement("script");
-    script.src = "/web/mame-web.js?v=20261008-loading-art-v13";
+    script.src = "/web/mame-web.js?v=20261009-landscape-gesture-v16";
     script.onload = () => resolve();
     script.onerror = () => resolve();
     document.head.appendChild(script);
@@ -356,8 +356,48 @@ export function GameLibrary({
     }
   };
 
+  const enterMobileLandscape = () => {
+    if (!window.matchMedia("(pointer: coarse)").matches) return;
+
+    const root = document.documentElement as HTMLElement & {
+      webkitRequestFullscreen?: () => Promise<void> | void;
+    };
+    const requestFullscreen =
+      root.requestFullscreen?.bind(root) ?? root.webkitRequestFullscreen?.bind(root);
+    const orientation = screen.orientation as typeof screen.orientation & {
+      lock?: (value: string) => Promise<void>;
+    };
+    const lockLandscape = () => {
+      try {
+        const lock = orientation?.lock;
+        if (lock) void lock.call(orientation, "landscape").catch(() => {});
+      } catch {
+        // Alguns navegadores não permitem bloquear a orientação; o giro manual continua válido.
+      }
+    };
+
+    if (document.fullscreenElement) {
+      lockLandscape();
+      return;
+    }
+
+    try {
+      const result = requestFullscreen?.();
+      // Tenta no mesmo gesto e novamente após a tela cheia; navegadores variam
+      // quanto ao momento em que liberam screen.orientation.lock().
+      lockLandscape();
+      if (result && typeof (result as Promise<void>).then === "function") {
+        void Promise.resolve(result).then(lockLandscape).catch(lockLandscape);
+      }
+    } catch {
+      lockLandscape();
+    }
+  };
+
   const playGame = async (rom: string) => {
     if (launching) return;
+    // Deve ocorrer no toque original, antes do fetch que abre o player.
+    enterMobileLandscape();
     setLaunchError("");
     setLaunching(rom);
     try {

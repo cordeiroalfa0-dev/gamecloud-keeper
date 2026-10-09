@@ -358,8 +358,10 @@
     #loading-art{position:fixed;inset:0;z-index:99990;background:#030006 url('/assets/game-loading-art.png') center/cover no-repeat;transition:opacity .35s ease;}
     #loading-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.62));}
     #loading-art.hidden{opacity:0;pointer-events:none;}
-    #mga-rotate-warning{position:fixed;inset:0;z-index:100020;display:none;place-items:center;background:rgba(3,0,8,.96);color:#00e5ff;text-align:center;padding:24px;box-sizing:border-box;font:bold 16px monospace;line-height:1.6;text-shadow:0 0 10px #00e5ff}
+    #mga-rotate-warning{position:fixed;inset:0;z-index:100020;display:none;place-items:center;gap:14px;background:rgba(3,0,8,.96);color:#00e5ff;text-align:center;padding:24px;box-sizing:border-box;font:bold 16px monospace;line-height:1.6;text-shadow:0 0 10px #00e5ff}
     #mga-rotate-warning.show{display:grid!important}
+    #mga-rotate-action{min-height:48px;max-width:min(420px,100%);padding:12px 18px;background:#08000f;border:2px solid #00e5ff;border-radius:6px;box-shadow:0 0 16px #00e5ff55;color:#00e5ff;font:bold 13px monospace;cursor:pointer;touch-action:manipulation;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+    #mga-rotate-action:active{background:#00e5ff22;transform:scale(.98)}
     @media (orientation:portrait), (max-aspect-ratio:3/4){
       #loading-art{background-image:url('/assets/fighters-loading-portrait.png');}
       #difficulty-setup{background-image:linear-gradient(rgba(3,0,6,.68),rgba(3,0,6,.82)),url('/assets/fighters-loading-portrait.png');}
@@ -503,7 +505,11 @@
 <body translate="no" class="notranslate">
   <div id="game"></div>
   <div id="loading-art" aria-label="Imagem de carregamento"></div>
-  <div id="mga-rotate-warning" role="status">GIRE O CELULAR<br><small style="color:#fff;font-size:12px">Este jogo funciona na horizontal.</small></div>
+  <div id="mga-rotate-warning" role="dialog" aria-modal="true" aria-label="Orientação horizontal">
+    <strong>ESTE JOGO FUNCIONA NA HORIZONTAL</strong>
+    <small id="mga-rotate-help" style="color:#fff;font-size:12px">Toque para tentar tela cheia horizontal ou gire o aparelho.</small>
+    <button id="mga-rotate-action" type="button">⛶ TENTAR MODO HORIZONTAL</button>
+  </div>
   <div id="status">CARREGANDO...</div>
   <pre id="debug"></pre>
   <button id="manual-start" type="button">▶ CLIQUE PARA INICIAR</button>
@@ -555,11 +561,6 @@
     cloudAccessToken=typeof token==='string'&&token.length<=8192?token:'';
   });
   window.parent.postMessage({type:'mga-request-cloud-access-token'},location.origin);
-  try {
-    if (screen.orientation?.lock) {
-      screen.orientation.lock("landscape").catch(()=>{});
-    }
-  } catch {}
   const q=new URLSearchParams(location.search);
   const rom=q.get('rom');
   const biosUrl=q.get('bios')||'';
@@ -572,6 +573,8 @@
   const debug=document.getElementById('debug');
   const manual=document.getElementById('manual-start');
   const rotateWarning=document.getElementById('mga-rotate-warning');
+  const rotateAction=document.getElementById('mga-rotate-action');
+  const rotateHelp=document.getElementById('mga-rotate-help');
   const logs=[];
   let difficulty;
 
@@ -905,24 +908,52 @@
   };
 
   const goFullscreen=()=>{
+    const setRotateHelp=text=>{if(rotateHelp)rotateHelp.textContent=text;};
+    const lockLandscape=()=>{
+      if(!isTouchDevice)return;
+      try{
+        const orientation=screen.orientation;
+        const lock=orientation?.lock;
+        if(!lock){
+          setRotateHelp('Este navegador não bloqueia a orientação. Gire o aparelho e ative a rotação automática.');
+          return;
+        }
+        Promise.resolve(lock.call(orientation,'landscape')).then(()=>{
+          setRotateHelp('Modo horizontal ativado.');
+        }).catch(err=>{
+          setRotateHelp('Não foi possível girar automaticamente. Ative a rotação automática e gire o aparelho.');
+          log('Bloqueio de orientação recusado: '+(err?.message||err));
+        });
+      }catch(e){
+        setRotateHelp('Gire o aparelho manualmente e confirme que a rotação automática está ativada.');
+        log('Bloqueio de orientação falhou: '+(e?.message||e));
+      }
+    };
     try{
       const el=document.documentElement;
-      if(document.fullscreenElement)return;
+      if(document.fullscreenElement){lockLandscape();return;}
       const req=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;
-      if(req){
-        const p=req.call(el,{navigationUI:'hide'});
-        if(p&&p.then)p.then(()=>{
-          // Ao abrir o jogo, trava a tela em horizontal automaticamente.
-          if(isTouchDevice&&screen.orientation?.lock){
-            screen.orientation.lock('landscape').catch(err=>log('Bloqueio de orientação recusado: '+(err?.message||err)));
-          }
-        }).catch(err=>log('Tela cheia recusada: '+(err?.message||err)));
-        log('Tela cheia solicitada');
+      if(!req){
+        setRotateHelp('Tela cheia indisponível neste navegador. Gire o aparelho manualmente.');
+        lockLandscape();
+        return;
       }
+      const p=req.call(el,{navigationUI:'hide'});
+      // A primeira tentativa usa o gesto atual; a segunda roda depois da
+      // confirmação de fullscreen, exigida por alguns navegadores.
+      lockLandscape();
+      if(p&&p.then)p.then(lockLandscape).catch(err=>{
+        setRotateHelp('Tela cheia bloqueada. Gire o aparelho e ative a rotação automática.');
+        log('Tela cheia recusada: '+(err?.message||err));
+      });
+      log('Tela cheia solicitada pelo usuário');
     }catch(e){
+      setRotateHelp('Tela cheia bloqueada. Gire o aparelho e ative a rotação automática.');
       log('Tela cheia falhou: '+(e?.message||e));
+      lockLandscape();
     }
   };
+  rotateAction?.addEventListener('click',goFullscreen);
 
   document.addEventListener('fullscreenchange',()=>{
     if(!document.fullscreenElement&&screen.orientation?.unlock){
