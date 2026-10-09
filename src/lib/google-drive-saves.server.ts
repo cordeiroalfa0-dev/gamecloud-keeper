@@ -8,35 +8,26 @@ type CloudSave = {
 
 type DriveFile = { id: string; name?: string };
 
-const DRIVE_API = "https://www.googleapis.com/drive/v3";
-const DRIVE_UPLOAD_API = "https://www.googleapis.com/upload/drive/v3";
-const TOKEN_API = "https://oauth2.googleapis.com/token";
+const GATEWAY_BASE = "https://connector-gateway.lovable.dev/google_drive";
+const DRIVE_API = `${GATEWAY_BASE}/drive/v3`;
+const DRIVE_UPLOAD_API = `${GATEWAY_BASE}/upload/drive/v3`;
 const SAVE_FOLDER_NAME = "Master Games Arcade Saves";
 const APP_PROPERTY_KEY = "mga_save_key";
 const MAX_UPLOAD_BYTES = 10_000_000;
 
-let cachedAccessToken = "";
-let accessTokenExpiresAt = 0;
-let tokenRefresh: Promise<string> | null = null;
-
 function config() {
-  const clientId = process.env["GOOGLE_DRIVE_CLIENT_ID"];
-  const clientSecret = process.env["GOOGLE_DRIVE_CLIENT_SECRET"];
-  const refreshToken = process.env["GOOGLE_DRIVE_REFRESH_TOKEN"];
-  if (!clientId || !clientSecret || !refreshToken) {
+  const lovableApiKey = process.env["LOVABLE_API_KEY"];
+  const connectionApiKey = process.env["GOOGLE_DRIVE_API_KEY"];
+  if (!lovableApiKey || !connectionApiKey) {
     throw new Error(
-      "Google Drive não configurado. Defina GOOGLE_DRIVE_CLIENT_ID, GOOGLE_DRIVE_CLIENT_SECRET e GOOGLE_DRIVE_REFRESH_TOKEN no ambiente do servidor.",
+      "Google Drive não configurado. Vincule a conexão do Google Drive ao projeto (LOVABLE_API_KEY e GOOGLE_DRIVE_API_KEY).",
     );
   }
-  return { clientId, clientSecret, refreshToken };
+  return { lovableApiKey, connectionApiKey };
 }
 
 export function isGoogleDriveSavesConfigured(): boolean {
-  return Boolean(
-    process.env["GOOGLE_DRIVE_CLIENT_ID"] &&
-    process.env["GOOGLE_DRIVE_CLIENT_SECRET"] &&
-    process.env["GOOGLE_DRIVE_REFRESH_TOKEN"],
-  );
+  return Boolean(process.env["LOVABLE_API_KEY"] && process.env["GOOGLE_DRIVE_API_KEY"]);
 }
 
 async function hash(value: string): Promise<string> {
@@ -44,51 +35,18 @@ async function hash(value: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-async function getAccessToken(): Promise<string> {
-  if (cachedAccessToken && Date.now() < accessTokenExpiresAt - 60_000) return cachedAccessToken;
-  if (tokenRefresh) return tokenRefresh;
-  tokenRefresh = (async () => {
-    const { clientId, clientSecret, refreshToken } = config();
-    const body = new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      grant_type: "refresh_token",
-    });
-    const response = await fetch(TOKEN_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
-    });
-    const payload = (await response.json().catch(() => null)) as {
-      access_token?: string;
-      expires_in?: number;
-    } | null;
-    if (!response.ok || !payload?.access_token) {
-      cachedAccessToken = "";
-      accessTokenExpiresAt = 0;
-      throw new Error(`Google OAuth token refresh failed (${response.status}).`);
-    }
-    cachedAccessToken = payload.access_token;
-    accessTokenExpiresAt = Date.now() + Math.max(60, Number(payload.expires_in) || 3600) * 1000;
-    return cachedAccessToken;
-  })();
-  try {
-    return await tokenRefresh;
-  } finally {
-    tokenRefresh = null;
-  }
-}
-
 async function driveRequest(url: string, init: RequestInit = {}): Promise<Response> {
-  const token = await getAccessToken();
+  const { lovableApiKey, connectionApiKey } = config();
   const headers = new Headers(init.headers);
-  headers.set("Authorization", `Bearer ${token}`);
+  headers.set("Authorization", `Bearer ${lovableApiKey}`);
+  headers.set("X-Connection-Api-Key", connectionApiKey);
   return fetch(url, { ...init, headers });
 }
 
 async function driveJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    console.error(`Google Drive gateway request failed [${response.status}]: ${body}`);
     // Não repassamos detalhes da API (ou tokens) ao cliente final.
     throw new Error(`Google Drive API request failed (${response.status}).`);
   }
@@ -154,30 +112,44 @@ async function uploadSave(
     ...(existingFile ? {} : { parents: [folderId] }),
     appProperties: { [APP_PROPERTY_KEY]: saveKey, mga_user_key: userKey },
   };
+
+  // Upload multipart em uma única requisição (funciona através do gateway,
+  // ao contrário do fluxo resumable que devolve uma URL direta do Google).
+  const boundary = `mga_${crypto.randomUUID().replace(/-/g, "")}`;
+  const encoder = new TextEncoder();
+  const parts = [
+    encoder.encode(
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n`,
+    ),
+    encoder.encode(`--${boundary}\r\nContent-Type: application/json\r\n\r\n`),
+    encoder.encode(encodedContent),
+    encoder.encode(`\r\n--${boundary}--`),
+  ];
+  const totalLength = parts.reduce((sum, part) => sum + part.byteLength, 0);
+  const body = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const part of parts) {
+    body.set(part, offset);
+    offset += part.byteLength;
+  }
+
   const filePath = existingFile ? `/files/${encodeURIComponent(existingFile.id)}` : "/files";
-  const start = await driveRequest(
-    `${DRIVE_UPLOAD_API}${filePath}?uploadType=resumable&fields=id,name`,
+  const response = await driveRequest(
+    `${DRIVE_UPLOAD_API}${filePath}?uploadType=multipart&fields=id,name`,
     {
       method: existingFile ? "PATCH" : "POST",
       headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-        "X-Upload-Content-Type": "application/json",
-        "X-Upload-Content-Length": String(new TextEncoder().encode(encodedContent).byteLength),
+        "Content-Type": `multipart/related; boundary=${boundary}`,
+        "Content-Length": String(totalLength),
       },
-      body: JSON.stringify(metadata),
+      body,
     },
   );
-  if (!start.ok) throw new Error(`Google Drive upload initialization failed (${start.status}).`);
-  const uploadUrl = start.headers.get("location");
-  if (!uploadUrl || new URL(uploadUrl).origin !== "https://www.googleapis.com") {
-    throw new Error("Google Drive did not return a valid resumable upload URL.");
+  if (!response.ok) {
+    const errorBody = await response.text().catch(() => "");
+    console.error(`Google Drive save upload failed [${response.status}]: ${errorBody}`);
+    throw new Error(`Google Drive save upload failed (${response.status}).`);
   }
-  const complete = await fetch(uploadUrl, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: encodedContent,
-  });
-  if (!complete.ok) throw new Error(`Google Drive save upload failed (${complete.status}).`);
 }
 
 export async function readGoogleDriveSave(
