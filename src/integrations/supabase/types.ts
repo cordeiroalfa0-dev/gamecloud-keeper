@@ -14,61 +14,13 @@ export type Database = {
   }
   public: {
     Tables: {
-      mga_saves: {
-        Row: {
-          core: string
-          checkpoint_version: number
-          date_str: string | null
-          preview: string | null
-          rom: string
-          saved_at: number
-          state_b64: string
-          user_id: string
-        }
-        Insert: {
-          core: string
-          checkpoint_version?: number
-          date_str?: string | null
-          preview?: string | null
-          rom: string
-          saved_at: number
-          state_b64: string
-          user_id: string
-        }
-        Update: {
-          core?: string
-          checkpoint_version?: number
-          date_str?: string | null
-          preview?: string | null
-          rom?: string
-          saved_at?: number
-          state_b64?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      mga_upsert_save: {
-        Args: {
-          p_core: string
-          p_checkpoint_version: number
-          p_date_str: string
-          p_preview: string
-          p_rom: string
-          p_saved_at: number
-          p_state_b64: string
-          p_user_id: string
-        }
-        Returns: {
-          saved_at: number
-          checkpoint_version: number
-          stored: boolean
-        }[]
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
