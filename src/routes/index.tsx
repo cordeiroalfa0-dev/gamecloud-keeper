@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { GameLibrary } from "@/components/GameLibrary";
 import { RemoteController } from "@/components/RemoteController";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -221,20 +220,21 @@ function Launcher({
           setLoginPending(true);
           const redirectUri = `${window.location.origin}/?launcher=1`;
           try {
-            const result = await lovable.auth.signInWithOAuth("google", {
-              redirect_uri: redirectUri,
+            // Use o fluxo nativo do Supabase. O broker `lovable.auth` só funciona
+            // em superfícies hospedadas pelo Lovable e falha quando o app é
+            // publicado a partir do GitHub em outro domínio.
+            const { error } = await supabase.auth.signInWithOAuth({
+              provider: "google",
+              options: {
+                redirectTo: redirectUri,
+                queryParams: {
+                  access_type: "offline",
+                  prompt: "select_account",
+                },
+              },
             });
-            if (result.error?.message === "Popup was blocked") {
-              const params = new URLSearchParams({
-                provider: "google",
-                redirect_uri: redirectUri,
-                state: crypto.randomUUID(),
-              });
-              window.location.assign(`/~oauth/initiate?${params.toString()}`);
-              return;
-            }
-            if (result.error) {
-              alert(`Não foi possível entrar com o Google: ${result.error.message}`);
+            if (error) {
+              alert(`Não foi possível entrar com o Google: ${error.message}`);
               setLoginPending(false);
             }
           } catch (error) {
