@@ -1335,6 +1335,7 @@
   };
   let cloudAvailable=null;
   let lastCloudSaveStatus='unknown';
+  let driveSaveNoticeShown=false;
   const syncCloudSave=async record=>{
     let cloudTimeout;
     try{
@@ -1371,6 +1372,10 @@
       }
       cloudAvailable=true;
       lastCloudSaveStatus='synced';
+      if(result?.storage==='google_drive'&&!driveSaveNoticeShown){
+        driveSaveNoticeShown=true;
+        showToast('☁ Save confirmado no Google Drive',4000);
+      }
       log('Save sincronizado na nuvem');
       return true;
     }catch(e){

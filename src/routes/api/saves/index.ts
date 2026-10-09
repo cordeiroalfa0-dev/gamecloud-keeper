@@ -147,6 +147,7 @@ async function upsert({ request }: { request: Request }) {
       return json(
         {
           ok: true,
+          storage: "google_drive",
           stored: result.stored,
           savedAt: result.save.savedAt,
           checkpointVersion: result.save.checkpointVersion,
@@ -201,6 +202,7 @@ async function upsert({ request }: { request: Request }) {
       return json(
         {
           ok: true,
+          storage: "supabase",
           stored: false,
           reason: "newer_remote",
           savedAt: Number(current.saved_at),
@@ -220,7 +222,7 @@ async function upsert({ request }: { request: Request }) {
       date_str: dateStr,
     });
     if (fallback.error) return json({ ok: false, error: fallback.error.message }, 500);
-    return json({ ok: true, stored: true, savedAt, checkpointVersion });
+    return json({ ok: true, storage: "supabase", stored: true, savedAt, checkpointVersion });
   }
   const stored = Array.isArray(result) ? result[0]?.stored !== false : true;
   const remoteSavedAt = Array.isArray(result) ? Number(result[0]?.saved_at || savedAt) : savedAt;
@@ -230,6 +232,7 @@ async function upsert({ request }: { request: Request }) {
   return json(
     {
       ok: true,
+      storage: "supabase",
       stored,
       savedAt: remoteSavedAt,
       checkpointVersion: remoteCheckpointVersion,
