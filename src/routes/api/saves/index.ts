@@ -55,7 +55,17 @@ async function get({ request }: { request: Request }) {
   }
 
   const drive = await import("@/lib/google-drive-saves.server");
-  if (drive.isGoogleDriveSavesConfigured()) {
+  const driveMode = drive.getGoogleDriveSavesMode();
+  if (driveMode === "misconfigured") {
+    return json(
+      {
+        ok: false,
+        error: "A integração com Google Drive está configurada incompletamente no servidor.",
+      },
+      503,
+    );
+  }
+  if (driveMode === "configured") {
     try {
       const data = await drive.readGoogleDriveSave(session.uid, rom, core);
       return json({ ok: true, save: data });
@@ -115,7 +125,17 @@ async function upsert({ request }: { request: Request }) {
   }
 
   const drive = await import("@/lib/google-drive-saves.server");
-  if (drive.isGoogleDriveSavesConfigured()) {
+  const driveMode = drive.getGoogleDriveSavesMode();
+  if (driveMode === "misconfigured") {
+    return json(
+      {
+        ok: false,
+        error: "A integração com Google Drive está configurada incompletamente no servidor.",
+      },
+      503,
+    );
+  }
+  if (driveMode === "configured") {
     try {
       const result = await drive.writeGoogleDriveSave(session.uid, rom, core, {
         stateB64,
@@ -232,7 +252,17 @@ async function remove({ request }: { request: Request }) {
   }
 
   const drive = await import("@/lib/google-drive-saves.server");
-  if (drive.isGoogleDriveSavesConfigured()) {
+  const driveMode = drive.getGoogleDriveSavesMode();
+  if (driveMode === "misconfigured") {
+    return json(
+      {
+        ok: false,
+        error: "A integração com Google Drive está configurada incompletamente no servidor.",
+      },
+      503,
+    );
+  }
+  if (driveMode === "configured") {
     try {
       await drive.deleteGoogleDriveSave(session.uid, rom, core);
       return json({ ok: true });

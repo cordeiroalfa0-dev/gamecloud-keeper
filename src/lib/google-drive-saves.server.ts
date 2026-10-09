@@ -7,47 +7,79 @@ type CloudSave = {
 };
 
 type DriveFile = { id: string; name?: string };
+type DriveSavesMode = "disabled" | "configured" | "misconfigured";
 
-const GATEWAY_BASE = "https://connector-gateway.lovable.dev/google_drive";
-const DRIVE_API = `${GATEWAY_BASE}/drive/v3`;
-const DRIVE_UPLOAD_API = `${GATEWAY_BASE}/upload/drive/v3`;
+const DRIVE_API = "https://www.googleapis.com/drive/v3";
+const DRIVE_UPLOAD_API = "https://www.googleapis.com/upload/drive/v3";
+const OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SAVE_FOLDER_NAME = "Master Games Arcade Saves";
 const APP_PROPERTY_KEY = "mga_save_key";
 const MAX_UPLOAD_BYTES = 10_000_000;
 
-function config() {
-  const lovableApiKey = process.env["LOVABLE_API_KEY"];
-  const connectionApiKey = process.env["GOOGLE_DRIVE_API_KEY"];
-  if (!lovableApiKey || !connectionApiKey) {
-    throw new Error(
-      "Google Drive não configurado. Vincule a conexão do Google Drive ao projeto (LOVABLE_API_KEY e GOOGLE_DRIVE_API_KEY).",
-    );
+let cachedAccessToken: { value: string; expiresAt: number } | null = null;
+
+function configuredCredentials() {
+  return {
+    clientId: process.env["GOOGLE_DRIVE_CLIENT_ID"],
+    clientSecret: process.env["GOOGLE_DRIVE_CLIENT_SECRET"],
+    refreshToken: process.env["GOOGLE_DRIVE_REFRESH_TOKEN"],
+  };
+}
+
+export function getGoogleDriveSavesMode(): DriveSavesMode {
+  const credentials = configuredCredentials();
+  const present = Object.values(credentials).filter(Boolean).length;
+  if (present === 0) return "disabled";
+  return present === 3 ? "configured" : "misconfigured";
+}
+
+async function getAccessToken(): Promise<string> {
+  const now = Date.now();
+  if (cachedAccessToken && cachedAccessToken.expiresAt > now + 60_000) {
+    return cachedAccessToken.value;
   }
-  return { lovableApiKey, connectionApiKey };
-}
 
-export function isGoogleDriveSavesConfigured(): boolean {
-  return Boolean(process.env["LOVABLE_API_KEY"] && process.env["GOOGLE_DRIVE_API_KEY"]);
-}
+  const { clientId, clientSecret, refreshToken } = configuredCredentials();
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error("A configuração OAuth do Google Drive está incompleta.");
+  }
 
-async function hash(value: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  const response = await fetch(OAUTH_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+      grant_type: "refresh_token",
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    console.error(`Google OAuth token refresh failed [${response.status}]: ${body}`);
+    throw new Error(`Google OAuth token refresh failed (${response.status}).`);
+  }
+
+  const token = (await response.json()) as { access_token?: string; expires_in?: number };
+  if (!token.access_token) throw new Error("Google OAuth did not return an access token.");
+  cachedAccessToken = {
+    value: token.access_token,
+    expiresAt: now + Math.max(60, Number(token.expires_in) || 3600) * 1000,
+  };
+  return token.access_token;
 }
 
 async function driveRequest(url: string, init: RequestInit = {}): Promise<Response> {
-  const { lovableApiKey, connectionApiKey } = config();
   const headers = new Headers(init.headers);
-  headers.set("Authorization", `Bearer ${lovableApiKey}`);
-  headers.set("X-Connection-Api-Key", connectionApiKey);
+  headers.set("Authorization", `Bearer ${await getAccessToken()}`);
   return fetch(url, { ...init, headers });
 }
 
 async function driveJson<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const body = await response.text().catch(() => "");
-    console.error(`Google Drive gateway request failed [${response.status}]: ${body}`);
-    // Não repassamos detalhes da API (ou tokens) ao cliente final.
+    console.error(`Google Drive API request failed [${response.status}]: ${body}`);
     throw new Error(`Google Drive API request failed (${response.status}).`);
   }
   return (await response.json()) as T;
@@ -113,8 +145,6 @@ async function uploadSave(
     appProperties: { [APP_PROPERTY_KEY]: saveKey, mga_user_key: userKey },
   };
 
-  // Upload multipart em uma única requisição (funciona através do gateway,
-  // ao contrário do fluxo resumable que devolve uma URL direta do Google).
   const boundary = `mga_${crypto.randomUUID().replace(/-/g, "")}`;
   const encoder = new TextEncoder();
   const parts = [
@@ -177,6 +207,11 @@ export async function readGoogleDriveSave(
     checkpointVersion: Number(save.checkpointVersion) || 0,
     dateStr: typeof save.dateStr === "string" ? save.dateStr : "",
   };
+}
+
+async function hash(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 export async function writeGoogleDriveSave(
