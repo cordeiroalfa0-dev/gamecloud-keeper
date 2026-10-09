@@ -180,6 +180,8 @@ function Launcher({
   cloudAccessToken: string | null;
   onLogout: () => void;
 }) {
+  const [loginPending, setLoginPending] = useState(false);
+
   const logout = async () => {
     try {
       await supabase.auth.signOut();
@@ -215,14 +217,37 @@ function Launcher({
       <button
         type="button"
         onClick={async () => {
-          const result = await lovable.auth.signInWithOAuth("google", {
-            redirect_uri: `${window.location.origin}/?launcher=1`,
-          });
-          if (result.error) alert("Não foi possível entrar com o Google.");
+          if (loginPending) return;
+          setLoginPending(true);
+          const redirectUri = `${window.location.origin}/?launcher=1`;
+          try {
+            const result = await lovable.auth.signInWithOAuth("google", {
+              redirect_uri: redirectUri,
+            });
+            if (result.error?.message === "Popup was blocked") {
+              const params = new URLSearchParams({
+                provider: "google",
+                redirect_uri: redirectUri,
+                state: crypto.randomUUID(),
+              });
+              window.location.assign(`/~oauth/initiate?${params.toString()}`);
+              return;
+            }
+            if (result.error) {
+              alert(`Não foi possível entrar com o Google: ${result.error.message}`);
+              setLoginPending(false);
+            }
+          } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            alert(`Falha ao iniciar o login Google: ${message}`);
+            setLoginPending(false);
+          }
         }}
+        disabled={loginPending}
+        aria-live="polite"
         className="rounded border border-cyan-500/50 px-1.5 py-0.5 text-cyan-300 hover:bg-cyan-400/10"
       >
-        Login Google
+        {loginPending ? "Abrindo Google…" : "Login Google"}
       </button>
     </div>
   );
