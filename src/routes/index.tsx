@@ -196,6 +196,28 @@ function Launcher({
 }) {
   const [loginPending, setLoginPending] = useState(false);
 
+  const signInWithGoogle = async (selectAccount = false) => {
+    if (loginPending) return;
+    setLoginPending(true);
+    try {
+      const { lovable } = await import("@/integrations/lovable");
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/?launcher=1`,
+        ...(selectAccount ? { extraParams: { prompt: "select_account" } } : {}),
+      });
+      if (result.error) {
+        alert(`Não foi possível entrar com o Google: ${result.error.message}`);
+        setLoginPending(false);
+        return;
+      }
+      if (!result.redirected) setLoginPending(false);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      alert(`Falha ao iniciar o login Google: ${message}`);
+      setLoginPending(false);
+    }
+  };
+
   const logout = async () => {
     try {
       await supabase.auth.signOut();
@@ -230,32 +252,21 @@ function Launcher({
       <span>Modo convidado · saves locais</span>
       <button
         type="button"
-        onClick={async () => {
-          if (loginPending) return;
-          setLoginPending(true);
-          try {
-            const { lovable } = await import("@/integrations/lovable");
-            const result = await lovable.auth.signInWithOAuth("google", {
-              redirect_uri: `${window.location.origin}/?launcher=1`,
-              extraParams: { prompt: "select_account" },
-            });
-            if (result.error) {
-              alert(`Não foi possível entrar com o Google: ${result.error.message}`);
-              setLoginPending(false);
-              return;
-            }
-            if (!result.redirected) setLoginPending(false);
-          } catch (error) {
-            const message = error instanceof Error ? error.message : String(error);
-            alert(`Falha ao iniciar o login Google: ${message}`);
-            setLoginPending(false);
-          }
-        }}
+        onClick={() => void signInWithGoogle()}
         disabled={loginPending}
         aria-live="polite"
         className="rounded border border-cyan-500/50 px-1.5 py-0.5 text-cyan-300 hover:bg-cyan-400/10"
       >
-        {loginPending ? "Abrindo Google…" : "Login Google"}
+        {loginPending ? "Abrindo Google…" : "Acessar com Google"}
+      </button>
+      <button
+        type="button"
+        onClick={() => void signInWithGoogle(true)}
+        disabled={loginPending}
+        title="Escolher outra conta Google"
+        className="rounded border border-cyan-500/30 px-1.5 py-0.5 text-cyan-400 hover:bg-cyan-400/10"
+      >
+        Outra conta
       </button>
     </div>
   );
