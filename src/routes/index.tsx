@@ -69,6 +69,23 @@ function Index() {
   const [user, setUser] = useState<MgaUser | null>(null);
   const [cloudAccessToken, setCloudAccessToken] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [oauthReturnPending, setOAuthReturnPending] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const params = new URLSearchParams(window.location.search);
+    const fragment = new URLSearchParams(
+      window.location.hash.replace(/^#/, "").replace(/^\?/, ""),
+    );
+    return (
+      params.has("code") ||
+      params.has("access_token") ||
+      params.has("error") ||
+      params.has("error_description") ||
+      fragment.has("access_token") ||
+      fragment.has("refresh_token") ||
+      fragment.has("error") ||
+      fragment.has("error_description")
+    );
+  });
 
   // Rede de segurança: nunca deixa a tela presa em "Carregando...".
   useEffect(() => {
@@ -95,13 +112,23 @@ function Index() {
       params.get("error") ||
       hashParams.get("error_description") ||
       hashParams.get("error");
-    const isOAuthReturn = Boolean(authCode || accessToken || refreshToken || oauthError);
+    const isOAuthReturn = Boolean(
+      authCode ||
+        accessToken ||
+        refreshToken ||
+        oauthError ||
+        params.has("code") ||
+        params.has("error") ||
+        params.has("error_description") ||
+        hashParams.has("error") ||
+        hashParams.has("error_description"),
+    );
     if (params.get("launcher") !== "1" && !isOAuthReturn) {
       window.location.replace("/intro.html");
       return;
     }
     if (isOAuthReturn) {
-      // Capturamos os dados OAuth acima e removemos-nos da barra de endereço antes da rede.
+      // Capturamos os dados OAuth acima e os removemos da barra antes de fazer chamadas de rede.
       const cleanParams = new URLSearchParams(params);
       for (const key of [
         "code",
@@ -114,6 +141,9 @@ function Index() {
         "token_type",
         "expires_in",
         "expires_at",
+        "id_token",
+        "provider_token",
+        "provider_refresh_token",
       ]) {
         cleanParams.delete(key);
       }
@@ -207,6 +237,8 @@ function Index() {
           alert("O Google retornou ao app, mas não foi possível concluir o login. Tente novamente.");
         }
         setGuest();
+      } finally {
+        if (isOAuthReturn && !cancelled) setOAuthReturnPending(false);
       }
     };
     refresh();
@@ -218,7 +250,7 @@ function Index() {
 
   if (isController) return <RemoteController />;
 
-  if (authState === "checking" && !ready) {
+  if (authState === "checking" && (!ready || oauthReturnPending)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black text-sm text-cyan-400">
         Carregando...
