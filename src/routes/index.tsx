@@ -218,25 +218,18 @@ function Launcher({
         onClick={async () => {
           if (loginPending) return;
           setLoginPending(true);
-          const redirectUri = `${window.location.origin}/?launcher=1`;
           try {
-            // Use o fluxo nativo do Supabase. O broker `lovable.auth` só funciona
-            // em superfícies hospedadas pelo Lovable e falha quando o app é
-            // publicado a partir do GitHub em outro domínio.
-            const { error } = await supabase.auth.signInWithOAuth({
-              provider: "google",
-              options: {
-                redirectTo: redirectUri,
-                queryParams: {
-                  access_type: "offline",
-                  prompt: "select_account",
-                },
-              },
+            const { lovable } = await import("@/integrations/lovable");
+            const result = await lovable.auth.signInWithOAuth("google", {
+              redirect_uri: window.location.origin,
+              extraParams: { prompt: "select_account" },
             });
-            if (error) {
-              alert(`Não foi possível entrar com o Google: ${error.message}`);
+            if (result.error) {
+              alert(`Não foi possível entrar com o Google: ${result.error.message}`);
               setLoginPending(false);
+              return;
             }
+            if (!result.redirected) setLoginPending(false);
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             alert(`Falha ao iniciar o login Google: ${message}`);
