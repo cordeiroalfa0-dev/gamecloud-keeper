@@ -85,9 +85,24 @@ function Index() {
   useEffect(() => {
     // A intro é a porta de entrada; o launcher só abre depois de pressionar Start.
     if (isController || isTv) return;
-    if (new URLSearchParams(window.location.search).get("launcher") !== "1") {
+    const params = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
+    // Retorno do login Google: a URL traz o código/tokens da sessão.
+    // Não redirecionar para a intro antes de o Supabase processar isso,
+    // senão a sessão se perde e o usuário volta deslogado.
+    const isOAuthReturn =
+      params.has("code") ||
+      hash.includes("access_token") ||
+      hash.includes("refresh_token") ||
+      params.has("error") ||
+      hash.includes("error");
+    if (params.get("launcher") !== "1" && !isOAuthReturn) {
       window.location.replace("/intro.html");
       return;
+    }
+    if (isOAuthReturn && params.get("launcher") !== "1") {
+      // Limpa os tokens da URL e entra no launcher mantendo a sessão.
+      window.history.replaceState(null, "", "/?launcher=1");
     }
 
     let cancelled = false;
