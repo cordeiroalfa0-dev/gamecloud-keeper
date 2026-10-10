@@ -236,7 +236,7 @@ function Launcher({
           try {
             const { lovable } = await import("@/integrations/lovable");
             const result = await lovable.auth.signInWithOAuth("google", {
-              redirect_uri: window.location.origin,
+              redirect_uri: `${window.location.origin}/?launcher=1`,
               extraParams: { prompt: "select_account" },
             });
             if (result.error) {
