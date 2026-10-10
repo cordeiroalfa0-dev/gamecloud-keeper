@@ -86,23 +86,44 @@ function Index() {
     // A intro é a porta de entrada; o launcher só abre depois de pressionar Start.
     if (isController || isTv) return;
     const params = new URLSearchParams(window.location.search);
-    const hash = window.location.hash;
-    // Retorno do login Google: a URL traz o código/tokens da sessão.
-    // Não redirecionar para a intro antes de o Supabase processar isso,
-    // senão a sessão se perde e o usuário volta deslogado.
-    const isOAuthReturn =
-      params.has("code") ||
-      hash.includes("access_token") ||
-      hash.includes("refresh_token") ||
-      params.has("error") ||
-      hash.includes("error");
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, "").replace(/^\?/, ""));
+    const authCode = params.get("code");
+    const accessToken = hashParams.get("access_token") ?? params.get("access_token");
+    const refreshToken = hashParams.get("refresh_token") ?? params.get("refresh_token");
+    const oauthError =
+      params.get("error_description") ||
+      params.get("error") ||
+      hashParams.get("error_description") ||
+      hashParams.get("error");
+    const isOAuthReturn = Boolean(authCode || accessToken || refreshToken || oauthError);
     if (params.get("launcher") !== "1" && !isOAuthReturn) {
       window.location.replace("/intro.html");
       return;
     }
-    if (isOAuthReturn && params.get("launcher") !== "1") {
-      // Limpa os tokens da URL e entra no launcher mantendo a sessão.
-      window.history.replaceState(null, "", "/?launcher=1");
+    if (isOAuthReturn) {
+      // Capturamos os dados OAuth acima e removemos-nos da barra de endereço antes da rede.
+      const cleanParams = new URLSearchParams(params);
+      for (const key of [
+        "code",
+        "state",
+        "error",
+        "error_description",
+        "error_uri",
+        "access_token",
+        "refresh_token",
+        "token_type",
+        "expires_in",
+        "expires_at",
+      ]) {
+        cleanParams.delete(key);
+      }
+      cleanParams.set("launcher", "1");
+      const cleanQuery = cleanParams.toString();
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}${cleanQuery ? `?${cleanQuery}` : ""}`,
+      );
     }
 
     let cancelled = false;
@@ -139,6 +160,36 @@ function Index() {
     const refresh = async () => {
       const versionAtStart = authEventVersion;
       try {
+        if (oauthError) {
+          setGuest();
+          alert("O Google não concluiu o login. Tente novamente.");
+          return;
+        }
+
+        if (authCode) {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
+          if (error) throw error;
+          if (data.session) {
+            applySession(data.session);
+            return;
+          }
+        }
+
+        if (accessToken || refreshToken) {
+          if (!accessToken || !refreshToken) {
+            throw new Error("O retorno do Google não trouxe os dois tokens da sessão.");
+          }
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (error) throw error;
+          if (data.session) {
+            applySession(data.session);
+            return;
+          }
+        }
+
         const { data } = await getSessionWithTimeout();
         if (cancelled) return;
         if (data.session) {
@@ -146,9 +197,15 @@ function Index() {
           return;
         }
         if (versionAtStart !== authEventVersion) return;
+        if (isOAuthReturn) {
+          alert("O Google retornou ao app, mas a sessão não foi criada. Tente entrar novamente.");
+        }
         setGuest();
       } catch (error) {
-        console.warn("Sessão indisponível; continuando como convidado.", error);
+        console.warn("Não foi possível concluir a sessão do login Google.");
+        if (isOAuthReturn) {
+          alert("O Google retornou ao app, mas não foi possível concluir o login. Tente novamente.");
+        }
         setGuest();
       }
     };
