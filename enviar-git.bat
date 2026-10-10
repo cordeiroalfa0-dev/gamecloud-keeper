@@ -80,7 +80,7 @@ echo.
 
 set "MSG="
 set /p MSG=Mensagem do commit (Enter para usar a padrao): 
-if "%MSG%"=="" set "MSG=Ajustes: protecao SSR no RemoteController e JWT_SECRET no .env.example"
+if "%MSG%"=="" set "MSG=Ajustes: botao Pular na intro, protecao SSR no RemoteController e JWT_SECRET no .env.example"
 
 git commit -m "%MSG%"
 if errorlevel 1 (
