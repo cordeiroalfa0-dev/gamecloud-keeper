@@ -17,6 +17,8 @@ type InstallPromptEvent = Event & {
 const REMOTE_SESSION_KEY = "mga-remote-session-v1";
 
 const readRemoteSession = (): RemoteSession => {
+  // Durante o SSR não existe window/sessionStorage: devolve a sessão vazia.
+  if (typeof window === "undefined") return { room: "", player: 1 };
   const params = new URLSearchParams(window.location.search);
   const fromUrl = {
     room: (params.get("room") || "").toUpperCase(),
