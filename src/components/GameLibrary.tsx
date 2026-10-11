@@ -167,6 +167,7 @@ export function GameLibrary({
   const [isWindowOpen, setIsWindowOpen] = useState(true);
   const [isWindowExpanded, setIsWindowExpanded] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [castStatus, setCastStatus] = useState("");
 
   useEffect(() => {
     mountedRef.current = true;
@@ -394,6 +395,25 @@ export function GameLibrary({
     }
   };
 
+  const startWebCast = async () => {
+    setCastStatus("Procurando uma tela disponível…");
+    if (typeof PresentationRequest === "undefined") {
+      setCastStatus("Use o menu ⋮ do Chrome → Transmitir guia.");
+      return;
+    }
+
+    try {
+      const request = new PresentationRequest([
+        `${window.location.origin}/tv.html?launcher=1&tv=1&presentation=1`,
+      ]);
+      const connection = await request.start();
+      setCastStatus("Modo TV transmitido. O jogo continua neste computador.");
+      connection.onclose = () => setCastStatus("");
+    } catch {
+      setCastStatus("O Chrome não abriu a seleção. Use ⋮ → Transmitir guia.");
+    }
+  };
+
   const playGame = async (rom: string) => {
     if (launching) return;
     // Deve ocorrer no toque original, antes do fetch que abre o player.
@@ -517,6 +537,15 @@ export function GameLibrary({
             </button>
             <button
               type="button"
+              onClick={() => void startWebCast()}
+              aria-label="Transmitir o modo TV"
+              title="Transmitir para uma tela compatível"
+              className="flex items-center justify-center gap-1.5 rounded-full border border-amber-400/40 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-amber-200 transition-colors hover:border-amber-300 hover:bg-amber-400/10"
+            >
+              <span aria-hidden="true">▣</span> Transmitir
+            </button>
+            <button
+              type="button"
               onClick={() => setIsAboutOpen(true)}
               aria-label="Sobre o sistema"
               title="Sobre o sistema"
@@ -529,6 +558,15 @@ export function GameLibrary({
           </div>
         </div>
       </header>
+
+      {castStatus && (
+        <p
+          className="relative z-10 border-b border-amber-400/20 bg-amber-400/10 px-4 py-2 text-center font-mono text-[10px] text-amber-200"
+          role="status"
+        >
+          {castStatus}
+        </p>
+      )}
 
       {tvMode && (
         <div className="relative z-10 border-b border-pink-400/30 bg-pink-400/10 px-4 py-2 text-center font-mono text-xs text-pink-100 sm:px-8">
