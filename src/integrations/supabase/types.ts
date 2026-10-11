@@ -23,6 +23,7 @@ export type Database = {
           rom: string
           saved_at: number
           state_b64: string
+          updated_at: string
           user_id: string
         }
         Insert: {
@@ -33,6 +34,7 @@ export type Database = {
           rom: string
           saved_at: number
           state_b64: string
+          updated_at?: string
           user_id: string
         }
         Update: {
@@ -43,6 +45,7 @@ export type Database = {
           rom?: string
           saved_at?: number
           state_b64?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
