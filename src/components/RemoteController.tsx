@@ -15,6 +15,9 @@ type InstallPromptEvent = Event & {
 };
 
 const REMOTE_SESSION_KEY = "mga-remote-session-v1";
+const REMOTE_INPUT = { CREDIT: 2, START: 3 } as const;
+const MOMENTARY_INPUTS = new Set<number>([REMOTE_INPUT.CREDIT, REMOTE_INPUT.START]);
+const MIN_MOMENTARY_PRESS_MS = 120;
 
 const readRemoteSession = (): RemoteSession => {
   // Durante o SSR não existe window/sessionStorage: devolve a sessão vazia.
@@ -49,6 +52,8 @@ export function RemoteController() {
   const [{ room, player }] = useState(readRemoteSession);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const activeInputs = useRef(new Set<number>());
+  const inputPressedAt = useRef(new Map<number, number>());
+  const inputReleaseTimers = useRef(new Map<number, number>());
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState("");
@@ -195,6 +200,9 @@ export function RemoteController() {
 
   useEffect(() => {
     const releasePressed = () => {
+      for (const timer of inputReleaseTimers.current.values()) window.clearTimeout(timer);
+      inputReleaseTimers.current.clear();
+      inputPressedAt.current.clear();
       for (const input of activeInputs.current) {
         void channelRef.current?.send({
           type: "broadcast",
@@ -236,6 +244,26 @@ export function RemoteController() {
     });
   };
 
+  const releaseInput = (input: number) => {
+    const pressedAt = inputPressedAt.current.get(input);
+    const remaining =
+      MOMENTARY_INPUTS.has(input) && pressedAt !== undefined
+        ? MIN_MOMENTARY_PRESS_MS - (Date.now() - pressedAt)
+        : 0;
+    const release = () => {
+      inputReleaseTimers.current.delete(input);
+      inputPressedAt.current.delete(input);
+      send(input, false);
+    };
+    if (remaining <= 0) {
+      release();
+      return;
+    }
+    const previousTimer = inputReleaseTimers.current.get(input);
+    if (previousTimer !== undefined) window.clearTimeout(previousTimer);
+    inputReleaseTimers.current.set(input, window.setTimeout(release, remaining));
+  };
+
   const control = (label: string, input: number, className: string) => (
     <button
       type="button"
@@ -243,10 +271,14 @@ export function RemoteController() {
       onPointerDown={(event) => {
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
+        const releaseTimer = inputReleaseTimers.current.get(input);
+        if (releaseTimer !== undefined) window.clearTimeout(releaseTimer);
+        inputReleaseTimers.current.delete(input);
+        inputPressedAt.current.set(input, Date.now());
         send(input, true);
       }}
-      onPointerUp={() => send(input, false)}
-      onPointerCancel={() => send(input, false)}
+      onPointerUp={() => releaseInput(input)}
+      onPointerCancel={() => releaseInput(input)}
       onContextMenu={(event) => event.preventDefault()}
     >
       {label}
@@ -258,41 +290,6 @@ export function RemoteController() {
       <div className="grid min-h-screen place-items-center bg-[#101820] p-6 text-center font-mono text-orange-200">
         {error}
       </div>
-    );
-  }
-
-  if (!installed) {
-    return (
-      <main
-        translate="no"
-        className="notranslate flex min-h-screen items-center justify-center overflow-y-auto bg-[radial-gradient(circle_at_15%_10%,rgba(113,140,153,.32),transparent_26%),radial-gradient(circle_at_90%_90%,rgba(194,113,58,.14),transparent_28%),linear-gradient(135deg,#1c2930,#0e151b_55%,#111b21)] p-4 text-slate-100"
-      >
-        <section className="w-full max-w-xl overflow-hidden rounded-3xl border border-cyan-300/40 bg-slate-950/85 shadow-[0_0_45px_rgba(34,211,238,.18)]">
-          <img
-            src="/assets/remote-controller-fight.jpg"
-            alt="Lutadores em uma batalha de arcade"
-            className="h-56 w-full object-cover object-center sm:h-72"
-          />
-          <div className="p-6 text-center font-mono sm:p-8">
-            <div className="text-[10px] font-bold tracking-[.24em] text-cyan-300">
-              MASTER GAMES ARCADE
-            </div>
-            <h1 className="mt-3 text-2xl font-black text-white">CONTROLE DO JOGADOR {player}</h1>
-            <p className="mt-4 text-sm leading-relaxed text-slate-300">
-              Este celular será o controle do jogador {player}. Instale o aplicativo para jogar com
-              os botões na tela e abrir o controle pela tela inicial, sem a barra de endereço do
-              navegador.
-            </p>
-            <button
-              type="button"
-              onClick={() => void installRemoteApp()}
-              className="mt-6 w-full rounded-2xl border-2 border-cyan-200/80 bg-cyan-400/20 px-5 py-4 text-sm font-black tracking-wider text-cyan-100 shadow-[0_0_22px_rgba(34,211,238,.2)] transition hover:bg-cyan-300/30"
-            >
-              BAIXAR APLICATIVO DO CONTROLE
-            </button>
-          </div>
-        </section>
-      </main>
     );
   }
 
@@ -327,6 +324,16 @@ export function RemoteController() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {!installed && (
+            <button
+              type="button"
+              onClick={() => void installRemoteApp()}
+              className="rounded-xl border border-cyan-300/50 bg-cyan-300/10 px-3 py-2 text-[10px] font-bold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
+              aria-label="Instalar o controle remoto como aplicativo"
+            >
+              ⬇ INSTALAR
+            </button>
+          )}
           <button
             type="button"
             onClick={() => sendCommand("toggle-game-fullscreen")}
@@ -360,8 +367,16 @@ export function RemoteController() {
           </button>
         </div>
         <div className="grid grid-cols-2 gap-3 px-3 sm:grid-cols-4">
-          {control("CRÉDITO", 2, "h-14 border-amber-300/80 bg-amber-400/20 text-sm text-amber-100")}
-          {control("START", 3, "h-14 border-green-300/80 bg-green-400/20 text-sm text-green-100")}
+          {control(
+            "CRÉDITO",
+            REMOTE_INPUT.CREDIT,
+            "h-14 border-amber-300/80 bg-amber-400/20 text-sm text-amber-100",
+          )}
+          {control(
+            "START",
+            REMOTE_INPUT.START,
+            "h-14 border-green-300/80 bg-green-400/20 text-sm text-green-100",
+          )}
         </div>
         <div className="flex flex-1 items-end justify-between gap-4 px-1 pb-4 sm:items-center sm:px-8">
           <div className="relative grid h-56 w-56 grid-cols-3 grid-rows-3 gap-2 rounded-[1.8rem] border border-slate-200/30 bg-[linear-gradient(135deg,rgba(226,232,240,.22),rgba(71,85,105,.18)_42%,rgba(15,23,42,.45))] p-3 shadow-[inset_0_2px_0_rgba(255,255,255,.18),inset_0_-12px_20px_rgba(0,0,0,.22),0_14px_28px_rgba(2,6,23,.3)] before:pointer-events-none before:absolute before:inset-1 before:rounded-[1.4rem] before:border before:border-white/10 sm:h-72 sm:w-72">
