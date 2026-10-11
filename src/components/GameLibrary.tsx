@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { RemoteControlHub } from "@/components/RemoteControlHub";
+import { CastToTvButton } from "@/components/CastToTvButton";
 
 /**
  * Biblioteca de jogos local.
@@ -499,6 +500,8 @@ export function GameLibrary({
                 </button>
               ))}
             </div>
+
+            <CastToTvButton />
 
             <button
               type="button"
