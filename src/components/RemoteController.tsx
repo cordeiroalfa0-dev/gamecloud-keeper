@@ -28,22 +28,30 @@ const readRemoteSession = (): RemoteSession => {
     player: params.get("player") === "2" ? 2 : 1,
   } as RemoteSession;
   if (fromUrl.room) {
+    const serialized = JSON.stringify(fromUrl);
     try {
-      sessionStorage.setItem(REMOTE_SESSION_KEY, JSON.stringify(fromUrl));
+      window.sessionStorage.setItem(REMOTE_SESSION_KEY, serialized);
     } catch {
       // O armazenamento pode estar bloqueado no modo privado.
     }
+    try {
+      window.localStorage.setItem(REMOTE_SESSION_KEY, serialized);
+    } catch {
+      // O armazenamento local pode estar bloqueado no modo privado.
+    }
     return fromUrl;
   }
-  try {
-    const stored = JSON.parse(
-      sessionStorage.getItem(REMOTE_SESSION_KEY) || "null",
-    ) as Partial<RemoteSession>;
-    if (typeof stored.room === "string" && stored.room) {
-      return { room: stored.room.toUpperCase(), player: stored.player === 2 ? 2 : 1 };
+  for (const getStorage of [() => window.localStorage, () => window.sessionStorage]) {
+    try {
+      const stored = JSON.parse(
+        getStorage().getItem(REMOTE_SESSION_KEY) || "null",
+      ) as Partial<RemoteSession>;
+      if (typeof stored.room === "string" && stored.room) {
+        return { room: stored.room.toUpperCase(), player: stored.player === 2 ? 2 : 1 };
+      }
+    } catch {
+      // O armazenamento pode estar indisponível ou conter uma sessão inválida.
     }
-  } catch {
-    // O armazenamento pode estar indisponível ou conter uma sessão inválida.
   }
   return fromUrl;
 };
@@ -60,6 +68,7 @@ export function RemoteController() {
   const [latency, setLatency] = useState<number | null>(null);
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
+  const [installInfoOpen, setInstallInfoOpen] = useState(false);
 
   useEffect(() => {
     // REGRA DE OURO: o link do QR code nunca deve ficar exposto na experiência
@@ -86,7 +95,10 @@ export function RemoteController() {
       event.preventDefault();
       setInstallPrompt(event as InstallPromptEvent);
     };
-    const onInstalled = () => setInstalled(true);
+    const onInstalled = () => {
+      setInstalled(true);
+      setInstallInfoOpen(false);
+    };
     window.addEventListener("beforeinstallprompt", onInstallAvailable);
     window.addEventListener("appinstalled", onInstalled, { once: true });
     if ("serviceWorker" in navigator) void navigator.serviceWorker.register("/sw.js");
@@ -98,15 +110,11 @@ export function RemoteController() {
   }, []);
 
   const installRemoteApp = async () => {
-    if (!installPrompt) {
-      window.alert(
-        "Abra o menu do navegador e escolha “Adicionar à tela inicial” ou “Instalar aplicativo” para baixar o controle.",
-      );
-      return;
-    }
+    if (!installPrompt) return;
     await installPrompt.prompt();
-    await installPrompt.userChoice;
+    const choice = await installPrompt.userChoice;
     setInstallPrompt(null);
+    if (choice.outcome === "accepted") setInstallInfoOpen(false);
   };
 
   const requestWakeLock = async () => {
@@ -327,7 +335,7 @@ export function RemoteController() {
           {!installed && (
             <button
               type="button"
-              onClick={() => void installRemoteApp()}
+              onClick={() => setInstallInfoOpen(true)}
               className="rounded-xl border border-cyan-300/50 bg-cyan-300/10 px-3 py-2 text-[10px] font-bold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
               aria-label="Instalar o controle remoto como aplicativo"
             >
@@ -449,6 +457,81 @@ export function RemoteController() {
           internet.
         </p>
       </section>
+      {installInfoOpen && (
+        <div className="fixed inset-0 z-[120] grid place-items-center bg-[#050a12]/90 p-4 backdrop-blur-md">
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="remote-install-title"
+            className="relative max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-3xl border border-cyan-300/35 bg-[#0b141c] p-5 text-slate-100 shadow-[0_0_55px_rgba(34,211,238,.18)] sm:p-7"
+          >
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-300 via-violet-400 to-orange-300" />
+            <button
+              type="button"
+              onClick={() => setInstallInfoOpen(false)}
+              className="absolute right-4 top-4 rounded-full border border-white/15 px-3 py-1 text-lg text-slate-300 hover:bg-white/10"
+              aria-label="Fechar instalação"
+            >
+              ×
+            </button>
+            <div className="flex items-center gap-4 pr-10">
+              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-cyan-300/35 bg-cyan-300/10 p-2 shadow-[0_0_24px_rgba(34,211,238,.15)]">
+                <img src="/kali-dragon.png" alt="" className="h-full w-full object-contain" />
+              </div>
+              <div>
+                <p className="font-mono text-[10px] font-bold tracking-[.22em] text-cyan-200">
+                  APLICATIVO DO CONTROLE
+                </p>
+                <h2 id="remote-install-title" className="mt-1 text-2xl font-black text-white">
+                  MGA Controle
+                </h2>
+              </div>
+            </div>
+            <img
+              src="/assets/remote-controller-fight.jpg"
+              alt="Controle remoto de arcade no celular"
+              className="mt-5 h-36 w-full rounded-2xl border border-white/10 object-cover object-center"
+            />
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/25 px-4 py-3 font-mono text-xs">
+              <strong className={player === 1 ? "text-cyan-200" : "text-orange-200"}>
+                JOGADOR {player}
+              </strong>
+              <span className="text-slate-400">SALA {room}</span>
+            </div>
+            <p className="mt-4 text-sm leading-relaxed text-slate-300">
+              Este atalho instala o <b className="text-white">controle remoto</b>, não a biblioteca
+              de jogos. O ícone será <b className="text-cyan-100">MGA Controle</b> e abrirá esta
+              sala como Jogador {player}.
+            </p>
+            {installPrompt ? (
+              <button
+                type="button"
+                onClick={() => void installRemoteApp()}
+                className="mt-5 w-full rounded-2xl border border-cyan-200/80 bg-gradient-to-b from-cyan-300/30 to-cyan-700/20 px-5 py-4 font-mono text-sm font-black tracking-wide text-cyan-50 shadow-[0_0_24px_rgba(34,211,238,.16)] transition hover:brightness-110"
+              >
+                ⬇ INSTALAR APP DO CONTROLE
+              </button>
+            ) : (
+              <div className="mt-5 rounded-2xl border border-amber-200/25 bg-amber-200/5 p-4 text-sm leading-relaxed text-slate-200">
+                <p className="font-bold text-amber-100">Use o menu do navegador para instalar:</p>
+                <p className="mt-2">
+                  <b>Android / Chrome:</b> menu ⋮ → “Instalar app” ou “Adicionar à tela inicial”.
+                </p>
+                <p className="mt-2">
+                  <b>iPhone / Safari:</b> Compartilhar → “Adicionar à Tela de Início”.
+                </p>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setInstallInfoOpen(false)}
+              className="mt-3 w-full rounded-xl border border-white/15 px-4 py-3 font-mono text-xs font-bold text-slate-300 transition hover:bg-white/5"
+            >
+              VOLTAR AO CONTROLE
+            </button>
+          </section>
+        </div>
+      )}
     </main>
   );
 }
