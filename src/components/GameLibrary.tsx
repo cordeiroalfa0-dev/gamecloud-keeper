@@ -44,8 +44,7 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 const BACKGROUND_IMAGES = [
-  "/assets/arcade-hero-alternate-2.png",
-  "/assets/arcade-hero-alternate.png",
+  "/assets/intro-esteyori-poster.jpg",
 ];
 
 const fileBase = (name: string) => name.toLowerCase().replace(/\.(zip|7z|chd)$/i, "");
