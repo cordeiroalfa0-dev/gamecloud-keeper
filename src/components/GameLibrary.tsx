@@ -441,7 +441,7 @@ export function GameLibrary({
               transform:
                 "translate3d(var(--mga-parallax-x, 0px), var(--mga-parallax-y, 0px), 0) scale(.9)",
             }}
-            className={`mga-hero-image absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
+            className={`mga-hero-image absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 sm:object-contain ${
               index === backgroundIndex ? "opacity-60" : "opacity-0"
             }`}
           />
