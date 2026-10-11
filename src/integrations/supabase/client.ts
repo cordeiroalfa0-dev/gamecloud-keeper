@@ -10,8 +10,8 @@ function isNewSupabaseApiKey(value: string): boolean {
 // Fallback público para ambientes Lovable sem os Secrets VITE_* configurados.
 // A publishable key é própria para uso no navegador; nunca coloque aqui uma
 // service-role key ou qualquer outro segredo de servidor.
-const DEFAULT_SUPABASE_URL = "https://hmnskfsvuhuhygtrtclm.supabase.co";
-const DEFAULT_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_S2cQCsgmAGOwMeGnweMJoQ_r7v5iNId";
+const DEFAULT_SUPABASE_URL = "https://c--6e4148f8-eeab-4092-ac17-b0b751a65076-prod.lovable.cloud";
+const DEFAULT_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_40EwfZK3d5Bd_b2HNbj7lQ_4mdB23_F";
 
 // The public URL can be reachable only from the browser, so server requests go to the runtime URL of the same backend.
 function serverSupabaseUrl(publicUrl: string, supabaseKey: string): string | undefined {
