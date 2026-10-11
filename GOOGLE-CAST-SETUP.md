@@ -6,6 +6,7 @@ O fluxo usa Google Cast. O Android mostra um seletor de dispositivos próximos; 
 
 - O telemóvel e o dispositivo de TV precisam estar na mesma rede Wi‑Fi.
 - A TV precisa ter Google Cast integrado ou um Chromecast/Google TV ligado a ela. TVs que ofereçam apenas AirPlay ou Miracast não aparecem no seletor Google Cast.
+- O **Xiaomi Mi TV Stick** tem Chromecast integrado segundo a [página oficial da Xiaomi](https://www.mi.com/us/product/mi-tv-stick/); portanto, o modelo da imagem é compatível em princípio, desde que esteja ligado e visível na mesma rede.
 - Uma rede de convidados ou uma rede com isolamento entre clientes pode impedir que o telemóvel descubra a TV.
 - Abra o sistema num navegador compatível com Google Cast no Android, de preferência Chrome.
 
@@ -32,5 +33,7 @@ Sem um Application ID válido, o botão **Transmitir** aparece, mas explica que 
 2. Escolha, no seletor do Google Cast, a TV ou o Chromecast que aparecer.
 3. A TV abre o sistema no **Modo TV** e mostra o QR dos controles.
 4. Leia o QR com o telemóvel. A página `/controller` liga-se à sala e o telemóvel passa a controlar o jogo na TV.
+5. Se ainda não utilizaste o controle nesse telemóvel, o sistema pode mostrar primeiro instruções para instalar o **MGA Controle**. Depois da instalação, abre o controle pelo ícone da aplicação; a sala e o jogador do QR ficam guardados.
+6. A página atual do controle atua durante a partida; para escolher o jogo, fecha o painel do QR no ecrã da TV e usa o comando do TV Stick. Depois, usa o telemóvel como controle do jogo.
 
 Se a TV não aparecer, confirme que ambos os aparelhos estão na mesma rede Wi‑Fi e que o router não está a isolar os dispositivos. O seletor lista apenas aparelhos Google Cast visíveis; ele não faz descoberta universal de todos os protocolos de Smart TV.

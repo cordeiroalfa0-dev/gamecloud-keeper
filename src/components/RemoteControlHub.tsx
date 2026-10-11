@@ -80,13 +80,21 @@ const relayCommandToGame = (command: Partial<RemoteCommand>) => {
   );
 };
 
-const controllerUrl = (room: string, player: number) => {
+const controllerUrl = (room: string, player: number, castMode = false) => {
   const url = new URL(PUBLIC_APP_URL);
-  url.search = new URLSearchParams({ controller: "1", room, player: String(player) }).toString();
+  const params = new URLSearchParams({ controller: "1", room, player: String(player) });
+  if (castMode) params.set("cast", "1");
+  url.search = params.toString();
   return url.toString();
 };
 
-export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
+export function RemoteControlHub({
+  autoOpen = false,
+  castMode = false,
+}: {
+  autoOpen?: boolean;
+  castMode?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [room, setRoom] = useState("");
   const [roomLoaded, setRoomLoaded] = useState(false);
@@ -168,8 +176,11 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
   }, [room]);
 
   const links = useMemo(
-    () => ({ p1: room ? controllerUrl(room, 1) : "", p2: room ? controllerUrl(room, 2) : "" }),
-    [room],
+    () => ({
+      p1: room ? controllerUrl(room, 1, castMode) : "",
+      p2: room ? controllerUrl(room, 2, castMode) : "",
+    }),
+    [room, castMode],
   );
   const create = () => {
     const savedRoom = readStoredRoom();
@@ -217,7 +228,9 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
               <div>
                 <h2 className="font-mono text-lg font-bold text-pink-200">CONTROLES POR CELULAR</h2>
                 <p className="mt-1 font-mono text-xs text-zinc-400">
-                  Abra um link em cada celular. O jogo continua no PC.
+                  {castMode
+                    ? "O sistema está nesta TV. Leia o QR, escolha um jogo na TV e controle a partida pelo celular."
+                    : "Abra um link em cada celular. O jogo continua no PC."}
                 </p>
               </div>
               <button
@@ -286,14 +299,27 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
               </div>
             </div>
             <div className="mt-4 rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 font-mono text-xs text-amber-100">
-              <strong className="block text-amber-200">TV STICK MI · TRANSMITIR A ABA</strong>
-              <p className="mt-1 leading-relaxed text-amber-100/80">
-                No Chrome do computador, abra{" "}
-                <b>⋮ → Transmitir, salvar e compartilhar → Transmitir</b>, escolha seu TV Stick e
-                selecione <b>Transmitir guia</b>. Depois coloque o jogo em tela cheia. O jogo
-                continua rodando no computador; a TV mostra a imagem e os celulares continuam sendo
-                os controles.
-              </p>
+              {castMode ? (
+                <>
+                  <strong className="block text-amber-200">GOOGLE CAST ATIVO</strong>
+                  <p className="mt-1 leading-relaxed text-amber-100/80">
+                    Esta TV está executando o sistema. Leia o QR P1 com o celular. Se for a primeira
+                    utilização, instale o MGA Controle e abra-o pelo ícone. Depois feche este painel
+                    no X, escolha um jogo com o controle da TV e use o celular para jogar.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <strong className="block text-amber-200">TV STICK MI · TRANSMITIR A ABA</strong>
+                  <p className="mt-1 leading-relaxed text-amber-100/80">
+                    No Chrome do computador, abra{" "}
+                    <b>⋮ → Transmitir, salvar e compartilhar → Transmitir</b>, escolha seu TV Stick
+                    e selecione <b>Transmitir guia</b>. Depois coloque o jogo em tela cheia. O jogo
+                    continua rodando no computador; a TV mostra a imagem e os celulares continuam
+                    sendo os controles.
+                  </p>
+                </>
+              )}
             </div>
             <button
               type="button"

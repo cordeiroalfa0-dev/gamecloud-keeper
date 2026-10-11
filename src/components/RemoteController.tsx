@@ -16,6 +16,7 @@ type InstallPromptEvent = Event & {
 
 const REMOTE_SESSION_KEY = "mga-remote-session-v1";
 const REMOTE_INSTALLED_KEY = "mga-remote-app-installed-v1";
+const REMOTE_CAST_MODE_KEY = "mga-remote-cast-mode-v1";
 const REMOTE_INPUT = { CREDIT: 2, START: 3 } as const;
 const MOMENTARY_INPUTS = new Set<number>([REMOTE_INPUT.CREDIT, REMOTE_INPUT.START]);
 const MIN_MOMENTARY_PRESS_MS = 120;
@@ -57,8 +58,28 @@ const readRemoteSession = (): RemoteSession => {
   return fromUrl;
 };
 
+const readRemoteCastMode = () => {
+  if (typeof window === "undefined") return false;
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("controller")) {
+    const castMode = params.get("cast") === "1";
+    try {
+      window.localStorage.setItem(REMOTE_CAST_MODE_KEY, castMode ? "1" : "0");
+    } catch {
+      // O armazenamento pode estar bloqueado no modo privado.
+    }
+    return castMode;
+  }
+  try {
+    return window.localStorage.getItem(REMOTE_CAST_MODE_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+
 export function RemoteController() {
   const [{ room, player }] = useState(readRemoteSession);
+  const [castMode] = useState(readRemoteCastMode);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const activeInputs = useRef(new Set<number>());
   const inputPressedAt = useRef(new Map<number, number>());
@@ -374,7 +395,7 @@ export function RemoteController() {
               type="button"
               onClick={() => sendCommand("toggle-game-fullscreen")}
               className="rounded-xl border border-slate-300/50 bg-slate-300/10 px-3 py-2 text-[10px] font-bold text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
-              aria-label="Alternar tela cheia do jogo no computador"
+              aria-label={`Alternar tela cheia do jogo ${castMode ? "na TV" : "no computador"}`}
             >
               ⛶ JOGO
             </button>
@@ -483,8 +504,9 @@ export function RemoteController() {
             </div>
           </div>
           <p className="text-center font-mono text-[10px] uppercase tracking-wider text-slate-400">
-            Mantenha esta tela aberta. Os comandos chegam ao PC pela mesma rede Wi-Fi ou pela
-            internet.
+            {castMode
+              ? "Mantenha esta tela aberta. Os comandos chegam ao jogo que está correndo na TV."
+              : "Mantenha esta tela aberta. Os comandos chegam ao PC pela mesma rede Wi-Fi ou pela internet."}
           </p>
         </section>
       )}
