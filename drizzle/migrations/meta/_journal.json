@@ -36,6 +36,13 @@
       "when": 1791505149650,
       "tag": "0004_mga_saves_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791725204533,
+      "tag": "0005_mga_saves_updated_at",
+      "breakpoints": true
     }
   ]
 }

@@ -286,6 +286,21 @@ async function remove({ request }: { request: Request }) {
   return json({ ok: true });
 }
 
+// Nunca deixa uma falha inesperada (ex.: conexão interrompida no meio do envio)
+// virar uma página de erro 500 — o player recebe JSON e tenta de novo depois.
+function safe(handler: (ctx: { request: Request }) => Promise<Response>) {
+  return async (ctx: { request: Request }) => {
+    try {
+      return await handler(ctx);
+    } catch (error) {
+      if (ctx.request.signal?.aborted) return json({ ok: false, error: "Envio interrompido." }, 499);
+      console.error("Falha em /api/saves:", error);
+      const message = error instanceof Error ? error.message : String(error);
+      return json({ ok: false, error: message }, 503);
+    }
+  };
+}
+
 export const Route = createFileRoute("/api/saves/")({
-  server: { handlers: { GET: get, POST: upsert, DELETE: remove } },
+  server: { handlers: { GET: safe(get), POST: safe(upsert), DELETE: safe(remove) } },
 });
