@@ -10,9 +10,9 @@ type RemoteCommand = {
 };
 
 const ROOM_STORAGE_KEY = "mga-remote-room-v1";
-// QR Codes precisam usar o domínio publicado. O endereço do editor/preview
-// do Lovable exige acesso ao projeto e gera "acesso negado" no celular.
-const PUBLIC_APP_URL = "https://save-my-games.lovable.app/controller";
+// Use o domínio publicado atual do projeto. save-my-games.lovable.app aponta
+// para a versão antiga e deixa o controle preso em "conectando…".
+const PUBLIC_APP_URL = "https://gamecloud-keeper.lovable.app/controller";
 let gamePlayerReady = false;
 let queuedFullscreenToggle = false;
 const makeRoom = () => `MGA-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
