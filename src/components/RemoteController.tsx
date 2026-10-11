@@ -15,6 +15,7 @@ type InstallPromptEvent = Event & {
 };
 
 const REMOTE_SESSION_KEY = "mga-remote-session-v1";
+const REMOTE_INSTALLED_KEY = "mga-remote-app-installed-v1";
 const REMOTE_INPUT = { CREDIT: 2, START: 3 } as const;
 const MOMENTARY_INPUTS = new Set<number>([REMOTE_INPUT.CREDIT, REMOTE_INPUT.START]);
 const MIN_MOMENTARY_PRESS_MS = 120;
@@ -68,6 +69,7 @@ export function RemoteController() {
   const [latency, setLatency] = useState<number | null>(null);
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
+  const [installationRequired, setInstallationRequired] = useState(false);
   const [installInfoOpen, setInstallInfoOpen] = useState(false);
 
   useEffect(() => {
@@ -83,20 +85,29 @@ export function RemoteController() {
     const standalone =
       window.matchMedia?.("(display-mode: standalone)").matches ||
       Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
-    setInstalled(standalone);
-
-    const manifest = document.createElement("link");
-    manifest.rel = "manifest";
-    manifest.href = "/remote-manifest.webmanifest";
-    manifest.dataset["mgaRemote"] = "true";
-    document.head.appendChild(manifest);
+    let installedBefore = false;
+    try {
+      installedBefore = localStorage.getItem(REMOTE_INSTALLED_KEY) === "1";
+    } catch {
+      // O armazenamento pode estar bloqueado no modo privado.
+    }
+    const appInstalled = standalone || installedBefore;
+    setInstalled(appInstalled);
+    setInstallationRequired(!appInstalled);
+    if (!appInstalled) setInstallInfoOpen(true);
 
     const onInstallAvailable = (event: Event) => {
       event.preventDefault();
       setInstallPrompt(event as InstallPromptEvent);
     };
     const onInstalled = () => {
+      try {
+        localStorage.setItem(REMOTE_INSTALLED_KEY, "1");
+      } catch {
+        // O armazenamento pode estar bloqueado no modo privado.
+      }
       setInstalled(true);
+      setInstallationRequired(false);
       setInstallInfoOpen(false);
     };
     window.addEventListener("beforeinstallprompt", onInstallAvailable);
@@ -105,7 +116,6 @@ export function RemoteController() {
     return () => {
       window.removeEventListener("beforeinstallprompt", onInstallAvailable);
       window.removeEventListener("appinstalled", onInstalled);
-      manifest.remove();
     };
   }, []);
 
@@ -114,7 +124,26 @@ export function RemoteController() {
     await installPrompt.prompt();
     const choice = await installPrompt.userChoice;
     setInstallPrompt(null);
-    if (choice.outcome === "accepted") setInstallInfoOpen(false);
+    if (choice.outcome === "accepted") {
+      try {
+        localStorage.setItem(REMOTE_INSTALLED_KEY, "1");
+      } catch {
+        // O armazenamento pode estar bloqueado no modo privado.
+      }
+      setInstalled(true);
+      setInstallationRequired(false);
+      setInstallInfoOpen(false);
+    }
+  };
+
+  const continueAfterManualInstall = () => {
+    try {
+      localStorage.setItem(REMOTE_INSTALLED_KEY, "1");
+    } catch {
+      // O armazenamento pode estar bloqueado no modo privado.
+    }
+    setInstalled(true);
+    setInstallationRequired(false);
   };
 
   const requestWakeLock = async () => {
@@ -466,14 +495,16 @@ export function RemoteController() {
             className="relative max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-3xl border border-cyan-300/35 bg-[#0b141c] p-5 text-slate-100 shadow-[0_0_55px_rgba(34,211,238,.18)] sm:p-7"
           >
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-300 via-violet-400 to-orange-300" />
-            <button
-              type="button"
-              onClick={() => setInstallInfoOpen(false)}
-              className="absolute right-4 top-4 rounded-full border border-white/15 px-3 py-1 text-lg text-slate-300 hover:bg-white/10"
-              aria-label="Fechar instalação"
-            >
-              ×
-            </button>
+            {!installationRequired && (
+              <button
+                type="button"
+                onClick={() => setInstallInfoOpen(false)}
+                className="absolute right-4 top-4 rounded-full border border-white/15 px-3 py-1 text-lg text-slate-300 hover:bg-white/10"
+                aria-label="Fechar instalação"
+              >
+                ×
+              </button>
+            )}
             <div className="flex items-center gap-4 pr-10">
               <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-cyan-300/35 bg-cyan-300/10 p-2 shadow-[0_0_24px_rgba(34,211,238,.15)]">
                 <img src="/kali-dragon.png" alt="" className="h-full w-full object-contain" />
@@ -524,10 +555,13 @@ export function RemoteController() {
             )}
             <button
               type="button"
-              onClick={() => setInstallInfoOpen(false)}
+              onClick={() => {
+                if (installationRequired) continueAfterManualInstall();
+                else setInstallInfoOpen(false);
+              }}
               className="mt-3 w-full rounded-xl border border-white/15 px-4 py-3 font-mono text-xs font-bold text-slate-300 transition hover:bg-white/5"
             >
-              VOLTAR AO CONTROLE
+              {installationRequired ? "JÁ INSTALEI — ABRIR CONTROLE" : "VOLTAR AO CONTROLE"}
             </button>
           </section>
         </div>
