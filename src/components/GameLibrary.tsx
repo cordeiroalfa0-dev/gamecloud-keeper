@@ -540,7 +540,7 @@ export function GameLibrary({
       {isWindowOpen ? (
         <section
           aria-label="Janela da biblioteca de jogos"
-          className={`fixed inset-x-2 top-[14rem] z-30 flex min-w-0 max-h-[calc(100dvh-15rem)] w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-2xl border border-cyan-500/35 bg-[#050009]/90 shadow-[0_0_36px_rgba(0,229,255,.22)] backdrop-blur-xl transition-[width] duration-300 sm:inset-x-auto sm:right-3 sm:top-20 sm:max-h-[calc(100dvh-5rem)] sm:w-[min(92vw,420px)] ${
+            className={`fixed inset-x-2 top-[16rem] z-30 flex min-w-0 max-h-[calc(100dvh-17rem)] w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-2xl border border-cyan-500/35 bg-[#050009]/90 shadow-[0_0_36px_rgba(0,229,255,.22)] backdrop-blur-xl transition-[width] duration-300 sm:inset-x-auto sm:right-3 sm:top-24 sm:max-h-[calc(100dvh-6rem)] sm:w-[min(92vw,420px)] ${
             isWindowExpanded ? "sm:w-[min(96vw,1200px)]" : ""
           }`}
         >
