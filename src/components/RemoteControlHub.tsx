@@ -293,13 +293,25 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
               </div>
             </div>
             <div className="mt-4 rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 font-mono text-xs text-amber-100">
-              <strong className="block text-amber-200">TV STICK MI · TRANSMITIR A ABA</strong>
-              <p className="mt-1 leading-relaxed text-amber-100/80">
-                No Chrome do computador, abra{" "}
-                <b>⋮ → Transmitir, salvar e compartilhar → Transmitir</b>, escolha seu TV Stick e
-                selecione <b>Transmitir guia</b>. Depois coloque o jogo em tela cheia. O jogo
-                continua rodando no computador; a TV mostra a imagem e os celulares continuam sendo
-                os controles.
+              <strong className="block text-amber-200">
+                TV STICK MI · ABRIR O NAVEGADOR DA TV
+              </strong>
+              <ol className="mt-1 list-decimal space-y-1 pl-4 leading-relaxed text-amber-100/80">
+                <li>Conecte o celular e o Stick ao mesmo Wi-Fi.</li>
+                <li>
+                  No celular: app <b>Google TV → Controle remoto</b> → selecione o Stick e pareie.
+                </li>
+                <li>
+                  Use esse controle para abrir o navegador da TV. Digite{" "}
+                  <b>gamecloud-keeper.lovable.app/tv</b> e salve nos favoritos.
+                </li>
+                <li>
+                  Leia o QR da TV com o celular. O controle abre no navegador; instalar o app é
+                  opcional.
+                </li>
+              </ol>
+              <p className="mt-2 text-amber-100/80">
+                O jogo roda no navegador do Stick. Não é preciso espelhar a tela do celular.
               </p>
             </div>
             <button
