@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { ConnectToTv } from "@/components/ConnectToTv";
 
 type RemotePayload = { room: string; player: number; input: number; pressed: boolean };
 type RemoteCommand = {
@@ -180,6 +181,9 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
     setOpen(true);
   };
   useEffect(() => {
+    // A TV aberta pelo celular (Chromecast) recebe a sala pelo endereço.
+    const urlRoom = (new URLSearchParams(window.location.search).get("room") || "").toUpperCase();
+    if (/^MGA-[A-Z0-9]{4}$/.test(urlRoom)) storeRoom(urlRoom);
     const savedRoom = readStoredRoom();
     if (savedRoom) setRoom(savedRoom);
     setRoomLoaded(true);
@@ -227,6 +231,9 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
               >
                 ✕
               </button>
+            </div>
+            <div className="mt-4">
+              <ConnectToTv />
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 p-3 text-center font-mono text-xs">
