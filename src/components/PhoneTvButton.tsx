@@ -1,9 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ConnectToTv } from "@/components/ConnectToTv";
 
-/** Botão grande, só no celular: procurar TVs do Wi-Fi e virar controle. */
+/** Botão grande, só no celular: procurar TVs do Wi-Fi e virar controle.
+ *  No Android abre sozinho ao entrar no site (uma vez por sessão). */
 export function PhoneTvButton() {
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const small = window.matchMedia("(max-width: 767px)").matches;
+    if (isAndroid && small && !sessionStorage.getItem("mga_tv_auto")) {
+      sessionStorage.setItem("mga_tv_auto", "1");
+      setOpen(true);
+    }
+  }, []);
   return (
     <>
       <button
