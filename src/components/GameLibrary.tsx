@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { RemoteControlHub } from "@/components/RemoteControlHub";
+import { PhoneTvButton } from "@/components/PhoneTvButton";
 
 /**
  * Biblioteca de jogos local.
@@ -428,6 +429,7 @@ export function GameLibrary({
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]">
+      {!tvMode && <PhoneTvButton />}
       <div className="pointer-events-none fixed inset-0 z-0 bg-[#050009]">
         {BACKGROUND_IMAGES.map((image, index) => (
           <img
