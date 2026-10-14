@@ -189,6 +189,30 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
     setRoomLoaded(true);
   }, []);
 
+  // Modo TV: avisa o sistema que esta TV está ligada neste Wi-Fi.
+  useEffect(() => {
+    if (!autoOpen || !room) return;
+    const ua = navigator.userAgent;
+    const label = /AFT|Fire/i.test(ua)
+      ? "Fire TV"
+      : /Android/i.test(ua)
+        ? "TV Android / Stick"
+        : /Tizen/i.test(ua)
+          ? "TV Samsung"
+          : /Web0S|webOS/i.test(ua)
+            ? "TV LG"
+            : "TV";
+    const ping = () =>
+      void fetch("/api/public/tv-presence", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ room, label: `${label} · ${room}` }),
+      }).catch(() => {});
+    ping();
+    const t = setInterval(ping, 30_000);
+    return () => clearInterval(t);
+  }, [autoOpen, room]);
+
   useEffect(() => {
     if (!autoOpen || !roomLoaded) return;
     if (room) setOpen(true);
