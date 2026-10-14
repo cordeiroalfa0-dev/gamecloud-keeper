@@ -18,6 +18,7 @@ import { Route as FontsSplatRouteImport } from './routes/fonts/$'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
 import { Route as ApiAuthSessionRouteImport } from './routes/api/auth/session'
+import { Route as ApiPublicTvPresenceRouteImport } from './routes/api/public/tv-presence'
 import { Route as ApiSavesIndexRouteImport } from './routes/api/saves/index'
 import { Route as ApiRomIdNameRouteImport } from './routes/api/rom/$id/$name'
 
@@ -66,6 +67,11 @@ const ApiAuthSessionRoute = ApiAuthSessionRouteImport.update({
   path: '/api/auth/session',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTvPresenceRoute = ApiPublicTvPresenceRouteImport.update({
+  id: '/api/public/tv-presence',
+  path: '/api/public/tv-presence',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiSavesIndexRoute = ApiSavesIndexRouteImport.update({
   id: '/api/saves/',
   path: '/api/saves/',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/public/tv-presence': typeof ApiPublicTvPresenceRoute
   '/api/saves/': typeof ApiSavesIndexRoute
   '/api/rom/$id/$name': typeof ApiRomIdNameRoute
 }
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/public/tv-presence': typeof ApiPublicTvPresenceRoute
   '/api/saves': typeof ApiSavesIndexRoute
   '/api/rom/$id/$name': typeof ApiRomIdNameRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/public/tv-presence': typeof ApiPublicTvPresenceRoute
   '/api/saves/': typeof ApiSavesIndexRoute
   '/api/rom/$id/$name': typeof ApiRomIdNameRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/me'
     | '/api/auth/session'
+    | '/api/public/tv-presence'
     | '/api/saves/'
     | '/api/rom/$id/$name'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/me'
     | '/api/auth/session'
+    | '/api/public/tv-presence'
     | '/api/saves'
     | '/api/rom/$id/$name'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/auth/me'
     | '/api/auth/session'
+    | '/api/public/tv-presence'
     | '/api/saves/'
     | '/api/rom/$id/$name'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiAuthMeRoute: typeof ApiAuthMeRoute
   ApiAuthSessionRoute: typeof ApiAuthSessionRoute
+  ApiPublicTvPresenceRoute: typeof ApiPublicTvPresenceRoute
   ApiSavesIndexRoute: typeof ApiSavesIndexRoute
   ApiRomIdNameRoute: typeof ApiRomIdNameRoute
 }
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSessionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/tv-presence': {
+      id: '/api/public/tv-presence'
+      path: '/api/public/tv-presence'
+      fullPath: '/api/public/tv-presence'
+      preLoaderRoute: typeof ApiPublicTvPresenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/saves/': {
       id: '/api/saves/'
       path: '/api/saves'
@@ -265,6 +285,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiAuthMeRoute: ApiAuthMeRoute,
   ApiAuthSessionRoute: ApiAuthSessionRoute,
+  ApiPublicTvPresenceRoute: ApiPublicTvPresenceRoute,
   ApiSavesIndexRoute: ApiSavesIndexRoute,
   ApiRomIdNameRoute: ApiRomIdNameRoute,
 }
