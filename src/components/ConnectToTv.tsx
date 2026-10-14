@@ -17,13 +17,42 @@ type PresentationRequestCtor = new (urls: string[]) => {
  * 2) Sem suporte (iPhone, outros navegadores, TV sem Chromecast): passo a passo
  *    abrindo o endereço no navegador da TV e lendo o QR.
  */
+type TvItem = { room: string; label: string };
+
 export function ConnectToTv() {
   const [supported, setSupported] = useState(false);
   const [searching, setSearching] = useState(false);
   const [status, setStatus] = useState("");
+  const [tvs, setTvs] = useState<TvItem[] | null>(null);
+  const [scanning, setScanning] = useState(false);
+
+  const scanWifi = async () => {
+    setScanning(true);
+    try {
+      const res = await fetch("/api/public/tv-presence", { cache: "no-store" });
+      const data = (await res.json()) as { tvs?: TvItem[] };
+      setTvs(data.tvs ?? []);
+    } catch {
+      setTvs([]);
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const pickTv = (room: string) => {
+    try {
+      localStorage.setItem(ROOM_STORAGE_KEY, room);
+    } catch {
+      // modo privado
+    }
+    window.location.href = `/controller?controller=1&room=${room}&player=1`;
+  };
 
   useEffect(() => {
     setSupported(typeof window !== "undefined" && "PresentationRequest" in window);
+    void scanWifi();
+    const t = setInterval(scanWifi, 5000);
+    return () => clearInterval(t);
   }, []);
 
   const searchTvs = async () => {
