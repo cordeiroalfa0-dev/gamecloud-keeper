@@ -181,37 +181,13 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
     setOpen(true);
   };
   useEffect(() => {
-    // A TV aberta pelo celular (Chromecast) recebe a sala pelo endereço.
+    // Recupera uma sala se o link já trouxer um código válido.
     const urlRoom = (new URLSearchParams(window.location.search).get("room") || "").toUpperCase();
     if (/^MGA-[A-Z0-9]{4}$/.test(urlRoom)) storeRoom(urlRoom);
     const savedRoom = readStoredRoom();
     if (savedRoom) setRoom(savedRoom);
     setRoomLoaded(true);
   }, []);
-
-  // Modo TV: avisa o sistema que esta TV está ligada neste Wi-Fi.
-  useEffect(() => {
-    if (!autoOpen || !room) return;
-    const ua = navigator.userAgent;
-    const label = /AFT|Fire/i.test(ua)
-      ? "Fire TV"
-      : /Android/i.test(ua)
-        ? "TV Android / Stick"
-        : /Tizen/i.test(ua)
-          ? "TV Samsung"
-          : /Web0S|webOS/i.test(ua)
-            ? "TV LG"
-            : "TV";
-    const ping = () =>
-      void fetch("/api/public/tv-presence", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ room, label: `${label} · ${room}` }),
-      }).catch(() => {});
-    ping();
-    const t = setInterval(ping, 30_000);
-    return () => clearInterval(t);
-  }, [autoOpen, room]);
 
   useEffect(() => {
     if (!autoOpen || !roomLoaded) return;
@@ -245,7 +221,9 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
               <div>
                 <h2 className="font-mono text-lg font-bold text-pink-200">CONTROLES POR CELULAR</h2>
                 <p className="mt-1 font-mono text-xs text-zinc-400">
-                  Abra um link em cada celular. O jogo continua no PC.
+                  {autoOpen
+                    ? "O jogo roda nesta TV. Leia um QR Code com o celular para controlá-lo."
+                    : "Abra um link em cada celular para usar os controles nesta tela."}
                 </p>
               </div>
               <button
@@ -315,28 +293,6 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
                 <b className="block text-cyan-200">P1 + P2</b>
                 <span>Os dois celulares controlam o mesmo jogo</span>
               </div>
-            </div>
-            <div className="mt-4 rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 font-mono text-xs text-amber-100">
-              <strong className="block text-amber-200">
-                TV STICK MI · ABRIR O NAVEGADOR DA TV
-              </strong>
-              <ol className="mt-1 list-decimal space-y-1 pl-4 leading-relaxed text-amber-100/80">
-                <li>Conecte o celular e o Stick ao mesmo Wi-Fi.</li>
-                <li>
-                  No celular: app <b>Google TV → Controle remoto</b> → selecione o Stick e pareie.
-                </li>
-                <li>
-                  Use esse controle para abrir o navegador da TV. Digite{" "}
-                  <b>gamecloud-keeper.lovable.app/tv</b> e salve nos favoritos.
-                </li>
-                <li>
-                  Leia o QR da TV com o celular. O controle abre no navegador; instalar o app é
-                  opcional.
-                </li>
-              </ol>
-              <p className="mt-2 text-amber-100/80">
-                O jogo roda no navegador do Stick. Não é preciso espelhar a tela do celular.
-              </p>
             </div>
             <button
               type="button"
