@@ -3,7 +3,7 @@ const TV_MODE_URL = "https://gamecloud-keeper.lovable.app/tv";
 export function ConnectToTv() {
   return (
     <section className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 p-4 font-mono text-sm text-emerald-50">
-      <b className="text-base text-emerald-200">📺 JOGAR NA TV</b>
+      <b className="text-base text-emerald-200">📺 INSTRUÇÕES PARA USAR A TV</b>
       <p className="mt-2 text-zinc-300">
         Abra este endereço no navegador da própria TV. No Mi TV Stick, você pode usar o controle
         físico ou o app Google TV para navegar e digitar o endereço.

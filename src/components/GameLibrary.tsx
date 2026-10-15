@@ -16,7 +16,6 @@ import {
   X,
 } from "lucide-react";
 import { RemoteControlHub } from "@/components/RemoteControlHub";
-import { PhoneTvButton } from "@/components/PhoneTvButton";
 
 /**
  * Biblioteca de jogos local.
@@ -429,7 +428,6 @@ export function GameLibrary({
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]">
-      {!tvMode && <PhoneTvButton />}
       <div className="pointer-events-none fixed inset-0 z-0 bg-[#050009]">
         {BACKGROUND_IMAGES.map((image, index) => (
           <img
@@ -747,17 +745,6 @@ export function GameLibrary({
                   <p className="mt-2">
                     Sem entrar na conta, o progresso fica neste navegador. Ao entrar com sua conta,
                     ele também pode ser guardado na nuvem e usado em outro aparelho.
-                  </p>
-                </article>
-                <article>
-                  <h3 className="font-bold tracking-wider text-emerald-200">JOGAR NA TV</h3>
-                  <p className="mt-2">
-                    Abra o jogo no computador e transmita a aba para a TV. O computador continua
-                    rodando a partida enquanto a TV mostra a ação.
-                  </p>
-                  <p className="mt-2">
-                    Abra “Celulares” para transformar até dois telefones em controles sem fio. Leia
-                    o link indicado para cada jogador e divirta-se com mais gente.
                   </p>
                 </article>
                 <article>
