@@ -1,5 +1,4 @@
 import * as React from "react";
-import cammySobre from "@/assets/cammy-sobre.png.asset.json";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
@@ -719,7 +718,7 @@ export function GameLibrary({
 
             <div className="mt-5 flex flex-col gap-5 sm:flex-row">
               <img
-                src={cammySobre.url}
+                src="/assets/game-loading-art-portrait.png"
                 alt="Arte do Master Games Arcade"
                 className="w-44 shrink-0 self-center rounded-xl border border-cyan-400/30 shadow-[0_0_25px_rgba(0,229,255,.2)] sm:w-52 sm:self-start"
               />
