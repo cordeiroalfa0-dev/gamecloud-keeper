@@ -285,6 +285,10 @@ div[style*="Edit with Lovable"],
     font-size: clamp(1.75rem, 5.5vw, 2.6rem) !important;
   }
 
+  .mga-reference-controller > section > div:nth-child(2) > div:nth-child(2) {
+    transform: translateY(0.75rem);
+  }
+
   .mga-reference-controller > section > p {
     font-size: 8px !important;
   }
