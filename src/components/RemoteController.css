@@ -1,0 +1,488 @@
+.remote-controller-screen {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100dvh;
+  min-height: 300px;
+  overflow: hidden;
+  padding: clamp(7px, 1.5vmin, 15px);
+  color: #e8f5f7;
+  background:
+    radial-gradient(ellipse at 15% 0%, rgba(66, 129, 145, 0.38), transparent 38%),
+    radial-gradient(ellipse at 90% 100%, rgba(28, 126, 137, 0.17), transparent 35%),
+    linear-gradient(145deg, #253942 0%, #101d25 45%, #09141b 100%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.remote-controller-screen *,
+.remote-controller-screen *::before,
+.remote-controller-screen *::after {
+  box-sizing: border-box;
+}
+
+.remote-controller-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.42;
+  background-image:
+    linear-gradient(90deg, transparent 49.5%, rgba(99, 220, 226, 0.09) 50%, transparent 50.5%),
+    linear-gradient(0deg, transparent 49.5%, rgba(99, 220, 226, 0.07) 50%, transparent 50.5%);
+  background-size: 58px 58px;
+  mask-image: radial-gradient(ellipse at center, #000 5%, transparent 82%);
+}
+
+.remote-controller-frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  max-width: 1200px;
+  flex-direction: column;
+  gap: clamp(5px, 1.35vh, 12px);
+  margin: 0 auto;
+}
+
+.remote-controller-topbar {
+  display: flex;
+  min-height: 38px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 10px;
+  border: 1px solid rgba(188, 223, 231, 0.25);
+  border-radius: 17px;
+  background: linear-gradient(
+    105deg,
+    rgba(169, 199, 207, 0.18),
+    rgba(15, 31, 41, 0.82) 52%,
+    rgba(73, 112, 122, 0.19)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 5px 18px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(8px);
+}
+
+.remote-controller-brand {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+}
+
+.remote-controller-mark {
+  width: 27px;
+  height: 27px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  opacity: 0.78;
+  filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(110, 225, 233, 0.42));
+}
+
+.remote-controller-brand-text {
+  min-width: 0;
+}
+
+.remote-controller-wordmark {
+  overflow: hidden;
+  color: #e5f0f2;
+  font-size: clamp(8px, 1.8vh, 12px);
+  font-weight: 800;
+  letter-spacing: 0.19em;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remote-controller-connection {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  color: rgba(193, 216, 222, 0.62);
+  font-size: clamp(6px, 1.15vh, 8px);
+  letter-spacing: 0.12em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.remote-controller-status-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #e3ad58;
+  box-shadow: 0 0 7px rgba(227, 173, 88, 0.6);
+}
+
+.remote-controller-status-dot.is-connected {
+  background: #72e4bf;
+  box-shadow: 0 0 8px rgba(114, 228, 191, 0.85);
+}
+
+.remote-controller-header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(4px, 1vw, 9px);
+}
+
+.remote-controller-chip {
+  display: inline-flex;
+  min-height: 25px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 clamp(7px, 1.5vw, 12px);
+  border: 1px solid rgba(205, 229, 234, 0.38);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(182, 212, 218, 0.16), rgba(22, 41, 50, 0.7));
+  color: #dcebed;
+  font-size: clamp(7px, 1.35vh, 9px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 2px 5px rgba(0, 0, 0, 0.24);
+}
+
+.remote-controller-chip--install {
+  border-color: rgba(104, 225, 229, 0.56);
+  color: #a9f1ed;
+}
+
+.remote-controller-chip--game {
+  border-color: rgba(207, 224, 229, 0.42);
+}
+
+.remote-controller-chip--player1 {
+  border-color: rgba(110, 226, 221, 0.72);
+  background: linear-gradient(180deg, rgba(94, 208, 203, 0.21), rgba(18, 56, 63, 0.72));
+  color: #b8f5ef;
+}
+
+.remote-controller-chip--player2 {
+  border-color: rgba(246, 178, 115, 0.72);
+  background: linear-gradient(180deg, rgba(246, 178, 115, 0.2), rgba(71, 42, 29, 0.72));
+  color: #ffe0c3;
+}
+
+.remote-controller-body {
+  display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(5px, 1.2vh, 11px);
+}
+
+.remote-controller-quick-actions {
+  display: grid;
+  width: min(100%, 1000px);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(5px, 1.5vw, 14px);
+  margin: 0 auto;
+}
+
+.remote-controller-utility {
+  display: grid;
+  min-width: 0;
+  height: clamp(25px, 7.4vh, 36px);
+  place-items: center;
+  padding: 0 4px;
+  border: 1px solid rgba(226, 235, 222, 0.7);
+  border-radius: 999px;
+  color: #f2ebcf;
+  font-size: clamp(7px, 1.45vh, 10px);
+  font-weight: 900;
+  letter-spacing: 0.025em;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.42),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.36),
+    0 2px 0 rgba(10, 17, 22, 0.95),
+    0 4px 8px rgba(0, 0, 0, 0.34);
+}
+
+.remote-controller-utility--pause,
+.remote-controller-utility--credit {
+  border-color: rgba(236, 211, 120, 0.88);
+  background: linear-gradient(180deg, rgba(232, 207, 119, 0.75), rgba(78, 70, 39, 0.94));
+  color: #fff4c2;
+}
+
+.remote-controller-utility--save {
+  border-color: rgba(117, 227, 188, 0.82);
+  background: linear-gradient(180deg, rgba(83, 211, 168, 0.7), rgba(24, 74, 66, 0.96));
+  color: #d9fff0;
+}
+
+.remote-controller-utility--start {
+  border-color: rgba(116, 238, 178, 0.88);
+  background: linear-gradient(180deg, rgba(59, 207, 143, 0.72), rgba(18, 76, 58, 0.96));
+  color: #dcffeb;
+}
+
+.remote-controller-decks {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: clamp(9px, 3.5vw, 42px);
+  padding: 0 clamp(2px, 3.5vw, 42px);
+}
+
+.remote-controller-deck {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(205, 230, 235, 0.5);
+  border-radius: 19px;
+  background: linear-gradient(
+    145deg,
+    rgba(142, 173, 184, 0.28),
+    rgba(18, 42, 53, 0.66) 48%,
+    rgba(7, 22, 31, 0.84)
+  );
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -10px 20px rgba(0, 0, 0, 0.26),
+    0 8px 19px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(4px);
+}
+
+.remote-controller-deck::before {
+  position: absolute;
+  z-index: 1;
+  inset: 5px;
+  border: 1px solid rgba(206, 231, 235, 0.18);
+  border-radius: 14px;
+  background:
+    radial-gradient(
+        circle,
+        rgba(213, 232, 234, 0.82) 0 1px,
+        rgba(35, 55, 63, 0.75) 2px,
+        transparent 4px
+      )
+      left 3px top 3px / 8px 8px no-repeat,
+    radial-gradient(
+        circle,
+        rgba(213, 232, 234, 0.82) 0 1px,
+        rgba(35, 55, 63, 0.75) 2px,
+        transparent 4px
+      )
+      right 3px top 3px / 8px 8px no-repeat,
+    radial-gradient(
+        circle,
+        rgba(213, 232, 234, 0.82) 0 1px,
+        rgba(35, 55, 63, 0.75) 2px,
+        transparent 4px
+      )
+      left 3px bottom 3px / 8px 8px no-repeat,
+    radial-gradient(
+        circle,
+        rgba(213, 232, 234, 0.82) 0 1px,
+        rgba(35, 55, 63, 0.75) 2px,
+        transparent 4px
+      )
+      right 3px bottom 3px / 8px 8px no-repeat;
+  content: "";
+  pointer-events: none;
+}
+
+.remote-controller-deck::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 13%,
+      rgba(80, 203, 213, 0.16) 13.3% 13.7%,
+      transparent 14% 43%,
+      rgba(80, 203, 213, 0.11) 43.3% 43.7%,
+      transparent 44%
+    ),
+    linear-gradient(
+      0deg,
+      transparent 0 27%,
+      rgba(80, 203, 213, 0.13) 27.3% 27.7%,
+      transparent 28% 72%,
+      rgba(80, 203, 213, 0.1) 72.3% 72.7%,
+      transparent 73%
+    );
+  content: "";
+  opacity: 0.78;
+  pointer-events: none;
+  mask-image: linear-gradient(135deg, #000 0%, transparent 48%, #000 100%);
+}
+
+.remote-controller-dpad-grid,
+.remote-controller-face-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: min(84%, 43vh, 260px);
+  aspect-ratio: 1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: clamp(4px, 1.1vmin, 9px);
+}
+
+.remote-controller-control {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
+  border-radius: 999px;
+  color: #effaff;
+  line-height: 1;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 8px rgba(218, 250, 255, 0.28);
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+
+.remote-controller-control:active {
+  filter: brightness(1.24);
+}
+
+.remote-controller-center {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(112, 227, 230, 0.4);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 28%,
+    rgba(164, 218, 224, 0.32),
+    rgba(9, 25, 34, 0.9) 74%
+  );
+  color: rgba(195, 240, 240, 0.8);
+  font-size: clamp(18px, 5vh, 30px);
+  box-shadow:
+    inset 0 1px 4px rgba(255, 255, 255, 0.16),
+    0 3px 9px rgba(0, 0, 0, 0.4);
+}
+
+.remote-controller-footer {
+  margin: 0;
+  color: rgba(178, 200, 207, 0.72);
+  font-size: clamp(6px, 1.15vh, 8px);
+  letter-spacing: 0.11em;
+  line-height: 1.2;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-transform: uppercase;
+}
+
+@media (max-height: 390px) and (orientation: landscape) {
+  .remote-controller-screen {
+    min-height: 260px;
+    padding: 5px 8px;
+  }
+
+  .remote-controller-frame {
+    gap: 4px;
+  }
+
+  .remote-controller-topbar {
+    min-height: 32px;
+    padding: 3px 8px;
+  }
+
+  .remote-controller-mark {
+    width: 22px;
+    height: 22px;
+  }
+
+  .remote-controller-chip {
+    min-height: 22px;
+  }
+
+  .remote-controller-utility {
+    height: 24px;
+  }
+
+  .remote-controller-body {
+    gap: 4px;
+  }
+
+  .remote-controller-decks {
+    gap: 10px;
+    padding: 0 3vw;
+  }
+
+  .remote-controller-dpad-grid,
+  .remote-controller-face-grid {
+    width: min(82%, 43vh, 220px);
+  }
+}
+
+@media (orientation: portrait) {
+  .remote-controller-screen {
+    height: auto;
+    min-height: 100dvh;
+    overflow: auto;
+    padding: 8px;
+  }
+
+  .remote-controller-frame {
+    height: auto;
+    min-height: calc(100dvh - 16px);
+  }
+
+  .remote-controller-decks {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(230px, 1fr));
+    gap: 9px;
+    padding: 0 3vw;
+  }
+
+  .remote-controller-deck {
+    min-height: 230px;
+  }
+
+  .remote-controller-dpad-grid,
+  .remote-controller-face-grid {
+    width: min(67vw, 30vh, 250px);
+  }
+}
+
+@media (max-width: 390px) {
+  .remote-controller-topbar {
+    gap: 4px;
+    padding-right: 6px;
+    padding-left: 6px;
+  }
+
+  .remote-controller-mark {
+    width: 23px;
+    height: 23px;
+  }
+
+  .remote-controller-brand {
+    gap: 4px;
+  }
+
+  .remote-controller-header-actions {
+    gap: 3px;
+  }
+
+  .remote-controller-chip {
+    padding-right: 6px;
+    padding-left: 6px;
+    letter-spacing: 0.03em;
+  }
+}
