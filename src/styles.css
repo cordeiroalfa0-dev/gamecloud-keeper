@@ -286,7 +286,7 @@ div[style*="Edit with Lovable"],
   }
 
   .mga-reference-controller > section > div:nth-child(2) > div:nth-child(2) {
-    transform: translateY(0.75rem);
+    transform: translateY(1.5rem);
   }
 
   .mga-reference-controller > section > p {
