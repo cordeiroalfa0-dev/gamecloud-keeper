@@ -274,11 +274,15 @@ div[style*="Edit with Lovable"],
   }
 
   .mga-reference-controller > section > div:nth-child(2) > div {
-    width: min(38vw, 220px) !important;
-    height: min(66vh, 220px) !important;
+    width: min(44vw, 260px) !important;
+    height: min(74vh, 260px) !important;
     gap: 0.35rem !important;
-    padding: 0.5rem !important;
+    padding: 0.6rem !important;
     border-radius: 1rem !important;
+  }
+
+  .mga-reference-controller > section > div:nth-child(2) > div button {
+    font-size: clamp(1.75rem, 5.5vw, 2.6rem) !important;
   }
 
   .mga-reference-controller > section > p {
