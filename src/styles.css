@@ -227,3 +227,28 @@ div[style*="Edit with Lovable"],
   border-color: rgba(71, 177, 103, 0.9) !important;
   background-color: rgba(30, 115, 64, 0.32) !important;
 }
+
+/* O controle ocupa toda a largura em telas deitadas, como um gamepad real. */
+@media (min-width: 700px), (orientation: landscape) {
+  .mga-reference-controller > header,
+  .mga-reference-controller > section {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .mga-reference-controller > header {
+    min-height: 3.2rem;
+    border-radius: 0.9rem !important;
+    padding: 0.55rem 1rem !important;
+  }
+
+  .mga-reference-controller > section {
+    border-radius: 1rem !important;
+    padding: 0.35rem 0.5rem !important;
+  }
+
+  .mga-reference-controller > section > div:nth-child(2) {
+    gap: clamp(1rem, 10vw, 8rem) !important;
+    padding-inline: clamp(0.5rem, 5vw, 5rem) !important;
+  }
+}
