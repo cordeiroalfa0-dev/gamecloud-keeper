@@ -43,7 +43,7 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 const BACKGROUND_IMAGES = [
-  "/assets/intro-esteyori-poster.jpg",
+  "/assets/master-games-pcb.png",
 ];
 
 const fileBase = (name: string) => name.toLowerCase().replace(/\.(zip|7z|chd)$/i, "");
@@ -426,7 +426,7 @@ export function GameLibrary({
   }, [roms, launching]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]">
+    <div className="mga-reference-ui relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]">
       <div className="pointer-events-none fixed inset-0 z-0 bg-[#050009]">
         {BACKGROUND_IMAGES.map((image, index) => (
           <img

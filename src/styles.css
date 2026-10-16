@@ -158,3 +158,122 @@ div[style*="Edit with Lovable"],
   position: absolute !important;
   z-index: -9999 !important;
 }
+
+/* Tema Master Games: placa escura, metal escovado e indicadores de arcade. */
+.mga-reference-ui {
+  --mga-ink: #071114;
+  --mga-panel: rgba(10, 24, 24, 0.9);
+  --mga-line: rgba(163, 141, 85, 0.48);
+  --mga-brass: #c7a957;
+  --mga-green: #2e9b62;
+  background: #071114 !important;
+}
+
+.mga-reference-ui::before,
+.mga-reference-controller::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  content: "";
+  opacity: 0.28;
+  background-image:
+    linear-gradient(rgba(191, 173, 108, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(191, 173, 108, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mix-blend-mode: screen;
+}
+
+.mga-reference-ui header {
+  border-color: rgba(177, 156, 91, 0.45) !important;
+  background: rgba(5, 16, 17, 0.88) !important;
+  box-shadow: inset 0 -1px rgba(221, 192, 108, 0.13), 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.mga-reference-ui .mga-hero-image {
+  opacity: 0.42 !important;
+  filter: saturate(0.72) contrast(1.14) brightness(0.7);
+}
+
+.mga-reference-ui header h1,
+.mga-reference-ui header p,
+.mga-reference-ui .text-cyan-400,
+.mga-reference-ui .text-cyan-300,
+.mga-reference-ui .text-cyan-200 {
+  color: #d7c277 !important;
+  text-shadow: 0 0 10px rgba(215, 194, 119, 0.26) !important;
+}
+
+.mga-reference-ui input,
+.mga-reference-ui section[aria-label="Janela da biblioteca de jogos"] {
+  border-color: var(--mga-line) !important;
+  background-color: var(--mga-panel) !important;
+}
+
+.mga-reference-ui button {
+  border-color: rgba(185, 157, 79, 0.48) !important;
+}
+
+.mga-reference-ui button:hover {
+  border-color: #d9c16d !important;
+  background-color: rgba(193, 164, 83, 0.16) !important;
+}
+
+.mga-reference-ui section[aria-label="Janela da biblioteca de jogos"] > div:first-child {
+  background: linear-gradient(180deg, rgba(37, 57, 48, 0.9), rgba(8, 21, 21, 0.88)) !important;
+  border-color: rgba(198, 171, 93, 0.32) !important;
+}
+
+.mga-reference-controller {
+  background:
+    linear-gradient(rgba(6, 15, 16, 0.62), rgba(6, 15, 16, 0.78)),
+    url("/assets/master-games-pcb.png") center / cover,
+    #071114 !important;
+  color: #f3eedb !important;
+}
+
+.mga-reference-controller > * {
+  z-index: 2;
+}
+
+.mga-reference-controller header,
+.mga-reference-controller section {
+  border-color: rgba(199, 169, 87, 0.46) !important;
+  background-color: rgba(7, 19, 20, 0.76) !important;
+  box-shadow: inset 0 1px rgba(245, 224, 151, 0.16), 0 16px 36px rgba(0, 0, 0, 0.42) !important;
+}
+
+.mga-reference-controller .text-cyan-100,
+.mga-reference-controller .text-cyan-300,
+.mga-reference-controller .text-orange-200,
+.mga-reference-controller .text-orange-100 {
+  color: #e3c979 !important;
+}
+
+.mga-reference-controller .border-cyan-300\/60,
+.mga-reference-controller .border-cyan-200\/80 {
+  border-color: rgba(52, 160, 106, 0.78) !important;
+}
+
+.mga-reference-controller .bg-cyan-300\/10,
+.mga-reference-controller .bg-cyan-300\/35 {
+  background-color: rgba(44, 145, 94, 0.26) !important;
+}
+
+.mga-reference-controller .border-orange-300\/70,
+.mga-reference-controller .border-amber-200\/70,
+.mga-reference-controller .border-amber-300\/80 {
+  border-color: rgba(215, 183, 88, 0.9) !important;
+}
+
+.mga-reference-controller .bg-orange-300\/10,
+.mga-reference-controller .bg-amber-400\/20,
+.mga-reference-controller .bg-amber-300\/35 {
+  background-color: rgba(176, 133, 32, 0.32) !important;
+}
+
+.mga-reference-controller .border-green-300\/80,
+.mga-reference-controller .bg-green-400\/20 {
+  border-color: rgba(71, 177, 103, 0.9) !important;
+  background-color: rgba(30, 115, 64, 0.32) !important;
+}
