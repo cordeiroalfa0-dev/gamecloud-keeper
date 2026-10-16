@@ -36,6 +36,7 @@
 .remote-controller-frame {
   position: relative;
   z-index: 1;
+  isolation: isolate;
   display: flex;
   width: 100%;
   height: 100%;
@@ -43,6 +44,94 @@
   flex-direction: column;
   gap: clamp(5px, 1.35vh, 12px);
   margin: 0 auto;
+  padding: clamp(4px, 1.2vmin, 12px);
+  overflow: hidden;
+  border: 1px solid rgba(194, 226, 232, 0.48);
+  border-radius: 23px;
+  background: linear-gradient(
+    145deg,
+    rgba(162, 195, 203, 0.23),
+    rgba(18, 39, 49, 0.72) 42%,
+    rgba(7, 19, 27, 0.82)
+  );
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -18px 26px rgba(0, 0, 0, 0.22),
+    0 10px 28px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(12px);
+}
+
+.remote-controller-frame::before,
+.remote-controller-frame::after {
+  position: absolute;
+  z-index: 0;
+  inset: 5px;
+  border-radius: 18px;
+  content: "";
+  pointer-events: none;
+}
+
+.remote-controller-frame::before {
+  border: 1px solid rgba(215, 239, 242, 0.17);
+  background:
+    radial-gradient(
+        circle,
+        rgba(226, 245, 245, 0.8) 0 1px,
+        rgba(38, 62, 71, 0.72) 2px,
+        transparent 4px
+      )
+      left 3px top 3px / 8px 8px no-repeat,
+    radial-gradient(
+        circle,
+        rgba(226, 245, 245, 0.8) 0 1px,
+        rgba(38, 62, 71, 0.72) 2px,
+        transparent 4px
+      )
+      right 3px top 3px / 8px 8px no-repeat,
+    radial-gradient(
+        circle,
+        rgba(226, 245, 245, 0.8) 0 1px,
+        rgba(38, 62, 71, 0.72) 2px,
+        transparent 4px
+      )
+      left 3px bottom 3px / 8px 8px no-repeat,
+    radial-gradient(
+        circle,
+        rgba(226, 245, 245, 0.8) 0 1px,
+        rgba(38, 62, 71, 0.72) 2px,
+        transparent 4px
+      )
+      right 3px bottom 3px / 8px 8px no-repeat;
+}
+
+.remote-controller-frame::after {
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 7%,
+      rgba(85, 213, 220, 0.11) 7.2% 7.5%,
+      transparent 7.7% 35%,
+      rgba(85, 213, 220, 0.09) 35.2% 35.5%,
+      transparent 35.7%
+    ),
+    linear-gradient(
+      0deg,
+      transparent 0 16%,
+      rgba(85, 213, 220, 0.1) 16.2% 16.5%,
+      transparent 16.7% 78%,
+      rgba(85, 213, 220, 0.08) 78.2% 78.5%,
+      transparent 78.7%
+    );
+  opacity: 0.8;
+  mask-image: linear-gradient(135deg, #000 0%, transparent 50%, #000 100%);
+}
+
+.remote-controller-topbar,
+.remote-controller-body {
+  position: relative;
+  z-index: 1;
 }
 
 .remote-controller-topbar {
@@ -53,18 +142,11 @@
   justify-content: space-between;
   gap: 8px;
   padding: 4px 10px;
-  border: 1px solid rgba(188, 223, 231, 0.25);
-  border-radius: 17px;
-  background: linear-gradient(
-    105deg,
-    rgba(169, 199, 207, 0.18),
-    rgba(15, 31, 41, 0.82) 52%,
-    rgba(73, 112, 122, 0.19)
-  );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 5px 18px rgba(0, 0, 0, 0.34);
-  backdrop-filter: blur(8px);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .remote-controller-brand {
@@ -232,99 +314,36 @@
 }
 
 .remote-controller-decks {
+  position: relative;
   display: grid;
   min-height: 0;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: stretch;
-  gap: clamp(9px, 3.5vw, 42px);
-  padding: 0 clamp(2px, 3.5vw, 42px);
+  gap: 0;
+  padding: 0;
 }
 
 .remote-controller-deck {
   position: relative;
+  z-index: 1;
   display: grid;
   min-width: 0;
   min-height: 0;
   place-items: center;
-  overflow: hidden;
-  border: 1px solid rgba(205, 230, 235, 0.5);
-  border-radius: 19px;
-  background: linear-gradient(
-    145deg,
-    rgba(142, 173, 184, 0.28),
-    rgba(18, 42, 53, 0.66) 48%,
-    rgba(7, 22, 31, 0.84)
-  );
-  box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -10px 20px rgba(0, 0, 0, 0.26),
-    0 8px 19px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(4px);
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .remote-controller-deck::before {
-  position: absolute;
-  z-index: 1;
-  inset: 5px;
-  border: 1px solid rgba(206, 231, 235, 0.18);
-  border-radius: 14px;
-  background:
-    radial-gradient(
-        circle,
-        rgba(213, 232, 234, 0.82) 0 1px,
-        rgba(35, 55, 63, 0.75) 2px,
-        transparent 4px
-      )
-      left 3px top 3px / 8px 8px no-repeat,
-    radial-gradient(
-        circle,
-        rgba(213, 232, 234, 0.82) 0 1px,
-        rgba(35, 55, 63, 0.75) 2px,
-        transparent 4px
-      )
-      right 3px top 3px / 8px 8px no-repeat,
-    radial-gradient(
-        circle,
-        rgba(213, 232, 234, 0.82) 0 1px,
-        rgba(35, 55, 63, 0.75) 2px,
-        transparent 4px
-      )
-      left 3px bottom 3px / 8px 8px no-repeat,
-    radial-gradient(
-        circle,
-        rgba(213, 232, 234, 0.82) 0 1px,
-        rgba(35, 55, 63, 0.75) 2px,
-        transparent 4px
-      )
-      right 3px bottom 3px / 8px 8px no-repeat;
-  content: "";
-  pointer-events: none;
+  content: none;
 }
 
 .remote-controller-deck::after {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      90deg,
-      transparent 0 13%,
-      rgba(80, 203, 213, 0.16) 13.3% 13.7%,
-      transparent 14% 43%,
-      rgba(80, 203, 213, 0.11) 43.3% 43.7%,
-      transparent 44%
-    ),
-    linear-gradient(
-      0deg,
-      transparent 0 27%,
-      rgba(80, 203, 213, 0.13) 27.3% 27.7%,
-      transparent 28% 72%,
-      rgba(80, 203, 213, 0.1) 72.3% 72.7%,
-      transparent 73%
-    );
-  content: "";
-  opacity: 0.78;
-  pointer-events: none;
-  mask-image: linear-gradient(135deg, #000 0%, transparent 48%, #000 100%);
+  content: none;
 }
 
 .remote-controller-dpad-grid,
@@ -332,21 +351,21 @@
   position: relative;
   z-index: 2;
   display: grid;
-  width: min(84%, 43vh, 260px);
+  width: min(96%, 58vh, 330px);
   aspect-ratio: 1;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: clamp(4px, 1.1vmin, 9px);
+  gap: clamp(6px, 1.4vmin, 12px);
 }
 
 .remote-controller-deck--dpad .remote-controller-dpad-grid {
   justify-self: start;
-  margin-left: clamp(8px, 3.8vw, 28px);
+  margin-left: clamp(4px, 1vw, 10px);
 }
 
 .remote-controller-deck--actions .remote-controller-face-grid {
   justify-self: end;
-  margin-right: clamp(8px, 3.8vw, 28px);
+  margin-right: clamp(4px, 1vw, 10px);
 }
 
 .remote-controller-control {
@@ -430,13 +449,13 @@
   }
 
   .remote-controller-decks {
-    gap: 10px;
-    padding: 0 3vw;
+    gap: 0;
+    padding: 0;
   }
 
   .remote-controller-dpad-grid,
   .remote-controller-face-grid {
-    width: min(82%, 43vh, 220px);
+    width: min(98%, 60vh, 320px);
   }
 }
 
