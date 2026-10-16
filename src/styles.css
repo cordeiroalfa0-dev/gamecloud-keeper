@@ -174,6 +174,19 @@ div[style*="Edit with Lovable"],
   mix-blend-mode: screen;
 }
 
+.mga-reference-controller::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.13), rgba(116, 211, 214, 0.04) 42%, rgba(0, 0, 0, 0.2));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.24), inset 0 0 80px rgba(157, 232, 224, 0.08);
+  backdrop-filter: blur(5px) saturate(1.12);
+}
+
 .mga-reference-controller {
   background:
     linear-gradient(rgba(6, 15, 16, 0.62), rgba(6, 15, 16, 0.78)),
@@ -189,7 +202,8 @@ div[style*="Edit with Lovable"],
 .mga-reference-controller header,
 .mga-reference-controller section {
   border-color: rgba(199, 169, 87, 0.46) !important;
-  background-color: rgba(7, 19, 20, 0.76) !important;
+  background-color: rgba(7, 19, 20, 0.42) !important;
+  backdrop-filter: blur(8px) saturate(1.18) !important;
   box-shadow: inset 0 1px rgba(245, 224, 151, 0.16), 0 16px 36px rgba(0, 0, 0, 0.42) !important;
 }
 
