@@ -339,6 +339,16 @@
   gap: clamp(4px, 1.1vmin, 9px);
 }
 
+.remote-controller-deck--dpad .remote-controller-dpad-grid {
+  justify-self: start;
+  margin-left: clamp(8px, 3.8vw, 28px);
+}
+
+.remote-controller-deck--actions .remote-controller-face-grid {
+  justify-self: end;
+  margin-right: clamp(8px, 3.8vw, 28px);
+}
+
 .remote-controller-control {
   display: grid;
   min-width: 0;
@@ -457,6 +467,9 @@
   .remote-controller-dpad-grid,
   .remote-controller-face-grid {
     width: min(67vw, 30vh, 250px);
+    margin-right: 0;
+    margin-left: 0;
+    justify-self: center;
   }
 }
 

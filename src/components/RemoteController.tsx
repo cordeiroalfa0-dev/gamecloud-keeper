@@ -438,7 +438,11 @@ export function RemoteController() {
               )}
             </div>
             <div className="remote-controller-decks">
-              <div className="remote-controller-deck" role="group" aria-label="Direcional">
+              <div
+                className="remote-controller-deck remote-controller-deck--dpad"
+                role="group"
+                aria-label="Direcional"
+              >
                 <div className="remote-controller-dpad-grid">
                   <span aria-hidden="true" />
                   {control(
@@ -469,7 +473,11 @@ export function RemoteController() {
                   <span aria-hidden="true" />
                 </div>
               </div>
-              <div className="remote-controller-deck" role="group" aria-label="Botões de ação">
+              <div
+                className="remote-controller-deck remote-controller-deck--actions"
+                role="group"
+                aria-label="Botões de ação"
+              >
                 <div className="remote-controller-face-grid">
                   <span aria-hidden="true" />
                   {control(
