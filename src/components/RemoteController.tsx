@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import "./RemoteController.css";
 
 const buttonClass = [
   "relative isolate inline-flex items-center justify-center overflow-hidden select-none touch-none rounded-full border-2 font-mono font-black tracking-wide transition-[transform,filter,box-shadow] duration-100 backdrop-blur-sm backdrop-saturate-150",
@@ -8,78 +9,6 @@ const buttonClass = [
   "before:pointer-events-none before:absolute before:inset-[3px] before:z-0 before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.38)_0%,rgba(255,255,255,.12)_28%,transparent_54%,rgba(0,0,0,.26)_100%)] before:content-['']",
   "after:pointer-events-none after:absolute after:left-[17%] after:right-[17%] after:top-[7%] after:z-0 after:h-[24%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.7),transparent_75%)] after:blur-[2px] after:content-['']",
 ].join(" ");
-
-const circuitBoardPattern = encodeURIComponent(
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 700" fill="none">
-    <defs>
-      <pattern id="microgrid" width="40" height="40" patternUnits="userSpaceOnUse">
-        <path d="M40 0H0V40" stroke="#67e8f9" stroke-opacity=".075" stroke-width="1" />
-      </pattern>
-      <filter id="traceGlow" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur stdDeviation="3" result="blur" />
-        <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-      </filter>
-      <linearGradient id="cyanTrace" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#a5f3fc" /><stop offset=".5" stop-color="#22d3ee" />
-        <stop offset="1" stop-color="#0891b2" />
-      </linearGradient>
-    </defs>
-    <rect width="1600" height="700" fill="url(#microgrid)" />
-    <g stroke="url(#cyanTrace)" stroke-opacity=".58" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#traceGlow)">
-      <path d="M-20 92H112V148H210V202H312V242H438" />
-      <path d="M-20 270H74V226H162V188H254V152H360" />
-      <path d="M-20 472H124V430H222V386H318V344H432" />
-      <path d="M-20 622H150V576H256V530H344V486H470" />
-      <path d="M1620 104H1482V154H1380V202H1282V248H1164" />
-      <path d="M1620 286H1516V248H1428V210H1330V174H1222" />
-      <path d="M1620 470H1484V428H1380V388H1284V344H1168" />
-      <path d="M1620 624H1458V576H1352V534H1264V490H1140" />
-    </g>
-    <g stroke="#c4b5fd" stroke-opacity=".48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M42 344H164V374H270V408H360" />
-      <path d="M1558 356H1438V326H1330V294H1240" />
-      <path d="M510 18V72H574V112H646V156H720" />
-      <path d="M1090 682V626H1028V588H954V548H884" />
-      <path d="M620 690V642H682V604H750V568H820" />
-      <path d="M980 12V58H920V96H858V132H796" />
-    </g>
-    <g stroke="#fbbf75" stroke-opacity=".5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M202 54H278V82H352V112H412" />
-      <path d="M1398 648H1326V618H1254V590H1194" />
-      <path d="M18 546H70V520H122V494H176" />
-      <path d="M1582 182H1530V208H1478V234H1424" />
-    </g>
-    <g fill="#071923" stroke="#67e8f9" stroke-opacity=".7" stroke-width="2">
-      <circle cx="112" cy="148" r="7" /><circle cx="210" cy="202" r="7" />
-      <circle cx="162" cy="188" r="7" /><circle cx="222" cy="386" r="7" />
-      <circle cx="256" cy="530" r="7" /><circle cx="1482" cy="154" r="7" />
-      <circle cx="1428" cy="210" r="7" /><circle cx="1380" cy="388" r="7" />
-      <circle cx="1352" cy="534" r="7" /><circle cx="682" cy="604" r="6" />
-      <circle cx="920" cy="96" r="6" />
-    </g>
-    <g fill="#67e8f9" fill-opacity=".88">
-      <circle cx="112" cy="148" r="2.5" /><circle cx="210" cy="202" r="2.5" />
-      <circle cx="162" cy="188" r="2.5" /><circle cx="222" cy="386" r="2.5" />
-      <circle cx="256" cy="530" r="2.5" /><circle cx="1482" cy="154" r="2.5" />
-      <circle cx="1428" cy="210" r="2.5" /><circle cx="1380" cy="388" r="2.5" />
-      <circle cx="1352" cy="534" r="2.5" />
-    </g>
-    <g stroke="#94a3b8" stroke-opacity=".38" stroke-width="2" fill="#0b2029">
-      <rect x="82" y="300" width="116" height="70" rx="9" />
-      <rect x="1402" y="302" width="116" height="70" rx="9" />
-      <rect x="474" y="506" width="84" height="54" rx="7" />
-      <rect x="1042" y="140" width="84" height="54" rx="7" />
-      <path d="M98 292V278M118 292V278M138 292V278M158 292V278M178 292V278M98 378V392M118 378V392M138 378V392M158 378V392M178 378V392" />
-      <path d="M1418 294V280M1438 294V280M1458 294V280M1478 294V280M1498 294V280M1418 380V394M1438 380V394M1458 380V394M1478 380V394M1498 380V394" />
-    </g>
-    <g fill="#c4b5fd" fill-opacity=".82">
-      <circle cx="164" cy="374" r="3" /><circle cx="1438" cy="326" r="3" />
-      <circle cx="574" cy="112" r="3" /><circle cx="1028" cy="588" r="3" />
-      <circle cx="352" cy="112" r="3" /><circle cx="1254" cy="590" r="3" />
-      <circle cx="70" cy="520" r="3" /><circle cx="1530" cy="208" r="3" />
-    </g>
-  </svg>`,
-);
 
 const panelScrewPositions = [
   "left-3 top-3",
@@ -115,6 +44,91 @@ const REMOTE_INSTALLED_KEY = "mga-remote-app-installed-v1";
 const REMOTE_INPUT = { CREDIT: 2, START: 3 } as const;
 const MOMENTARY_INPUTS = new Set<number>([REMOTE_INPUT.CREDIT, REMOTE_INPUT.START]);
 const MIN_MOMENTARY_PRESS_MS = 120;
+
+const REMOTE_CAST_MODE_KEY = "mga-remote-cast-mode-v1";
+const CIRCUIT_PAD_BY_INPUT: Record<number, { id: string; side: "left" | "right" }> = {
+  4: { id: "up", side: "left" },
+  6: { id: "left", side: "left" },
+  7: { id: "right", side: "left" },
+  5: { id: "down", side: "left" },
+  1: { id: "y", side: "right" },
+  9: { id: "x", side: "right" },
+  8: { id: "a", side: "right" },
+  0: { id: "b", side: "right" },
+};
+
+type CircuitPad = { id: string; side: "left" | "right"; x: number; y: number; radius: number };
+type CircuitLayout = { width: number; height: number; pads: CircuitPad[] };
+
+const createCircuitPath = (pad: CircuitPad, width: number, height: number) => {
+  const { id, x, y, radius } = pad;
+  const reach = radius + 5;
+  const routes: Record<string, [number, number][]> = {
+    up: [
+      [x, y - reach],
+      [x, y - reach - 12],
+      [x + 14, y - reach - 26],
+      [x + 14, 14],
+      [width * 0.38, 14],
+    ],
+    left: [
+      [x - reach, y],
+      [x - reach - 12, y],
+      [x - reach - 26, y + 14],
+      [14, y + 14],
+    ],
+    right: [
+      [x + reach, y],
+      [x + reach + 12, y],
+      [x + reach + 26, y - 14],
+      [width * 0.45, y - 14],
+    ],
+    down: [
+      [x, y + reach],
+      [x, y + reach + 12],
+      [x + 14, y + reach + 26],
+      [x + 14, height - 14],
+    ],
+    center: [
+      [x, y + reach],
+      [x, y + reach + 12],
+      [x + 14, y + reach + 26],
+      [width * 0.44, y + reach + 26],
+    ],
+    y: [
+      [x, y - reach],
+      [x, y - reach - 12],
+      [x - 14, y - reach - 26],
+      [x - 14, 14],
+      [width * 0.64, 14],
+    ],
+    x: [
+      [x - reach, y],
+      [x - reach - 12, y],
+      [x - reach - 26, y + 14],
+      [width * 0.52, y + 14],
+    ],
+    a: [
+      [x, y + reach],
+      [x, y + reach + 12],
+      [x + 14, y + reach + 26],
+      [x + 14, height - 14],
+    ],
+    b: [
+      [x + reach, y],
+      [x + reach + 12, y],
+      [x + reach + 26, y - 14],
+      [width - 14, y - 14],
+    ],
+  };
+  const clamp = (value: number, max: number) => Math.min(Math.max(value, 8), max - 8);
+  return (routes[id] || [])
+    .map(
+      ([pointX, pointY], index) =>
+        `${index === 0 ? "M" : "L"} ${clamp(pointX, width)} ${clamp(pointY, height)}`,
+    )
+    .join(" ");
+};
 
 const readRemoteSession = (): RemoteSession => {
   // Durante o SSR não existe window/sessionStorage: devolve a sessão vazia.
@@ -153,8 +167,28 @@ const readRemoteSession = (): RemoteSession => {
   return fromUrl;
 };
 
+const readRemoteCastMode = () => {
+  if (typeof window === "undefined") return false;
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("controller")) {
+    const castMode = params.get("cast") === "1";
+    try {
+      window.localStorage.setItem(REMOTE_CAST_MODE_KEY, castMode ? "1" : "0");
+    } catch {
+      // O armazenamento pode estar bloqueado no modo privado.
+    }
+    return castMode;
+  }
+  try {
+    return window.localStorage.getItem(REMOTE_CAST_MODE_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+
 export function RemoteController() {
   const [{ room, player }] = useState(readRemoteSession);
+  const [castMode] = useState(readRemoteCastMode);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const activeInputs = useRef(new Set<number>());
   const inputPressedAt = useRef(new Map<number, number>());
@@ -166,6 +200,12 @@ export function RemoteController() {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [installInfoOpen, setInstallInfoOpen] = useState(false);
+  const frameRef = useRef<HTMLElement | null>(null);
+  const [circuitLayout, setCircuitLayout] = useState<CircuitLayout>({
+    width: 0,
+    height: 0,
+    pads: [],
+  });
 
   useEffect(() => {
     // REGRA DE OURO: o link do QR code nunca deve ficar exposto na experiência
@@ -210,6 +250,46 @@ export function RemoteController() {
       window.removeEventListener("appinstalled", onInstalled);
     };
   }, []);
+
+  useEffect(() => {
+    if (error) return;
+    const frame = frameRef.current;
+    if (!frame) return;
+    let animationFrame = 0;
+    const measure = () => {
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(() => {
+        const frameRect = frame.getBoundingClientRect();
+        const pads = Array.from(frame.querySelectorAll<HTMLElement>("[data-circuit-pad]")).map(
+          (element): CircuitPad => {
+            const rect = element.getBoundingClientRect();
+            return {
+              id: element.dataset["circuitPad"] || "",
+              side: element.dataset["circuitSide"] === "right" ? "right" : "left",
+              x: rect.left - frameRect.left + rect.width / 2,
+              y: rect.top - frameRect.top + rect.height / 2,
+              radius: Math.min(rect.width, rect.height) / 2,
+            };
+          },
+        );
+        setCircuitLayout({ width: frameRect.width, height: frameRect.height, pads });
+      });
+    };
+    measure();
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    observer?.observe(frame);
+    frame
+      .querySelectorAll<HTMLElement>("[data-circuit-pad]")
+      .forEach((element) => observer?.observe(element));
+    window.addEventListener("resize", measure);
+    window.addEventListener("orientationchange", measure);
+    return () => {
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+      observer?.disconnect();
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("orientationchange", measure);
+    };
+  }, [error]);
 
   const installRemoteApp = async () => {
     if (!installPrompt) return;
@@ -386,6 +466,8 @@ export function RemoteController() {
     <button
       type="button"
       className={`${buttonClass} ${className}`}
+      data-circuit-pad={CIRCUIT_PAD_BY_INPUT[input]?.id}
+      data-circuit-side={CIRCUIT_PAD_BY_INPUT[input]?.side}
       onPointerDown={(event) => {
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
@@ -456,7 +538,7 @@ export function RemoteController() {
             type="button"
             onClick={() => sendCommand("toggle-game-fullscreen")}
             className="rounded-xl border border-slate-300/50 bg-slate-300/10 px-3 py-2 text-[10px] font-bold text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
-            aria-label="Alternar tela cheia do jogo no computador"
+            aria-label={`Alternar tela cheia do jogo ${castMode ? "na TV" : "no computador"}`}
           >
             ⛶ JOGO
           </button>
@@ -468,13 +550,48 @@ export function RemoteController() {
         </div>
       </header>
       <section
-        className="relative mx-auto flex min-h-0 flex-1 flex-col justify-between gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] backdrop-blur-[2px] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:py-0"
+        ref={frameRef}
+        className="relative isolate mx-auto flex min-h-0 flex-1 flex-col justify-between gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] backdrop-blur-[2px] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:py-0"
         style={{
-          backgroundImage: `linear-gradient(145deg, rgba(255,255,255,.11), transparent 24%, transparent 76%, rgba(255,255,255,.035)), radial-gradient(ellipse at 50% 52%, rgba(34,211,238,.15), transparent 62%), url("data:image/svg+xml,${circuitBoardPattern}")`,
-          backgroundSize: "100% 100%, cover, 100% 100%",
+          backgroundImage: `linear-gradient(145deg, rgba(255,255,255,.11), transparent 24%, transparent 76%, rgba(255,255,255,.035)), radial-gradient(ellipse at 50% 52%, rgba(34,211,238,.15), transparent 62%), url("/assets/remote-controller-pcb.webp")`,
+          backgroundSize: "100% 100%, cover, cover",
+          backgroundPosition: "center, center, center",
         }}
       >
-        <div className="grid grid-cols-2 gap-2 px-2 sm:grid-cols-4">
+        {circuitLayout.width > 0 && circuitLayout.pads.length > 0 && (
+          <svg
+            aria-hidden="true"
+            className="remote-controller-circuit-overlay"
+            viewBox={`0 0 ${circuitLayout.width} ${circuitLayout.height}`}
+            preserveAspectRatio="none"
+          >
+            {circuitLayout.pads.map((pad) => (
+              <g key={pad.id}>
+                <path
+                  d={createCircuitPath(pad, circuitLayout.width, circuitLayout.height)}
+                  className="remote-controller-circuit-trace-shadow"
+                />
+                <path
+                  d={createCircuitPath(pad, circuitLayout.width, circuitLayout.height)}
+                  className="remote-controller-circuit-trace"
+                />
+                <circle
+                  cx={pad.x}
+                  cy={pad.y}
+                  r={pad.radius + 3}
+                  className="remote-controller-circuit-pad"
+                />
+                <circle
+                  cx={pad.x}
+                  cy={pad.y}
+                  r={pad.radius + 1}
+                  className="remote-controller-circuit-pad-glint"
+                />
+              </g>
+            ))}
+          </svg>
+        )}
+        <div className="relative z-10 grid grid-cols-2 gap-2 px-2 sm:grid-cols-4">
           <button
             type="button"
             onClick={() => sendCommand("toggle-pause")}
@@ -504,7 +621,7 @@ export function RemoteController() {
             "h-7 border-green-300/80 bg-green-400/20 text-xs text-green-100 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[10px]",
           )}
         </div>
-        <div className="flex min-h-0 flex-1 items-center justify-between gap-2 px-1 sm:px-8">
+        <div className="relative z-10 flex min-h-0 flex-1 items-center justify-between gap-2 px-1 sm:px-8">
           <div className="relative grid h-56 w-56 grid-cols-3 grid-rows-3 gap-2 rounded-[1.8rem] border border-white/40 bg-[linear-gradient(145deg,rgba(255,255,255,.3),rgba(148,163,184,.14)_18%,rgba(15,23,42,.62)_68%,rgba(255,255,255,.16))] p-3 shadow-[inset_0_2px_0_rgba(255,255,255,.3),inset_0_-12px_20px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.5),0_14px_28px_rgba(2,6,23,.4)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-1 before:rounded-[1.4rem] before:border before:border-white/25 before:bg-[linear-gradient(140deg,rgba(255,255,255,.18),transparent_36%,rgba(0,0,0,.2))] before:content-[''] sm:h-72 sm:w-72">
             <PanelFasteners />
             <span />
@@ -523,7 +640,12 @@ export function RemoteController() {
                 "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
               )}
             </span>
-            <span className="grid place-items-center rounded-full border border-cyan-100/45 bg-[radial-gradient(circle_at_35%_25%,rgba(255,255,255,.28),rgba(12,32,44,.94)_72%)] text-cyan-100/80 shadow-[inset_0_2px_3px_rgba(255,255,255,.34),inset_0_-4px_6px_rgba(0,0,0,.68),0_3px_4px_rgba(0,0,0,.5)]">
+            <span
+              className="grid place-items-center rounded-full border border-cyan-100/45 bg-[radial-gradient(circle_at_35%_25%,rgba(255,255,255,.28),rgba(12,32,44,.94)_72%)] text-cyan-100/80 shadow-[inset_0_2px_3px_rgba(255,255,255,.34),inset_0_-4px_6px_rgba(0,0,0,.68),0_3px_4px_rgba(0,0,0,.5)]"
+              aria-hidden="true"
+              data-circuit-pad="center"
+              data-circuit-side="left"
+            >
               ✦
             </span>
             <span>
@@ -572,9 +694,10 @@ export function RemoteController() {
             <span />
           </div>
         </div>
-        <p className="text-center font-mono text-[10px] uppercase tracking-wider text-slate-400">
-          Mantenha esta tela aberta. Os comandos chegam ao PC pela mesma rede Wi-Fi ou pela
-          internet.
+        <p className="relative z-10 text-center font-mono text-[10px] uppercase tracking-wider text-slate-400">
+          {castMode
+            ? "Mantenha esta tela aberta. Os comandos chegam ao jogo que está rodando na TV."
+            : "Mantenha esta tela aberta. Os comandos chegam ao PC pela mesma rede Wi-Fi ou pela internet."}
         </p>
       </section>
       {installInfoOpen && (

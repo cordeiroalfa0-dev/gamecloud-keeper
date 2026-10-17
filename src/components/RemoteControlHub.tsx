@@ -81,13 +81,21 @@ const relayCommandToGame = (command: Partial<RemoteCommand>) => {
   );
 };
 
-const controllerUrl = (room: string, player: number) => {
+const controllerUrl = (room: string, player: number, castMode = false) => {
   const url = new URL(PUBLIC_APP_URL);
-  url.search = new URLSearchParams({ controller: "1", room, player: String(player) }).toString();
+  const params = new URLSearchParams({ controller: "1", room, player: String(player) });
+  if (castMode) params.set("cast", "1");
+  url.search = params.toString();
   return url.toString();
 };
 
-export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
+export function RemoteControlHub({
+  autoOpen = false,
+  castMode = false,
+}: {
+  autoOpen?: boolean;
+  castMode?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [room, setRoom] = useState("");
   const [roomLoaded, setRoomLoaded] = useState(false);
@@ -169,8 +177,11 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
   }, [room]);
 
   const links = useMemo(
-    () => ({ p1: room ? controllerUrl(room, 1) : "", p2: room ? controllerUrl(room, 2) : "" }),
-    [room],
+    () => ({
+      p1: room ? controllerUrl(room, 1, castMode) : "",
+      p2: room ? controllerUrl(room, 2, castMode) : "",
+    }),
+    [room, castMode],
   );
   const create = () => {
     const savedRoom = readStoredRoom();
@@ -221,9 +232,11 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
               <div>
                 <h2 className="font-mono text-lg font-bold text-pink-200">CONTROLES POR CELULAR</h2>
                 <p className="mt-1 font-mono text-xs text-zinc-400">
-                  {autoOpen
-                    ? "O jogo roda nesta TV. Leia um QR Code com o celular para controlá-lo."
-                    : "Abra um link em cada celular para usar os controles nesta tela."}
+                  {castMode
+                    ? "O sistema está nesta TV. Leia o QR, escolha um jogo na TV e controle a partida pelo celular."
+                    : autoOpen
+                      ? "O jogo roda nesta TV. Leia um QR Code com o celular para controlá-lo."
+                      : "Abra um link em cada celular para usar os controles nesta tela."}
                 </p>
               </div>
               <button
@@ -294,6 +307,16 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
                 <span>Os dois celulares controlam o mesmo jogo</span>
               </div>
             </div>
+            {castMode && (
+              <div className="mt-4 rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 font-mono text-xs text-amber-100">
+                <strong className="block text-amber-200">GOOGLE CAST ATIVO</strong>
+                <p className="mt-1 leading-relaxed text-amber-100/80">
+                  Esta TV está executando o sistema. Leia o QR P1 com o celular; o controle funciona
+                  diretamente no navegador e a instalação do MGA Controle é opcional. Feche este
+                  painel no X, escolha um jogo usando o controle da TV e use o celular para jogar.
+                </p>
+              </div>
+            )}
             <button
               type="button"
               onClick={() => {

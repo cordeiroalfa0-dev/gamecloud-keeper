@@ -23,6 +23,10 @@ npm i
 npm run dev
 ```
 
+## Transmissão para TV no Android
+
+O projeto inclui integração Google Cast para abrir o Modo TV numa TV compatível e mostrar o QR dos controles. Antes de usar, registe o receptor e configure `VITE_GOOGLE_CAST_APP_ID` conforme [GOOGLE-CAST-SETUP.md](./GOOGLE-CAST-SETUP.md). A descoberta só lista aparelhos Google Cast visíveis na mesma rede Wi‑Fi.
+
 ## Saves centralizados no Google Drive do proprietário
 
 A autenticação dos jogadores continua sendo feita pelo Supabase/Google. Quando as três variáveis abaixo estiverem definidas **no ambiente server-side**, as rotas `/api/saves/` gravam, leem e excluem os checkpoints diretamente na Google Drive API, usando OAuth 2.0 com refresh token. Os saves ficam na pasta `Master Games Arcade Saves` da conta Google autorizada. Os nomes/índices dos saves usam hashes do usuário, ROM e core; a API valida o usuário pelo token Supabase antes de acessar os dados.
