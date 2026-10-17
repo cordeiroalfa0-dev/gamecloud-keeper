@@ -508,7 +508,7 @@
   .remote-controller-decks {
     gap: 0;
     padding: 0;
-    transform: translateY(clamp(8px, 3vh, 14px));
+    transform: translateY(clamp(14px, 5vh, 24px));
   }
 
   .remote-controller-dpad-grid,
