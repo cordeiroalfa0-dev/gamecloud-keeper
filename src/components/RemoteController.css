@@ -506,9 +506,10 @@
   }
 
   .remote-controller-decks {
+    position: relative;
     gap: 0;
     padding: 0;
-    transform: translateY(clamp(22px, 8vh, 38px));
+    top: clamp(30px, 12vh, 54px);
   }
 
   .remote-controller-dpad-grid,
