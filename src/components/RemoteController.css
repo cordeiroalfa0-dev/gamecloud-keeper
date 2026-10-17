@@ -552,6 +552,40 @@
   }
 }
 
+/* Em celulares deitados, os dois conjuntos ficam nas bordas para uso com os polegares. */
+@media (min-width: 500px) and (max-width: 900px) and (max-height: 500px) {
+  .remote-controller-decks {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .remote-controller-deck {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+  }
+
+  .remote-controller-deck--dpad {
+    left: 0;
+    place-items: center start;
+  }
+
+  .remote-controller-deck--actions {
+    right: 0;
+    place-items: center end;
+  }
+
+  .remote-controller-deck--dpad .remote-controller-dpad-grid,
+  .remote-controller-deck--actions .remote-controller-face-grid {
+    width: min(31vw, 52vh, 225px);
+    margin: 0 !important;
+  }
+}
+
 @media (orientation: portrait) {
   .remote-controller-screen {
     height: auto;
