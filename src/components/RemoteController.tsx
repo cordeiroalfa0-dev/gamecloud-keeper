@@ -622,7 +622,7 @@ export function RemoteController() {
           )}
         </div>
         <div className="relative z-10 flex min-h-0 flex-1 items-center justify-between gap-2 px-1 sm:px-8">
-          <div className="relative grid h-56 w-56 grid-cols-3 grid-rows-3 gap-2 rounded-[1.8rem] border border-white/40 bg-[linear-gradient(145deg,rgba(255,255,255,.3),rgba(148,163,184,.14)_18%,rgba(15,23,42,.62)_68%,rgba(255,255,255,.16))] p-3 shadow-[inset_0_2px_0_rgba(255,255,255,.3),inset_0_-12px_20px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.5),0_14px_28px_rgba(2,6,23,.4)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-1 before:rounded-[1.4rem] before:border before:border-white/25 before:bg-[linear-gradient(140deg,rgba(255,255,255,.18),transparent_36%,rgba(0,0,0,.2))] before:content-[''] sm:h-72 sm:w-72">
+          <div className="relative grid h-64 w-64 grid-cols-3 grid-rows-3 gap-2 rounded-[1.8rem] border border-white/40 bg-[linear-gradient(145deg,rgba(255,255,255,.3),rgba(148,163,184,.14)_18%,rgba(15,23,42,.62)_68%,rgba(255,255,255,.16))] p-3 shadow-[inset_0_2px_0_rgba(255,255,255,.3),inset_0_-12px_20px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.5),0_14px_28px_rgba(2,6,23,.4)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-1 before:rounded-[1.4rem] before:border before:border-white/25 before:bg-[linear-gradient(140deg,rgba(255,255,255,.18),transparent_36%,rgba(0,0,0,.2))] before:content-[''] sm:h-72 sm:w-72">
             <PanelFasteners />
             <span />
             <span>
