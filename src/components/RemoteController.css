@@ -512,7 +512,12 @@
 
   .remote-controller-dpad-grid,
   .remote-controller-face-grid {
-    width: min(98%, 60vh, 320px);
+    width: min(48vw, 52vh, 230px);
+    gap: clamp(4px, 1vw, 8px);
+  }
+
+  .remote-controller-deck--actions .remote-controller-face-grid {
+    transform: translateY(clamp(6px, 2vh, 12px));
   }
 }
 
