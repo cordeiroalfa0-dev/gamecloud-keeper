@@ -512,6 +512,21 @@
     top: clamp(30px, 12vh, 54px);
   }
 
+  .remote-controller-deck {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+  }
+
+  .remote-controller-deck--dpad {
+    left: 0;
+  }
+
+  .remote-controller-deck--actions {
+    right: 0;
+  }
+
   .remote-controller-deck--dpad {
     place-items: center start;
   }
