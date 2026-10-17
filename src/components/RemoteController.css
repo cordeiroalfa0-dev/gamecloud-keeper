@@ -512,6 +512,20 @@
     top: clamp(30px, 12vh, 54px);
   }
 
+  .remote-controller-deck--dpad {
+    place-items: center start;
+  }
+
+  .remote-controller-deck--actions {
+    place-items: center end;
+  }
+
+  .remote-controller-deck--dpad .remote-controller-dpad-grid,
+  .remote-controller-deck--actions .remote-controller-face-grid {
+    justify-self: auto;
+    margin-inline: 0;
+  }
+
   .remote-controller-dpad-grid,
   .remote-controller-face-grid {
     width: min(48vw, 52vh, 230px);
