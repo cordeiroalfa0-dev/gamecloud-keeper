@@ -21,6 +21,89 @@ const REMOTE_CAST_MODE_KEY = "mga-remote-cast-mode-v1";
 const REMOTE_INPUT = { CREDIT: 2, START: 3 } as const;
 const MOMENTARY_INPUTS = new Set<number>([REMOTE_INPUT.CREDIT, REMOTE_INPUT.START]);
 const MIN_MOMENTARY_PRESS_MS = 120;
+const CIRCUIT_PAD_BY_INPUT: Record<number, { id: string; side: "left" | "right" }> = {
+  4: { id: "up", side: "left" },
+  6: { id: "left", side: "left" },
+  7: { id: "right", side: "left" },
+  5: { id: "down", side: "left" },
+  1: { id: "y", side: "right" },
+  9: { id: "x", side: "right" },
+  8: { id: "a", side: "right" },
+  0: { id: "b", side: "right" },
+};
+
+type CircuitPad = { id: string; side: "left" | "right"; x: number; y: number; radius: number };
+type CircuitLayout = { width: number; height: number; pads: CircuitPad[] };
+
+const createCircuitPath = (pad: CircuitPad, width: number, height: number) => {
+  const { id, x, y, radius } = pad;
+  const reach = radius + 5;
+  const routes: Record<string, [number, number][]> = {
+    up: [
+      [x, y - reach],
+      [x, y - reach - 12],
+      [x + 14, y - reach - 26],
+      [x + 14, 14],
+      [width * 0.38, 14],
+    ],
+    left: [
+      [x - reach, y],
+      [x - reach - 12, y],
+      [x - reach - 26, y + 14],
+      [14, y + 14],
+    ],
+    right: [
+      [x + reach, y],
+      [x + reach + 12, y],
+      [x + reach + 26, y - 14],
+      [width * 0.45, y - 14],
+    ],
+    down: [
+      [x, y + reach],
+      [x, y + reach + 12],
+      [x + 14, y + reach + 26],
+      [x + 14, height - 14],
+    ],
+    center: [
+      [x, y + reach],
+      [x, y + reach + 12],
+      [x + 14, y + reach + 26],
+      [width * 0.44, y + reach + 26],
+    ],
+    y: [
+      [x, y - reach],
+      [x, y - reach - 12],
+      [x - 14, y - reach - 26],
+      [x - 14, 14],
+      [width * 0.64, 14],
+    ],
+    x: [
+      [x - reach, y],
+      [x - reach - 12, y],
+      [x - reach - 26, y + 14],
+      [width * 0.52, y + 14],
+    ],
+    a: [
+      [x, y + reach],
+      [x, y + reach + 12],
+      [x + 14, y + reach + 26],
+      [x + 14, height - 14],
+    ],
+    b: [
+      [x + reach, y],
+      [x + reach + 12, y],
+      [x + reach + 26, y - 14],
+      [width - 14, y - 14],
+    ],
+  };
+  const clamp = (value: number, max: number) => Math.min(Math.max(value, 8), max - 8);
+  return (routes[id] || [])
+    .map(
+      ([pointX, pointY], index) =>
+        `${index === 0 ? "M" : "L"} ${clamp(pointX, width)} ${clamp(pointY, height)}`,
+    )
+    .join(" ");
+};
 
 const readRemoteSession = (): RemoteSession => {
   // Durante o SSR não existe window/sessionStorage: devolve a sessão vazia.
@@ -93,6 +176,52 @@ export function RemoteController() {
   const [installed, setInstalled] = useState(false);
   const [installationRequired, setInstallationRequired] = useState(false);
   const [installInfoOpen, setInstallInfoOpen] = useState(false);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [circuitLayout, setCircuitLayout] = useState<CircuitLayout>({
+    width: 0,
+    height: 0,
+    pads: [],
+  });
+
+  useEffect(() => {
+    if (installationRequired || error) return;
+    const frame = frameRef.current;
+    if (!frame) return;
+    let animationFrame = 0;
+    const measure = () => {
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(() => {
+        const frameRect = frame.getBoundingClientRect();
+        const pads = Array.from(frame.querySelectorAll<HTMLElement>("[data-circuit-pad]")).map(
+          (element): CircuitPad => {
+            const rect = element.getBoundingClientRect();
+            return {
+              id: element.dataset["circuitPad"] || "",
+              side: element.dataset["circuitSide"] === "right" ? "right" : "left",
+              x: rect.left - frameRect.left + rect.width / 2,
+              y: rect.top - frameRect.top + rect.height / 2,
+              radius: Math.min(rect.width, rect.height) / 2,
+            };
+          },
+        );
+        setCircuitLayout({ width: frameRect.width, height: frameRect.height, pads });
+      });
+    };
+    measure();
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    observer?.observe(frame);
+    frame
+      .querySelectorAll<HTMLElement>("[data-circuit-pad]")
+      .forEach((element) => observer?.observe(element));
+    window.addEventListener("resize", measure);
+    window.addEventListener("orientationchange", measure);
+    return () => {
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+      observer?.disconnect();
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("orientationchange", measure);
+    };
+  }, [installationRequired, error]);
 
   useEffect(() => {
     // REGRA DE OURO: o link do QR code nunca deve ficar exposto na experiência
@@ -325,6 +454,8 @@ export function RemoteController() {
     <button
       type="button"
       className={`${buttonClass} ${className}`}
+      data-circuit-pad={CIRCUIT_PAD_BY_INPUT[input]?.id}
+      data-circuit-side={CIRCUIT_PAD_BY_INPUT[input]?.side}
       onPointerDown={(event) => {
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
@@ -362,7 +493,40 @@ export function RemoteController() {
     >
       <div className="remote-controller-ambient" aria-hidden="true" />
       {!installationRequired && (
-        <div className="remote-controller-frame">
+        <div className="remote-controller-frame" ref={frameRef}>
+          {circuitLayout.width > 0 && circuitLayout.pads.length > 0 && (
+            <svg
+              aria-hidden="true"
+              className="remote-controller-circuit-overlay"
+              viewBox={`0 0 ${circuitLayout.width} ${circuitLayout.height}`}
+              preserveAspectRatio="none"
+            >
+              {circuitLayout.pads.map((pad) => (
+                <g key={pad.id}>
+                  <path
+                    d={createCircuitPath(pad, circuitLayout.width, circuitLayout.height)}
+                    className="remote-controller-circuit-trace-shadow"
+                  />
+                  <path
+                    d={createCircuitPath(pad, circuitLayout.width, circuitLayout.height)}
+                    className="remote-controller-circuit-trace"
+                  />
+                  <circle
+                    cx={pad.x}
+                    cy={pad.y}
+                    r={pad.radius + 3}
+                    className="remote-controller-circuit-pad"
+                  />
+                  <circle
+                    cx={pad.x}
+                    cy={pad.y}
+                    r={pad.radius + 1}
+                    className="remote-controller-circuit-pad-glint"
+                  />
+                </g>
+              ))}
+            </svg>
+          )}
           <header className="remote-controller-topbar">
             <div className="remote-controller-brand">
               <img
@@ -456,7 +620,12 @@ export function RemoteController() {
                     6,
                     "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-300/45 to-slate-700/65 text-3xl text-slate-50",
                   )}
-                  <span className="remote-controller-center" aria-hidden="true">
+                  <span
+                    className="remote-controller-center"
+                    aria-hidden="true"
+                    data-circuit-pad="center"
+                    data-circuit-side="left"
+                  >
                     +
                   </span>
                   {control(
