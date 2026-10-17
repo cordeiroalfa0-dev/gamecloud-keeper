@@ -3,8 +3,32 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import "./RemoteController.css";
 
-const buttonClass =
-  "remote-controller-control select-none touch-none rounded-full border-2 font-mono font-black tracking-wide transition-[transform,filter,box-shadow] duration-100 shadow-[inset_0_1px_0_rgba(255,255,255,.28),inset_0_-7px_0_rgba(0,0,0,.22),0_7px_0_rgba(15,23,42,.8),0_12px_24px_rgba(2,6,23,.28)] active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(15,23,42,.8)] active:brightness-125";
+const buttonClass = [
+  "relative isolate inline-flex items-center justify-center overflow-hidden select-none touch-none rounded-full border-2 font-mono font-black tracking-wide transition-[transform,filter,box-shadow] duration-100 backdrop-blur-sm backdrop-saturate-150",
+  "shadow-[inset_0_2px_2px_rgba(255,255,255,.58),inset_0_-8px_10px_rgba(0,0,0,.4),0_2px_0_rgba(255,255,255,.12),0_8px_14px_rgba(0,0,0,.52)] active:translate-y-1 active:shadow-[inset_0_3px_7px_rgba(0,0,0,.42),0_2px_0_rgba(15,23,42,.85)] active:brightness-125",
+  "before:pointer-events-none before:absolute before:inset-[3px] before:z-0 before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.38)_0%,rgba(255,255,255,.12)_28%,transparent_54%,rgba(0,0,0,.26)_100%)] before:content-['']",
+  "after:pointer-events-none after:absolute after:left-[17%] after:right-[17%] after:top-[7%] after:z-0 after:h-[24%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.7),transparent_75%)] after:blur-[2px] after:content-['']",
+].join(" ");
+
+const panelScrewPositions = [
+  "left-3 top-3",
+  "right-3 top-3",
+  "bottom-3 left-3",
+  "bottom-3 right-3",
+] as const;
+
+const PanelFasteners = () => (
+  <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20">
+    {panelScrewPositions.map((position) => (
+      <span
+        key={position}
+        className={`absolute ${position} grid size-2.5 place-items-center rounded-full border border-white/60 bg-[radial-gradient(circle_at_30%_25%,#f8fafc,#94a3b8_38%,#1e293b_78%)] shadow-[inset_0_1px_1px_rgba(255,255,255,.85),0_1px_2px_rgba(0,0,0,.7)]`}
+      >
+        <span className="h-px w-1.5 rotate-45 bg-slate-950/75" />
+      </span>
+    ))}
+  </div>
+);
 
 type RemotePayload = { room: string; player: number; input: number; pressed: boolean };
 type RemoteCommand = "toggle-pause" | "save-and-exit" | "toggle-game-fullscreen" | "launch-game";
@@ -17,10 +41,11 @@ type InstallPromptEvent = Event & {
 
 const REMOTE_SESSION_KEY = "mga-remote-session-v1";
 const REMOTE_INSTALLED_KEY = "mga-remote-app-installed-v1";
-const REMOTE_CAST_MODE_KEY = "mga-remote-cast-mode-v1";
 const REMOTE_INPUT = { CREDIT: 2, START: 3 } as const;
 const MOMENTARY_INPUTS = new Set<number>([REMOTE_INPUT.CREDIT, REMOTE_INPUT.START]);
 const MIN_MOMENTARY_PRESS_MS = 120;
+
+const REMOTE_CAST_MODE_KEY = "mga-remote-cast-mode-v1";
 const CIRCUIT_PAD_BY_INPUT: Record<number, { id: string; side: "left" | "right" }> = {
   4: { id: "up", side: "left" },
   6: { id: "left", side: "left" },
@@ -174,9 +199,8 @@ export function RemoteController() {
   const [latency, setLatency] = useState<number | null>(null);
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
-  const [installationRequired, setInstallationRequired] = useState(false);
   const [installInfoOpen, setInstallInfoOpen] = useState(false);
-  const frameRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLElement | null>(null);
   const [circuitLayout, setCircuitLayout] = useState<CircuitLayout>({
     width: 0,
     height: 0,
@@ -184,7 +208,51 @@ export function RemoteController() {
   });
 
   useEffect(() => {
-    if (installationRequired || error) return;
+    // REGRA DE OURO: o link do QR code nunca deve ficar exposto na experiência
+    // do controle remoto. Os parâmetros já foram capturados em memória acima;
+    // removê-los do histórico também evita que apareçam ao compartilhar a tela.
+    window.history.replaceState(
+      { ...window.history.state, mgaRemoteController: true },
+      document.title,
+      `${window.location.pathname}${window.location.hash}`,
+    );
+
+    const standalone =
+      window.matchMedia?.("(display-mode: standalone)").matches ||
+      Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
+    let installedBefore = false;
+    try {
+      installedBefore = localStorage.getItem(REMOTE_INSTALLED_KEY) === "1";
+    } catch {
+      // O armazenamento pode estar bloqueado no modo privado.
+    }
+    const appInstalled = standalone || installedBefore;
+    setInstalled(appInstalled);
+
+    const onInstallAvailable = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as InstallPromptEvent);
+    };
+    const onInstalled = () => {
+      try {
+        localStorage.setItem(REMOTE_INSTALLED_KEY, "1");
+      } catch {
+        // O armazenamento pode estar bloqueado no modo privado.
+      }
+      setInstalled(true);
+      setInstallInfoOpen(true);
+    };
+    window.addEventListener("beforeinstallprompt", onInstallAvailable);
+    window.addEventListener("appinstalled", onInstalled, { once: true });
+    if ("serviceWorker" in navigator) void navigator.serviceWorker.register("/sw.js");
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onInstallAvailable);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (error) return;
     const frame = frameRef.current;
     if (!frame) return;
     let animationFrame = 0;
@@ -221,53 +289,7 @@ export function RemoteController() {
       window.removeEventListener("resize", measure);
       window.removeEventListener("orientationchange", measure);
     };
-  }, [installationRequired, error]);
-
-  useEffect(() => {
-    // REGRA DE OURO: o link do QR code nunca deve ficar exposto na experiência
-    // do controle remoto. Os parâmetros já foram capturados em memória acima;
-    // removê-los do histórico também evita que apareçam ao compartilhar a tela.
-    window.history.replaceState(
-      { ...window.history.state, mgaRemoteController: true },
-      document.title,
-      `${window.location.pathname}${window.location.hash}`,
-    );
-
-    const standalone =
-      window.matchMedia?.("(display-mode: standalone)").matches ||
-      Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
-    let installedBefore = false;
-    try {
-      installedBefore = localStorage.getItem(REMOTE_INSTALLED_KEY) === "1";
-    } catch {
-      // O armazenamento pode estar bloqueado no modo privado.
-    }
-    const appInstalled = standalone || installedBefore;
-    setInstalled(appInstalled);
-    setInstallationRequired(!appInstalled);
-    if (!appInstalled) setInstallInfoOpen(true);
-
-    const onInstallAvailable = (event: Event) => {
-      event.preventDefault();
-      setInstallPrompt(event as InstallPromptEvent);
-    };
-    const onInstalled = () => {
-      try {
-        localStorage.setItem(REMOTE_INSTALLED_KEY, "1");
-      } catch {
-        // O armazenamento pode estar bloqueado no modo privado.
-      }
-      setInstalled(true);
-      setInstallInfoOpen(true);
-    };
-    window.addEventListener("beforeinstallprompt", onInstallAvailable);
-    window.addEventListener("appinstalled", onInstalled, { once: true });
-    if ("serviceWorker" in navigator) void navigator.serviceWorker.register("/sw.js");
-    return () => {
-      window.removeEventListener("beforeinstallprompt", onInstallAvailable);
-      window.removeEventListener("appinstalled", onInstalled);
-    };
-  }, []);
+  }, [error]);
 
   const installRemoteApp = async () => {
     if (!installPrompt) return;
@@ -283,16 +305,6 @@ export function RemoteController() {
       setInstalled(true);
       setInstallInfoOpen(true);
     }
-  };
-
-  const continueAfterManualInstall = () => {
-    try {
-      localStorage.setItem(REMOTE_INSTALLED_KEY, "1");
-    } catch {
-      // O armazenamento pode estar bloqueado no modo privado.
-    }
-    setInstalled(true);
-    setInstallInfoOpen(true);
   };
 
   const requestWakeLock = async () => {
@@ -469,7 +481,7 @@ export function RemoteController() {
       onPointerCancel={() => releaseInput(input)}
       onContextMenu={(event) => event.preventDefault()}
     >
-      {label}
+      <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,.8)]">{label}</span>
     </button>
   );
 
@@ -484,206 +496,210 @@ export function RemoteController() {
   return (
     <main
       translate="no"
-      className="notranslate remote-controller-screen select-none"
+      className="mga-reference-controller notranslate relative flex h-[100dvh] min-h-0 flex-col select-none overflow-hidden bg-[radial-gradient(circle_at_15%_10%,rgba(113,140,153,.32),transparent_26%),radial-gradient(circle_at_90%_90%,rgba(194,113,58,.14),transparent_28%),linear-gradient(135deg,#1c2930,#0e151b_55%,#111b21)] p-2 text-slate-100 [@media(max-height:500px)]:p-1"
       onContextMenu={(event) => event.preventDefault()}
       onPointerDown={() => {
         void requestLandscape();
         void requestWakeLock();
       }}
     >
-      <div className="remote-controller-ambient" aria-hidden="true" />
-      {!installationRequired && (
-        <div className="remote-controller-frame" ref={frameRef}>
-          {circuitLayout.width > 0 && circuitLayout.pads.length > 0 && (
-            <svg
+      <div className="pointer-events-none absolute inset-2 rounded-[2rem] border border-white/10 shadow-[inset_0_0_50px_rgba(255,255,255,.035)]" />
+      <header className="relative mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between gap-3 rounded-2xl border border-slate-300/20 bg-slate-200/[.07] px-4 py-3 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_10px_25px_rgba(2,6,23,.22)] backdrop-blur-sm [@media(max-height:500px)]:gap-2 [@media(max-height:500px)]:px-2 [@media(max-height:500px)]:py-1">
+        <div>
+          <div className="flex items-center gap-2 text-xs tracking-[.18em] text-slate-100">
+            <img
+              src="/kali-dragon.png"
+              alt=""
               aria-hidden="true"
-              className="remote-controller-circuit-overlay"
-              viewBox={`0 0 ${circuitLayout.width} ${circuitLayout.height}`}
-              preserveAspectRatio="none"
-            >
-              {circuitLayout.pads.map((pad) => (
-                <g key={pad.id}>
-                  <path
-                    d={createCircuitPath(pad, circuitLayout.width, circuitLayout.height)}
-                    className="remote-controller-circuit-trace-shadow"
-                  />
-                  <path
-                    d={createCircuitPath(pad, circuitLayout.width, circuitLayout.height)}
-                    className="remote-controller-circuit-trace"
-                  />
-                  <circle
-                    cx={pad.x}
-                    cy={pad.y}
-                    r={pad.radius + 3}
-                    className="remote-controller-circuit-pad"
-                  />
-                  <circle
-                    cx={pad.x}
-                    cy={pad.y}
-                    r={pad.radius + 1}
-                    className="remote-controller-circuit-pad-glint"
-                  />
-                </g>
-              ))}
-            </svg>
-          )}
-          <header className="remote-controller-topbar">
-            <div className="remote-controller-brand">
-              <img
-                src="/kali-dragon.png"
-                alt=""
-                aria-hidden="true"
-                className="remote-controller-mark"
-              />
-              <div className="remote-controller-brand-text">
-                <div className="remote-controller-wordmark">MASTER GAMES</div>
-                <div className="remote-controller-connection">
-                  <span
-                    className={`remote-controller-status-dot ${connected ? "is-connected" : ""}`}
-                  />
-                  PAINEL REMOTO ·{" "}
-                  {connected
-                    ? `CONECTADO${latency === null ? "" : ` · ${latency} MS`}`
-                    : "CONECTANDO…"}
-                </div>
-              </div>
-            </div>
-            <div className="remote-controller-header-actions">
-              {!installed && (
-                <button
-                  type="button"
-                  onClick={() => setInstallInfoOpen(true)}
-                  className="remote-controller-chip remote-controller-chip--install"
-                  aria-label="Instalar o controle remoto como aplicativo"
-                >
-                  ↓ INSTALAR
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => sendCommand("toggle-game-fullscreen")}
-                className="remote-controller-chip remote-controller-chip--game"
-                aria-label={`Alternar tela cheia do jogo ${castMode ? "na TV" : "no computador"}`}
-              >
-                ⛶ JOGO
-              </button>
-              <strong
-                className={`remote-controller-chip ${player === 1 ? "remote-controller-chip--player1" : "remote-controller-chip--player2"}`}
-              >
-                JOGADOR {player}
-              </strong>
-            </div>
-          </header>
-          <section className="remote-controller-body">
-            <div className="remote-controller-quick-actions">
-              <button
-                type="button"
-                onClick={() => sendCommand("toggle-pause")}
-                className="remote-controller-utility remote-controller-utility--pause"
-              >
-                PAUSAR / RETOMAR
-              </button>
-              <button
-                type="button"
-                onClick={() => sendCommand("save-and-exit")}
-                className="remote-controller-utility remote-controller-utility--save"
-              >
-                SALVAR E BIBLIOTECA
-              </button>
-              {control(
-                "CRÉDITO",
-                REMOTE_INPUT.CREDIT,
-                "remote-controller-utility remote-controller-utility--credit",
-              )}
-              {control(
-                "START",
-                REMOTE_INPUT.START,
-                "remote-controller-utility remote-controller-utility--start",
-              )}
-            </div>
-            <div className="remote-controller-decks">
-              <div
-                className="remote-controller-deck remote-controller-deck--dpad"
-                role="group"
-                aria-label="Direcional"
-              >
-                <div className="remote-controller-dpad-grid">
-                  <span aria-hidden="true" />
-                  {control(
-                    "▲",
-                    4,
-                    "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-300/45 to-slate-700/65 text-3xl text-slate-50",
-                  )}
-                  <span aria-hidden="true" />
-                  {control(
-                    "◀",
-                    6,
-                    "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-300/45 to-slate-700/65 text-3xl text-slate-50",
-                  )}
-                  <span
-                    className="remote-controller-center"
-                    aria-hidden="true"
-                    data-circuit-pad="center"
-                    data-circuit-side="left"
-                  >
-                    +
-                  </span>
-                  {control(
-                    "▶",
-                    7,
-                    "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-300/45 to-slate-700/65 text-3xl text-slate-50",
-                  )}
-                  <span aria-hidden="true" />
-                  {control(
-                    "▼",
-                    5,
-                    "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-300/45 to-slate-700/65 text-3xl text-slate-50",
-                  )}
-                  <span aria-hidden="true" />
-                </div>
-              </div>
-              <div
-                className="remote-controller-deck remote-controller-deck--actions"
-                role="group"
-                aria-label="Botões de ação"
-              >
-                <div className="remote-controller-face-grid">
-                  <span aria-hidden="true" />
-                  {control(
-                    "Y",
-                    1,
-                    "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-300/40 to-slate-700/65 text-2xl text-slate-50",
-                  )}
-                  <span aria-hidden="true" />
-                  {control(
-                    "X",
-                    9,
-                    "h-full w-full border-amber-200/70 bg-gradient-to-b from-amber-300/45 to-amber-800/55 text-2xl text-amber-50",
-                  )}
-                  {control(
-                    "A",
-                    8,
-                    `h-full w-full ${player === 1 ? "border-cyan-200/80 bg-gradient-to-b from-cyan-300/45 to-cyan-800/55 text-cyan-50" : "border-orange-200/80 bg-gradient-to-b from-orange-300/45 to-orange-800/55 text-orange-50"} text-2xl`,
-                  )}
-                  {control(
-                    "B",
-                    0,
-                    "h-full w-full border-sky-200/65 bg-gradient-to-b from-sky-300/40 to-sky-800/55 text-2xl text-sky-50",
-                  )}
-                  <span aria-hidden="true" />
-                  <span aria-hidden="true" />
-                  <span aria-hidden="true" />
-                </div>
-              </div>
-            </div>
-            <p className="remote-controller-footer">
-              {castMode
-                ? "Mantenha esta tela aberta. Os comandos chegam ao jogo que está correndo na TV."
-                : "Mantenha esta tela aberta. Os comandos chegam ao PC pela mesma rede Wi-Fi ou pela internet."}
-            </p>
-          </section>
+              className="h-12 w-12 object-contain brightness-0 invert opacity-80 drop-shadow-[0_0_9px_rgba(251,146,60,.6)] [@media(max-height:500px)]:h-5 [@media(max-height:500px)]:w-5"
+            />
+            MASTER GAMES
+          </div>
+          <div className="mt-1 text-[10px] uppercase tracking-wider text-slate-400 [@media(max-height:500px)]:hidden">
+            Painel remoto ·{" "}
+            {connected ? `conectado${latency === null ? "" : ` · ${latency} ms`}` : "conectando…"}
+          </div>
+          <div className="mt-1 text-[9px] font-bold tracking-[.16em] text-orange-200/80 [@media(max-height:500px)]:hidden">
+            DEV EMERSON 2026
+          </div>
         </div>
-      )}
+        <div className="flex items-center gap-2">
+          {!installed && (
+            <button
+              type="button"
+              onClick={() => setInstallInfoOpen(true)}
+              className="rounded-xl border border-cyan-300/50 bg-cyan-300/10 px-3 py-2 text-[10px] font-bold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
+              aria-label="Instalar o controle remoto como aplicativo"
+            >
+              ⬇ INSTALAR
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => sendCommand("toggle-game-fullscreen")}
+            className="rounded-xl border border-slate-300/50 bg-slate-300/10 px-3 py-2 text-[10px] font-bold text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
+            aria-label={`Alternar tela cheia do jogo ${castMode ? "na TV" : "no computador"}`}
+          >
+            ⛶ JOGO
+          </button>
+          <strong
+            className={`rounded-xl border px-4 py-2 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,.2),0_3px_8px_rgba(2,6,23,.3)] ${player === 1 ? "border-cyan-300/60 bg-cyan-300/10 text-cyan-100" : "border-orange-300/70 bg-orange-300/10 text-orange-100"}`}
+          >
+            JOGADOR {player}
+          </strong>
+        </div>
+      </header>
+      <section
+        ref={frameRef}
+        className="relative isolate mx-auto flex min-h-0 flex-1 flex-col justify-between gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] backdrop-blur-[2px] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:py-0"
+        style={{
+          backgroundImage: `linear-gradient(145deg, rgba(255,255,255,.11), transparent 24%, transparent 76%, rgba(255,255,255,.035)), radial-gradient(ellipse at 50% 52%, rgba(34,211,238,.15), transparent 62%), url("/assets/remote-controller-pcb.webp")`,
+          backgroundSize: "100% 100%, cover, cover",
+          backgroundPosition: "center, center, center",
+        }}
+      >
+        {circuitLayout.width > 0 && circuitLayout.pads.length > 0 && (
+          <svg
+            aria-hidden="true"
+            className="remote-controller-circuit-overlay"
+            viewBox={`0 0 ${circuitLayout.width} ${circuitLayout.height}`}
+            preserveAspectRatio="none"
+          >
+            {circuitLayout.pads.map((pad) => (
+              <g key={pad.id}>
+                <path
+                  d={createCircuitPath(pad, circuitLayout.width, circuitLayout.height)}
+                  className="remote-controller-circuit-trace-shadow"
+                />
+                <path
+                  d={createCircuitPath(pad, circuitLayout.width, circuitLayout.height)}
+                  className="remote-controller-circuit-trace"
+                />
+                <circle
+                  cx={pad.x}
+                  cy={pad.y}
+                  r={pad.radius + 3}
+                  className="remote-controller-circuit-pad"
+                />
+                <circle
+                  cx={pad.x}
+                  cy={pad.y}
+                  r={pad.radius + 1}
+                  className="remote-controller-circuit-pad-glint"
+                />
+              </g>
+            ))}
+          </svg>
+        )}
+        <div className="relative z-10 grid grid-cols-2 gap-2 px-2 sm:grid-cols-4">
+          <button
+            type="button"
+            onClick={() => sendCommand("toggle-pause")}
+            className="relative isolate h-7 overflow-hidden rounded-xl border-2 border-amber-200/70 bg-gradient-to-b from-amber-300/25 to-amber-700/20 px-1 font-mono text-[10px] font-black leading-none text-amber-100 shadow-[inset_0_2px_2px_rgba(255,255,255,.46),inset_0_-5px_7px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.55),0_7px_9px_rgba(0,0,0,.36)] backdrop-blur-sm active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(51,35,15,.8)] before:pointer-events-none before:absolute before:inset-[2px] before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.36)_0%,transparent_48%,rgba(0,0,0,.25)_100%)] before:content-[''] after:pointer-events-none after:absolute after:left-[18%] after:right-[18%] after:top-[7%] after:h-[22%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.68),transparent_75%)] after:blur-[2px] after:content-[''] [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[9px]"
+          >
+            <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,.8)]">
+              PAUSAR / RETOMAR
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => sendCommand("save-and-exit")}
+            className="relative isolate h-7 overflow-hidden rounded-xl border-2 border-emerald-200/70 bg-gradient-to-b from-emerald-300/25 to-emerald-700/20 px-1 font-mono text-[10px] font-black leading-none text-emerald-100 shadow-[inset_0_2px_2px_rgba(255,255,255,.46),inset_0_-5px_7px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.55),0_7px_9px_rgba(0,0,0,.36)] backdrop-blur-sm active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(10,45,35,.8)] before:pointer-events-none before:absolute before:inset-[2px] before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.36)_0%,transparent_48%,rgba(0,0,0,.25)_100%)] before:content-[''] after:pointer-events-none after:absolute after:left-[18%] after:right-[18%] after:top-[7%] after:h-[22%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.68),transparent_75%)] after:blur-[2px] after:content-[''] [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[9px]"
+          >
+            <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,.8)]">
+              SALVAR E BIBLIOTECA
+            </span>
+          </button>
+          {control(
+            "CRÉDITO",
+            REMOTE_INPUT.CREDIT,
+            "h-7 border-amber-300/80 bg-amber-400/20 text-xs text-amber-100 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[10px]",
+          )}
+          {control(
+            "START",
+            REMOTE_INPUT.START,
+            "h-7 border-green-300/80 bg-green-400/20 text-xs text-green-100 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[10px]",
+          )}
+        </div>
+        <div className="relative z-10 flex min-h-0 flex-1 items-center justify-between gap-2 px-1 sm:px-8">
+          <div className="relative grid h-56 w-56 grid-cols-3 grid-rows-3 gap-2 rounded-[1.8rem] border border-white/40 bg-[linear-gradient(145deg,rgba(255,255,255,.3),rgba(148,163,184,.14)_18%,rgba(15,23,42,.62)_68%,rgba(255,255,255,.16))] p-3 shadow-[inset_0_2px_0_rgba(255,255,255,.3),inset_0_-12px_20px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.5),0_14px_28px_rgba(2,6,23,.4)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-1 before:rounded-[1.4rem] before:border before:border-white/25 before:bg-[linear-gradient(140deg,rgba(255,255,255,.18),transparent_36%,rgba(0,0,0,.2))] before:content-[''] sm:h-72 sm:w-72">
+            <PanelFasteners />
+            <span />
+            <span>
+              {control(
+                "▲",
+                4,
+                "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
+              )}
+            </span>
+            <span />
+            <span>
+              {control(
+                "◀",
+                6,
+                "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
+              )}
+            </span>
+            <span
+              className="grid place-items-center rounded-full border border-cyan-100/45 bg-[radial-gradient(circle_at_35%_25%,rgba(255,255,255,.28),rgba(12,32,44,.94)_72%)] text-cyan-100/80 shadow-[inset_0_2px_3px_rgba(255,255,255,.34),inset_0_-4px_6px_rgba(0,0,0,.68),0_3px_4px_rgba(0,0,0,.5)]"
+              aria-hidden="true"
+              data-circuit-pad="center"
+              data-circuit-side="left"
+            >
+              ✦
+            </span>
+            <span>
+              {control(
+                "▶",
+                7,
+                "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
+              )}
+            </span>
+            <span />
+            <span>
+              {control(
+                "▼",
+                5,
+                "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
+              )}
+            </span>
+            <span />
+          </div>
+          <div className="relative grid h-56 w-56 grid-cols-3 grid-rows-3 gap-3 rounded-[1.8rem] border border-white/40 bg-[linear-gradient(145deg,rgba(255,255,255,.3),rgba(148,163,184,.14)_18%,rgba(15,23,42,.62)_68%,rgba(255,255,255,.16))] p-3 shadow-[inset_0_2px_0_rgba(255,255,255,.3),inset_0_-12px_20px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.5),0_14px_28px_rgba(2,6,23,.4)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-1 before:rounded-[1.4rem] before:border before:border-white/25 before:bg-[linear-gradient(140deg,rgba(255,255,255,.18),transparent_36%,rgba(0,0,0,.2))] before:content-[''] sm:h-72 sm:w-72">
+            <PanelFasteners />
+            <span />
+            {control(
+              "Y",
+              1,
+              "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-2xl text-slate-100",
+            )}
+            <span />
+            {control(
+              "X",
+              9,
+              "h-full w-full border-amber-200/70 bg-gradient-to-b from-amber-300/35 to-amber-700/25 text-2xl text-amber-50",
+            )}
+            {control(
+              "A",
+              8,
+              `h-full w-full ${player === 1 ? "border-cyan-200/80 bg-gradient-to-b from-cyan-300/35 to-cyan-700/25 text-cyan-50" : "border-orange-200/80 bg-gradient-to-b from-orange-300/35 to-orange-700/25 text-orange-50"} text-2xl`,
+            )}
+            {control(
+              "B",
+              0,
+              "h-full w-full border-sky-200/65 bg-gradient-to-b from-sky-300/30 to-sky-700/25 text-2xl text-sky-50",
+            )}
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+        <p className="relative z-10 text-center font-mono text-[10px] uppercase tracking-wider text-slate-400">
+          {castMode
+            ? "Mantenha esta tela aberta. Os comandos chegam ao jogo que está rodando na TV."
+            : "Mantenha esta tela aberta. Os comandos chegam ao PC pela mesma rede Wi-Fi ou pela internet."}
+        </p>
+      </section>
       {installInfoOpen && (
         <div className="fixed inset-0 z-[120] grid place-items-center bg-[#050a12]/90 p-4 backdrop-blur-md">
           <section
@@ -693,16 +709,14 @@ export function RemoteController() {
             className="relative max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-3xl border border-cyan-300/35 bg-[#0b141c] p-5 text-slate-100 shadow-[0_0_55px_rgba(34,211,238,.18)] sm:p-7"
           >
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-300 via-violet-400 to-orange-300" />
-            {!installationRequired && (
-              <button
-                type="button"
-                onClick={() => setInstallInfoOpen(false)}
-                className="absolute right-4 top-4 rounded-full border border-white/15 px-3 py-1 text-lg text-slate-300 hover:bg-white/10"
-                aria-label="Fechar instalação"
-              >
-                ×
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => setInstallInfoOpen(false)}
+              className="absolute right-4 top-4 rounded-full border border-white/15 px-3 py-1 text-lg text-slate-300 hover:bg-white/10"
+              aria-label="Fechar instalação"
+            >
+              ×
+            </button>
             <div className="flex items-center gap-4 pr-10">
               <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-cyan-300/35 bg-cyan-300/10 p-2 shadow-[0_0_24px_rgba(34,211,238,.15)]">
                 <img src="/kali-dragon.png" alt="" className="h-full w-full object-contain" />
@@ -728,9 +742,9 @@ export function RemoteController() {
               <span className="text-slate-400">SALA {room}</span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-slate-300">
-              Este atalho instala o <b className="text-white">controle remoto</b>, não a biblioteca
-              de jogos. O ícone será <b className="text-cyan-100">MGA Controle</b> e abrirá esta
-              sala como Jogador {player}.
+              O controle funciona nesta página do navegador. Se quiser, você também pode instalar o
+              atalho <b className="text-cyan-100">MGA Controle</b> para abrir esta sala como Jogador{" "}
+              {player}.
             </p>
             {installPrompt ? (
               <button
@@ -740,17 +754,15 @@ export function RemoteController() {
               >
                 ⬇ INSTALAR APP DO CONTROLE
               </button>
-            ) : installed && installationRequired ? (
+            ) : installed ? (
               <div className="mt-5 rounded-2xl border border-emerald-200/25 bg-emerald-200/5 p-4 text-sm leading-relaxed text-emerald-100">
-                <p className="font-bold">App instalado com sucesso.</p>
-                <p className="mt-2 text-emerald-100/80">
-                  Feche esta página e toque no ícone <b>MGA Controle</b> para abrir somente o
-                  controle.
-                </p>
+                <p className="font-bold">MGA Controle está instalado neste aparelho.</p>
+                <p className="mt-2 text-emerald-100/80">A instalação é opcional para jogar.</p>
               </div>
             ) : (
               <div className="mt-5 rounded-2xl border border-amber-200/25 bg-amber-200/5 p-4 text-sm leading-relaxed text-slate-200">
-                <p className="font-bold text-amber-100">Use o menu do navegador para instalar:</p>
+                <p className="font-bold text-amber-100">Instalação opcional</p>
+                <p className="mt-2">Você já pode usar os controles nesta página.</p>
                 <p className="mt-2">
                   <b>Android / Chrome:</b> menu ⋮ → “Instalar app” ou “Adicionar à tela inicial”.
                 </p>
@@ -761,13 +773,10 @@ export function RemoteController() {
             )}
             <button
               type="button"
-              onClick={() => {
-                if (installationRequired) continueAfterManualInstall();
-                else setInstallInfoOpen(false);
-              }}
+              onClick={() => setInstallInfoOpen(false)}
               className="mt-3 w-full rounded-xl border border-white/15 px-4 py-3 font-mono text-xs font-bold text-slate-300 transition hover:bg-white/5"
             >
-              {installationRequired ? "JÁ INSTALEI — ABRIR PELO ÍCONE" : "VOLTAR AO CONTROLE"}
+              CONTINUAR NO NAVEGADOR
             </button>
           </section>
         </div>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { ConnectToTv } from "@/components/ConnectToTv";
 
 type RemotePayload = { room: string; player: number; input: number; pressed: boolean };
 type RemoteCommand = {
@@ -191,6 +192,9 @@ export function RemoteControlHub({
     setOpen(true);
   };
   useEffect(() => {
+    // Recupera uma sala se o link já trouxer um código válido.
+    const urlRoom = (new URLSearchParams(window.location.search).get("room") || "").toUpperCase();
+    if (/^MGA-[A-Z0-9]{4}$/.test(urlRoom)) storeRoom(urlRoom);
     const savedRoom = readStoredRoom();
     if (savedRoom) setRoom(savedRoom);
     setRoomLoaded(true);
@@ -230,7 +234,9 @@ export function RemoteControlHub({
                 <p className="mt-1 font-mono text-xs text-zinc-400">
                   {castMode
                     ? "O sistema está nesta TV. Leia o QR, escolha um jogo na TV e controle a partida pelo celular."
-                    : "Abra um link em cada celular. O jogo continua no PC."}
+                    : autoOpen
+                      ? "O jogo roda nesta TV. Leia um QR Code com o celular para controlá-lo."
+                      : "Abra um link em cada celular para usar os controles nesta tela."}
                 </p>
               </div>
               <button
@@ -240,6 +246,9 @@ export function RemoteControlHub({
               >
                 ✕
               </button>
+            </div>
+            <div className="mt-4">
+              <ConnectToTv />
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 p-3 text-center font-mono text-xs">
@@ -298,29 +307,16 @@ export function RemoteControlHub({
                 <span>Os dois celulares controlam o mesmo jogo</span>
               </div>
             </div>
-            <div className="mt-4 rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 font-mono text-xs text-amber-100">
-              {castMode ? (
-                <>
-                  <strong className="block text-amber-200">GOOGLE CAST ATIVO</strong>
-                  <p className="mt-1 leading-relaxed text-amber-100/80">
-                    Esta TV está executando o sistema. Leia o QR P1 com o celular. Se for a primeira
-                    utilização, instale o MGA Controle e abra-o pelo ícone. Depois feche este painel
-                    no X, escolha um jogo com o controle da TV e use o celular para jogar.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <strong className="block text-amber-200">TV STICK MI · TRANSMITIR A ABA</strong>
-                  <p className="mt-1 leading-relaxed text-amber-100/80">
-                    No Chrome do computador, abra{" "}
-                    <b>⋮ → Transmitir, salvar e compartilhar → Transmitir</b>, escolha seu TV Stick
-                    e selecione <b>Transmitir guia</b>. Depois coloque o jogo em tela cheia. O jogo
-                    continua rodando no computador; a TV mostra a imagem e os celulares continuam
-                    sendo os controles.
-                  </p>
-                </>
-              )}
-            </div>
+            {castMode && (
+              <div className="mt-4 rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 font-mono text-xs text-amber-100">
+                <strong className="block text-amber-200">GOOGLE CAST ATIVO</strong>
+                <p className="mt-1 leading-relaxed text-amber-100/80">
+                  Esta TV está executando o sistema. Leia o QR P1 com o celular; o controle funciona
+                  diretamente no navegador e a instalação do MGA Controle é opcional. Feche este
+                  painel no X, escolha um jogo usando o controle da TV e use o celular para jogar.
+                </p>
+              </div>
+            )}
             <button
               type="button"
               onClick={() => {

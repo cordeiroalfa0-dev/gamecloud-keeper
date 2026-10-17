@@ -1,5 +1,4 @@
 import * as React from "react";
-import cammySobre from "@/assets/cammy-sobre.png.asset.json";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
@@ -440,11 +439,11 @@ export function GameLibrary({
             alt=""
             aria-hidden="true"
             style={{
-              objectPosition: "center center",
+              objectPosition: "center 30%",
               transform:
-                "translate3d(var(--mga-parallax-x, 0px), var(--mga-parallax-y, 0px), 0) scale(.9)",
+                "translate3d(var(--mga-parallax-x, 0px), var(--mga-parallax-y, 0px), 0) scale(1.02)",
             }}
-            className={`mga-hero-image absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 sm:object-contain ${
+            className={`mga-hero-image absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
               index === backgroundIndex ? "opacity-60" : "opacity-0"
             }`}
           />
@@ -725,7 +724,7 @@ export function GameLibrary({
 
             <div className="mt-5 flex flex-col gap-5 sm:flex-row">
               <img
-                src={cammySobre.url}
+                src="/assets/game-loading-art-portrait.png"
                 alt="Arte do Master Games Arcade"
                 className="w-44 shrink-0 self-center rounded-xl border border-cyan-400/30 shadow-[0_0_25px_rgba(0,229,255,.2)] sm:w-52 sm:self-start"
               />
@@ -751,17 +750,6 @@ export function GameLibrary({
                   <p className="mt-2">
                     Sem entrar na conta, o progresso fica neste navegador. Ao entrar com sua conta,
                     ele também pode ser guardado na nuvem e usado em outro aparelho.
-                  </p>
-                </article>
-                <article>
-                  <h3 className="font-bold tracking-wider text-emerald-200">JOGAR NA TV</h3>
-                  <p className="mt-2">
-                    Abra o jogo no computador e transmita a aba para a TV. O computador continua
-                    rodando a partida enquanto a TV mostra a ação.
-                  </p>
-                  <p className="mt-2">
-                    Abra “Celulares” para transformar até dois telefones em controles sem fio. Leia
-                    o link indicado para cada jogador e divirta-se com mais gente.
                   </p>
                 </article>
                 <article>

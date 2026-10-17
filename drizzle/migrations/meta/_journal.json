@@ -43,6 +43,13 @@
       "when": 1791725204533,
       "tag": "0005_mga_saves_updated_at",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792013097198,
+      "tag": "0006_migration",
+      "breakpoints": true
     }
   ]
 }
