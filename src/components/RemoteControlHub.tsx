@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { supabase } from "@/integrations/supabase/client";
 import { ConnectToTv } from "@/components/ConnectToTv";
@@ -248,100 +249,105 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
       >
         QR CONTROLE
       </button>
-      {open && (
-        <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto bg-black/80 p-4 backdrop-blur-sm">
-          <section className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-pink-400/40 bg-[#080012] p-5 text-white shadow-[0_0_40px_rgba(255,43,109,.25)]">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="font-mono text-lg font-bold text-pink-200">CONTROLES POR CELULAR</h2>
-                <p className="mt-1 font-mono text-xs text-zinc-400">
-                  {autoOpen
-                    ? "O jogo roda nesta TV. Leia um QR Code com o celular para controlá-lo."
-                    : "Abra um link em cada celular para usar os controles nesta tela."}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="text-xl text-zinc-400"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 p-3 text-center font-mono text-xs">
-                <b className="text-cyan-200">JOGADOR 1</b>
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(links.p1)}`}
-                  alt="QR Code do controle do jogador 1"
-                  className="mx-auto my-3 h-32 w-32 rounded-lg bg-white p-1"
-                  loading="lazy"
-                />
-                <div className="text-zinc-400">
-                  {players[1] ? "● conectado" : "○ aguardando leitura"}
+      {open && typeof document !== "undefined"
+        ? createPortal(
+            <div className="pointer-events-auto fixed inset-0 z-[9999] grid place-items-center overflow-y-auto bg-black/90 p-4 backdrop-blur-sm">
+              <section className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-pink-400/40 bg-[#080012] p-5 text-white shadow-[0_0_40px_rgba(255,43,109,.25)]">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="font-mono text-lg font-bold text-pink-200">
+                      CONTROLES POR CELULAR
+                    </h2>
+                    <p className="mt-1 font-mono text-xs text-zinc-400">
+                      {autoOpen
+                        ? "O jogo roda nesta TV. Leia um QR Code com o celular para controlá-lo."
+                        : "Abra um link em cada celular para usar os controles nesta tela."}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="text-xl text-zinc-400"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 p-3 text-center font-mono text-xs">
+                    <b className="text-cyan-200">JOGADOR 1</b>
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(links.p1)}`}
+                      alt="QR Code do controle do jogador 1"
+                      className="mx-auto my-3 h-32 w-32 rounded-lg bg-white p-1"
+                      loading="lazy"
+                    />
+                    <div className="text-zinc-400">
+                      {players[1] ? "● conectado" : "○ aguardando leitura"}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => copy(links.p1, "P1")}
+                      className="mt-3 w-full rounded-lg border border-cyan-300/50 px-2 py-2 text-cyan-200"
+                    >
+                      {copied === "P1" ? "Copiado" : "Copiar link P1"}
+                    </button>
+                  </div>
+                  <div className="rounded-xl border border-pink-400/40 bg-pink-400/10 p-3 text-center font-mono text-xs">
+                    <b className="text-pink-200">JOGADOR 2</b>
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(links.p2)}`}
+                      alt="QR Code do controle do jogador 2"
+                      className="mx-auto my-3 h-32 w-32 rounded-lg bg-white p-1"
+                      loading="lazy"
+                    />
+                    <div className="text-zinc-400">
+                      {players[2] ? "● conectado" : "○ aguardando leitura"}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => copy(links.p2, "P2")}
+                      className="mt-3 w-full rounded-lg border border-pink-300/50 px-2 py-2 text-pink-200"
+                    >
+                      {copied === "P2" ? "Copiado" : "Copiar link P2"}
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <ConnectToTv />
+                </div>
+                <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-3 text-center font-mono text-xs">
+                  <div className="text-zinc-400">Código da sala</div>
+                  <strong className="text-3xl tracking-[.3em] text-white">{room}</strong>
+                  <div className="mt-2 text-[10px] text-zinc-500">
+                    Envie o link correspondente para cada celular.
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="rounded-lg border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-center font-mono text-[10px] text-amber-100">
+                    <b className="block text-amber-200">COMANDOS NO CELULAR</b>
+                    <span>Direcional navega, JANELA abre/fecha e ENTER escolhe</span>
+                  </div>
+                  <div className="rounded-lg border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-center font-mono text-[10px] text-cyan-100">
+                    <b className="block text-cyan-200">P1 + P2</b>
+                    <span>Os dois celulares controlam o mesmo jogo</span>
+                  </div>
                 </div>
                 <button
                   type="button"
-                  onClick={() => copy(links.p1, "P1")}
-                  className="mt-3 w-full rounded-lg border border-cyan-300/50 px-2 py-2 text-cyan-200"
+                  onClick={() => {
+                    setRoom("");
+                    storeRoom("");
+                    setPlayers({});
+                  }}
+                  className="mt-4 w-full rounded-lg border border-white/15 px-3 py-2 font-mono text-xs text-zinc-300 hover:border-pink-300/50"
                 >
-                  {copied === "P1" ? "Copiado" : "Copiar link P1"}
+                  Encerrar controles
                 </button>
-              </div>
-              <div className="rounded-xl border border-pink-400/40 bg-pink-400/10 p-3 text-center font-mono text-xs">
-                <b className="text-pink-200">JOGADOR 2</b>
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(links.p2)}`}
-                  alt="QR Code do controle do jogador 2"
-                  className="mx-auto my-3 h-32 w-32 rounded-lg bg-white p-1"
-                  loading="lazy"
-                />
-                <div className="text-zinc-400">
-                  {players[2] ? "● conectado" : "○ aguardando leitura"}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => copy(links.p2, "P2")}
-                  className="mt-3 w-full rounded-lg border border-pink-300/50 px-2 py-2 text-pink-200"
-                >
-                  {copied === "P2" ? "Copiado" : "Copiar link P2"}
-                </button>
-              </div>
-            </div>
-            <div className="mt-4">
-              <ConnectToTv />
-            </div>
-            <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-3 text-center font-mono text-xs">
-              <div className="text-zinc-400">Código da sala</div>
-              <strong className="text-3xl tracking-[.3em] text-white">{room}</strong>
-              <div className="mt-2 text-[10px] text-zinc-500">
-                Envie o link correspondente para cada celular.
-              </div>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <div className="rounded-lg border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-center font-mono text-[10px] text-amber-100">
-                <b className="block text-amber-200">COMANDOS NO CELULAR</b>
-                <span>Direcional navega, JANELA abre/fecha e ENTER escolhe</span>
-              </div>
-              <div className="rounded-lg border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-center font-mono text-[10px] text-cyan-100">
-                <b className="block text-cyan-200">P1 + P2</b>
-                <span>Os dois celulares controlam o mesmo jogo</span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                setRoom("");
-                storeRoom("");
-                setPlayers({});
-              }}
-              className="mt-4 w-full rounded-lg border border-white/15 px-3 py-2 font-mono text-xs text-zinc-300 hover:border-pink-300/50"
-            >
-              Encerrar controles
-            </button>
-          </section>
-        </div>
-      )}
+              </section>
+            </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }
