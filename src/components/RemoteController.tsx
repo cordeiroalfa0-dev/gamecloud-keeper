@@ -588,14 +588,7 @@ export function RemoteController() {
                 "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
               )}
             </span>
-            <span
-              className="grid place-items-center rounded-full border border-cyan-100/45 bg-[radial-gradient(circle_at_35%_25%,rgba(255,255,255,.28),rgba(12,32,44,.94)_72%)] text-cyan-100/80 shadow-[inset_0_2px_3px_rgba(255,255,255,.34),inset_0_-4px_6px_rgba(0,0,0,.68),0_3px_4px_rgba(0,0,0,.5)]"
-              aria-hidden="true"
-              data-circuit-pad="center"
-              data-circuit-side="left"
-            >
-              ✦
-            </span>
+            <span>{control("▼", 5, "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100")}</span>
             <span>
               {control(
                 "▶",
@@ -604,13 +597,7 @@ export function RemoteController() {
               )}
             </span>
             <span />
-            <span>
-              {control(
-                "▼",
-                5,
-                "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
-              )}
-            </span>
+            <span />
             <span />
           </div>
           <div className="relative grid aspect-square w-[min(11.5rem,34%)] translate-y-14 grid-cols-3 grid-rows-3 gap-3">
