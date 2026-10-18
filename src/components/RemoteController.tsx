@@ -571,7 +571,7 @@ export function RemoteController() {
           )}
         </div>
         <div className="relative z-10 flex min-h-0 flex-1 items-center justify-between gap-2 -mx-1 px-0">
-          <div className="relative grid aspect-square w-[min(16rem,46%)] translate-y-6 grid-cols-3 grid-rows-3 gap-2">
+          <div className="relative grid aspect-square w-[min(13rem,38%)] translate-y-6 grid-cols-3 grid-rows-3 gap-2">
             <span />
             <span>
               {control(
@@ -613,7 +613,7 @@ export function RemoteController() {
             </span>
             <span />
           </div>
-          <div className="relative grid aspect-square w-[min(14rem,40%)] translate-y-14 grid-cols-3 grid-rows-3 gap-3">
+          <div className="relative grid aspect-square w-[min(11.5rem,34%)] translate-y-14 grid-cols-3 grid-rows-3 gap-3">
             <span />
             {control(
               "Y",
