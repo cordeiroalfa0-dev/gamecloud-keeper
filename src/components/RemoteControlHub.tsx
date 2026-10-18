@@ -167,6 +167,14 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
         const command = payload as Partial<RemoteCommand>;
         if (command.room !== room) return;
         relayCommandToGame(command);
+        // Ao sair do jogo, devolve o celular ao modo biblioteca para navegar.
+        if (command.command === "save-and-exit") {
+          void channel.send({
+            type: "broadcast",
+            event: "command",
+            payload: { room, command: "library-launch-result", ok: false },
+          });
+        }
       })
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
