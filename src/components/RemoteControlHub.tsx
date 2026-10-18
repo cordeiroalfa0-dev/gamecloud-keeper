@@ -16,7 +16,9 @@ type RemoteCommand = {
     | "library-left"
     | "library-right"
     | "library-enter"
-    | "library-toggle";
+    | "library-toggle"
+    | "library-launch-result";
+  ok?: boolean;
   romName?: string;
 };
 
@@ -129,6 +131,15 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
     };
     window.addEventListener("mga-player-loading", onPlayerLoading);
     window.addEventListener("mga-player-ready", onPlayerReady);
+    const onLaunchResult = (event: Event) => {
+      const ok = Boolean((event as CustomEvent<{ ok?: unknown }>).detail?.ok);
+      void channel.send({
+        type: "broadcast",
+        event: "command",
+        payload: { room, command: "library-launch-result", ok },
+      });
+    };
+    window.addEventListener("mga-remote-game-launch-result", onLaunchResult);
     const lastSeen = new Map<number, number>();
     const markPlayerSeen = (player: number) => {
       if (player !== 1 && player !== 2) return;
@@ -181,6 +192,7 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
       for (const player of [1, 2]) releaseRemotePlayer(player);
       window.removeEventListener("mga-player-loading", onPlayerLoading);
       window.removeEventListener("mga-player-ready", onPlayerReady);
+      window.removeEventListener("mga-remote-game-launch-result", onLaunchResult);
       void supabase.removeChannel(channel);
     };
   }, [room]);

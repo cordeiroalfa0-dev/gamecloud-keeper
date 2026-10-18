@@ -43,6 +43,16 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 const BACKGROUND_IMAGES = ["/assets/intro-esteyori-poster.jpg"];
+const TV_LIBRARY_STORAGE_PREFIX = "mga-tv-library-v1";
+
+const readTvPreference = (key: string, fallback: string) => {
+  if (typeof window === "undefined") return fallback;
+  try {
+    return window.localStorage.getItem(`${TV_LIBRARY_STORAGE_PREFIX}:${key}`) ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
 
 const fileBase = (name: string) => name.toLowerCase().replace(/\.(zip|7z|chd)$/i, "");
 
@@ -152,19 +162,35 @@ export function GameLibrary({
   const [resumeGame, setResumeGame] = useState<{ rom: string; savedAt: number | null } | null>(
     null,
   );
-  const [query, setQuery] = useState("");
-  const [tab, setTab] = useState<Tab>("all");
+  const [query, setQuery] = useState(() => (tvMode ? readTvPreference("query", "") : ""));
+  const [tab, setTab] = useState<Tab>(() => {
+    const stored = tvMode ? readTvPreference("tab", "all") : "all";
+    return stored === "favorites" || stored === "recent" ? stored : "all";
+  });
   const [launching, setLaunching] = useState<string | null>(null);
   const [launchError, setLaunchError] = useState("");
   const mountedRef = useRef(true);
 
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isWindowOpen, setIsWindowOpen] = useState(true);
+  const [isWindowOpen, setIsWindowOpen] = useState(() =>
+    tvMode ? readTvPreference("open", "1") !== "0" : true,
+  );
   const [isWindowExpanded, setIsWindowExpanded] = useState(tvMode);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const libraryContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!tvMode) return;
+    try {
+      window.localStorage.setItem(`${TV_LIBRARY_STORAGE_PREFIX}:query`, query);
+      window.localStorage.setItem(`${TV_LIBRARY_STORAGE_PREFIX}:tab`, tab);
+      window.localStorage.setItem(`${TV_LIBRARY_STORAGE_PREFIX}:open`, isWindowOpen ? "1" : "0");
+    } catch {
+      // A TV browser pode bloquear o armazenamento local.
+    }
+  }, [isWindowOpen, query, tab, tvMode]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -339,6 +365,15 @@ export function GameLibrary({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roms, tab, favoriteSet, recent, query, names]);
 
+  useEffect(() => {
+    setSelectedIndex(0);
+    libraryContentRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }, [query, tab]);
+
+  useEffect(() => {
+    setSelectedIndex((index) => Math.min(index, Math.max(0, visibleRoms.length - 1)));
+  }, [visibleRoms.length]);
+
   const toggleFavorite = async (rom: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
@@ -392,8 +427,8 @@ export function GameLibrary({
     }
   };
 
-  const playGame = async (rom: string) => {
-    if (launching) return;
+  const playGame = async (rom: string): Promise<boolean> => {
+    if (launching) return false;
     // Deve ocorrer no toque original, antes do fetch que abre o player.
     enterMobileLandscape();
     setLaunchError("");
@@ -407,8 +442,16 @@ export function GameLibrary({
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || "Não foi possível abrir o jogo.");
       setRecent((prev) => [rom, ...prev.filter((item) => item !== rom)].slice(0, 100));
+      window.dispatchEvent(
+        new CustomEvent("mga-remote-game-launch-result", { detail: { ok: true } }),
+      );
+      return true;
     } catch (err) {
       setLaunchError(err instanceof Error ? err.message : "Não foi possível abrir o jogo.");
+      window.dispatchEvent(
+        new CustomEvent("mga-remote-game-launch-result", { detail: { ok: false } }),
+      );
+      return false;
     } finally {
       if (mountedRef.current) setLaunching(null);
     }

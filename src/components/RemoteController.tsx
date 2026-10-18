@@ -21,7 +21,9 @@ type RemoteCommand =
   | "library-left"
   | "library-right"
   | "library-enter"
-  | "library-toggle";
+  | "library-toggle"
+  | "library-launch-result";
+type RemoteCommandPayload = { room: string; command: RemoteCommand; ok?: boolean };
 
 type RemoteSession = { room: string; player: 1 | 2 };
 type InstallPromptEvent = Event & {
@@ -346,6 +348,11 @@ export function RemoteController() {
           if (sentAt > 0) setLatency(Math.max(0, Date.now() - sentAt));
         }
       })
+      .on("broadcast", { event: "command" }, ({ payload }) => {
+        const command = payload as Partial<RemoteCommandPayload>;
+        if (command.room !== room || command.command !== "library-launch-result") return;
+        setLibraryMode(!command.ok);
+      })
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
           setError("");
@@ -365,6 +372,15 @@ export function RemoteController() {
       void supabase.removeChannel(channel);
     };
   }, [room, player]);
+
+  useEffect(() => {
+    const onGameLaunchResult = (event: Event) => {
+      const ok = Boolean((event as CustomEvent<{ ok?: unknown }>).detail?.ok);
+      setLibraryMode(!ok);
+    };
+    window.addEventListener("mga-remote-game-launch-result", onGameLaunchResult);
+    return () => window.removeEventListener("mga-remote-game-launch-result", onGameLaunchResult);
+  }, []);
 
   useEffect(() => {
     const releasePressed = () => {
@@ -411,11 +427,14 @@ export function RemoteController() {
       payload: { room, command },
     });
   };
-  const navigationCommandByInput: Record<number, RemoteCommand> = {
+  const libraryCommandByInput: Record<number, RemoteCommand> = {
     4: "library-up",
     6: "library-left",
     7: "library-right",
     5: "library-down",
+    8: "library-enter",
+    3: "library-enter",
+    0: "library-toggle",
   };
 
   const releaseInput = (input: number) => {
@@ -450,15 +469,19 @@ export function RemoteController() {
         const releaseTimer = inputReleaseTimers.current.get(input);
         if (releaseTimer !== undefined) window.clearTimeout(releaseTimer);
         inputReleaseTimers.current.delete(input);
-        if (libraryMode && navigationCommandByInput[input]) {
-          sendCommand(navigationCommandByInput[input]);
+        if (libraryMode && libraryCommandByInput[input]) {
+          sendCommand(libraryCommandByInput[input]);
           return;
         }
         inputPressedAt.current.set(input, Date.now());
         send(input, true);
       }}
-      onPointerUp={() => releaseInput(input)}
-      onPointerCancel={() => releaseInput(input)}
+      onPointerUp={() => {
+        if (!libraryMode || !libraryCommandByInput[input]) releaseInput(input);
+      }}
+      onPointerCancel={() => {
+        if (!libraryMode || !libraryCommandByInput[input]) releaseInput(input);
+      }}
       onContextMenu={(event) => event.preventDefault()}
     >
       <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,.8)]">{label}</span>
@@ -523,10 +546,7 @@ export function RemoteController() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  sendCommand("library-enter");
-                  setLibraryMode(false);
-                }}
+                onClick={() => sendCommand("library-enter")}
                 className="rounded-xl border border-emerald-300/60 bg-emerald-300/10 px-3 py-2 text-[10px] font-bold text-emerald-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
               >
                 ENTER
