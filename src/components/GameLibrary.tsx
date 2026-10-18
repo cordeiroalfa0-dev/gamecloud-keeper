@@ -180,6 +180,7 @@ export function GameLibrary({
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const libraryContentRef = useRef<HTMLDivElement>(null);
+  const resumeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!tvMode) return;
@@ -469,6 +470,12 @@ export function GameLibrary({
   }, [roms, launching]);
 
   useEffect(() => {
+    const cycleTab = (direction: 1 | -1) => {
+      setTab((current) => {
+        const index = TABS.findIndex((item) => item.id === current);
+        return TABS[(index + direction + TABS.length) % TABS.length].id;
+      });
+    };
     const handleLibraryCommand = (event: Event) => {
       const command = (event as CustomEvent<{ command?: string }>).detail?.command;
       if (!command) return;
@@ -476,13 +483,29 @@ export function GameLibrary({
         setIsWindowOpen((open) => !open);
         return;
       }
-      if (!isWindowOpen || visibleRoms.length === 0) return;
+      if (command === "library-tab-next" || command === "library-tab-prev") {
+        cycleTab(command === "library-tab-next" ? 1 : -1);
+        return;
+      }
+      const hasResume = Boolean(resumeGame && !query.trim());
+      if (!isWindowOpen || (visibleRoms.length === 0 && !hasResume)) return;
 
       const cards = Array.from(
         libraryContentRef.current?.querySelectorAll<HTMLElement>("[data-library-card]") || [],
       );
-      if (!cards.length) return;
-      const current = Math.min(selectedIndex, cards.length - 1);
+      if (!cards.length && !hasResume) return;
+      if (command === "library-enter" && selectedIndex === -1 && resumeGame) {
+        void playGame(resumeGame.rom);
+        return;
+      }
+      if (selectedIndex === -1) {
+        if (command === "library-down" || command === "library-right") {
+          setSelectedIndex(0);
+          cards[0]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+        }
+        return;
+      }
+      const current = Math.min(selectedIndex, Math.max(0, cards.length - 1));
       if (command === "library-enter") {
         void playGame(visibleRoms[current]);
         return;
@@ -496,16 +519,40 @@ export function GameLibrary({
       let next = current;
       if (command === "library-left") next = Math.max(0, current - 1);
       if (command === "library-right") next = Math.min(cards.length - 1, current + 1);
-      if (command === "library-up") next = Math.max(0, current - columns);
+      if (command === "library-up") {
+        next = current === 0 && hasResume ? -1 : Math.max(0, current - columns);
+      }
       if (command === "library-down") next = Math.min(cards.length - 1, current + columns);
       setSelectedIndex(next);
-      cards[next]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+      if (next === -1) resumeButtonRef.current?.scrollIntoView({ block: "nearest" });
+      else cards[next]?.scrollIntoView({ block: "nearest", inline: "nearest" });
     };
     window.addEventListener("mga-remote-library-command", handleLibraryCommand);
     return () => window.removeEventListener("mga-remote-library-command", handleLibraryCommand);
     // playGame and the visible list are intentionally read from this render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isWindowOpen, selectedIndex, visibleRoms]);
+
+  useEffect(() => {
+    if (!tvMode) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      const commandByKey: Record<string, string> = {
+        ArrowUp: "library-up",
+        ArrowDown: "library-down",
+        ArrowLeft: "library-left",
+        ArrowRight: "library-right",
+        Enter: "library-enter",
+        PageUp: "library-tab-prev",
+        PageDown: "library-tab-next",
+      };
+      const command = commandByKey[event.key];
+      if (!command) return;
+      event.preventDefault();
+      window.dispatchEvent(new CustomEvent("mga-remote-library-command", { detail: { command } }));
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [tvMode]);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]">
@@ -667,11 +714,12 @@ export function GameLibrary({
           <div ref={libraryContentRef} className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
             {phase === "ready" && resumeGame && !query.trim() && (
               <button
+                ref={resumeButtonRef}
                 type="button"
                 onClick={() => playGame(resumeGame.rom)}
                 disabled={Boolean(launching)}
                 aria-label={`Continuar ${titleFor(resumeGame.rom)}`}
-                className="mb-4 flex w-full items-center gap-3 rounded-xl border border-amber-400/45 bg-amber-400/10 p-3 text-left transition-colors hover:bg-amber-400/15 disabled:cursor-wait disabled:opacity-60"
+                className={`mb-4 flex w-full items-center gap-3 rounded-xl border bg-amber-400/10 p-3 text-left transition-colors hover:bg-amber-400/15 disabled:cursor-wait disabled:opacity-60 ${selectedIndex === -1 ? "border-cyan-300 shadow-[0_0_18px_rgba(0,229,255,.35)] ring-2 ring-cyan-300/60" : "border-amber-400/45"}`}
               >
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-amber-300/50 bg-black/30 text-amber-200">
                   <Play className="h-4 w-4 fill-current" />

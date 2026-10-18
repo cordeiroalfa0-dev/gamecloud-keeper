@@ -17,7 +17,9 @@ type RemoteCommand = {
     | "library-right"
     | "library-enter"
     | "library-toggle"
-    | "library-launch-result";
+    | "library-launch-result"
+    | "library-tab-next"
+    | "library-tab-prev";
   ok?: boolean;
   romName?: string;
 };

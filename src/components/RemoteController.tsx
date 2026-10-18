@@ -22,7 +22,9 @@ type RemoteCommand =
   | "library-right"
   | "library-enter"
   | "library-toggle"
-  | "library-launch-result";
+  | "library-launch-result"
+  | "library-tab-next"
+  | "library-tab-prev";
 type RemoteCommandPayload = { room: string; command: RemoteCommand; ok?: boolean };
 
 type RemoteSession = { room: string; player: 1 | 2 };
@@ -340,6 +342,10 @@ export function RemoteController() {
         event: "controller-ready",
         payload: { room, player },
       });
+    const announceWhenVisible = () => {
+      if (document.visibilityState === "visible") announceReady();
+    };
+    document.addEventListener("visibilitychange", announceWhenVisible);
     channel
       .on("broadcast", { event: "room-ping" }, ({ payload }) => {
         if (payload?.room === room) {
@@ -363,11 +369,11 @@ export function RemoteController() {
         } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
           setConnected(false);
           setLatency(null);
-          setError("Acesso negado à sala. Gere um novo link no computador e tente novamente.");
         }
       });
     return () => {
       if (readyTimer) window.clearInterval(readyTimer);
+      document.removeEventListener("visibilitychange", announceWhenVisible);
       channelRef.current = null;
       void supabase.removeChannel(channel);
     };
@@ -435,6 +441,8 @@ export function RemoteController() {
     8: "library-enter",
     3: "library-enter",
     0: "library-toggle",
+    2: "library-tab-next",
+    9: "library-tab-prev",
   };
 
   const releaseInput = (input: number) => {
@@ -622,7 +630,10 @@ export function RemoteController() {
           </button>
           <button
             type="button"
-            onClick={() => sendCommand("save-and-exit")}
+            onClick={() => {
+              sendCommand("save-and-exit");
+              setLibraryMode(true);
+            }}
             className="relative isolate h-7 overflow-hidden rounded-xl border-2 border-emerald-200/70 bg-gradient-to-b from-emerald-300/25 to-emerald-700/20 px-1 font-mono text-[10px] font-black leading-none text-emerald-100 shadow-[inset_0_2px_2px_rgba(255,255,255,.46),inset_0_-5px_7px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.55),0_7px_9px_rgba(0,0,0,.36)] active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(10,45,35,.8)] before:pointer-events-none before:absolute before:inset-[2px] before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.36)_0%,transparent_48%,rgba(0,0,0,.25)_100%)] before:content-[''] after:pointer-events-none after:absolute after:left-[18%] after:right-[18%] after:top-[7%] after:h-[22%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.68),transparent_75%)] after:blur-[2px] after:content-[''] [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[9px]"
           >
             <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,.8)]">
