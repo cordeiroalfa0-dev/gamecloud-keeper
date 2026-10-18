@@ -147,8 +147,11 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
     const lastSeen = new Map<number, number>();
     const markPlayerSeen = (player: number) => {
       if (player !== 1 && player !== 2) return;
+      const isNewConnection = !lastSeen.has(player);
       lastSeen.set(player, Date.now());
       setPlayers((current) => ({ ...current, [player]: true }));
+      // Fecha a janela do QR Code assim que um celular se conecta.
+      if (isNewConnection) setOpen(false);
     };
     channel
       .on("broadcast", { event: "controller-ready" }, ({ payload }) => {
