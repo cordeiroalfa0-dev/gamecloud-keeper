@@ -417,10 +417,10 @@ export function RemoteController() {
       window.removeEventListener("pagehide", releasePressed);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [room, player]);
+  }, [room, player, libraryMode]);
 
   const send = (input: number, pressed: boolean) => {
-    if (!room || !channelRef.current) return;
+    if (!room || !channelRef.current || !connected) return;
     if (pressed) navigator.vibrate?.(8);
     if (pressed) activeInputs.current.add(input);
     else activeInputs.current.delete(input);
@@ -428,7 +428,7 @@ export function RemoteController() {
     void channelRef.current.send({ type: "broadcast", event: "input", payload });
   };
   const sendCommand = (command: RemoteCommand) => {
-    if (!room || !channelRef.current) return;
+    if (!room || !channelRef.current || !connected) return;
     navigator.vibrate?.(20);
     void channelRef.current.send({
       type: "broadcast",
@@ -642,7 +642,6 @@ export function RemoteController() {
             type="button"
             onClick={() => {
               sendCommand("save-and-exit");
-              setLibraryMode(true);
             }}
             className="relative isolate h-7 overflow-hidden rounded-xl border-2 border-emerald-200/70 bg-gradient-to-b from-emerald-300/25 to-emerald-700/20 px-1 font-mono text-[10px] font-black leading-none text-emerald-100 shadow-[inset_0_2px_2px_rgba(255,255,255,.46),inset_0_-5px_7px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.55),0_7px_9px_rgba(0,0,0,.36)] active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(10,45,35,.8)] before:pointer-events-none before:absolute before:inset-[2px] before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.36)_0%,transparent_48%,rgba(0,0,0,.25)_100%)] before:content-[''] after:pointer-events-none after:absolute after:left-[18%] after:right-[18%] after:top-[7%] after:h-[22%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.68),transparent_75%)] after:blur-[2px] after:content-[''] [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[9px]"
           >

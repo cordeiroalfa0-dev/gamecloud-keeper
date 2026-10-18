@@ -136,7 +136,7 @@ const prettyFallback = (name: string) =>
 async function waitForBridge(): Promise<void> {
   await new Promise<void>((resolve) => {
     const script = document.createElement("script");
-    script.src = "/web/mame-web.js?v=20261009-landscape-gesture-v16";
+    script.src = "/web/mame-web.js?v=20261018-tv-remote-v17";
     script.onload = () => resolve();
     script.onerror = () => resolve();
     document.head.appendChild(script);
@@ -179,6 +179,7 @@ export function GameLibrary({
   const [isWindowExpanded, setIsWindowExpanded] = useState(tvMode);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const selectedIndexRef = useRef(0);
   const libraryContentRef = useRef<HTMLDivElement>(null);
   const resumeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -367,12 +368,15 @@ export function GameLibrary({
   }, [roms, tab, favoriteSet, recent, query, names]);
 
   useEffect(() => {
+    selectedIndexRef.current = 0;
     setSelectedIndex(0);
     libraryContentRef.current?.scrollTo({ top: 0, behavior: "auto" });
   }, [query, tab]);
 
   useEffect(() => {
-    setSelectedIndex((index) => Math.min(index, Math.max(0, visibleRoms.length - 1)));
+    const next = Math.min(selectedIndexRef.current, Math.max(0, visibleRoms.length - 1));
+    selectedIndexRef.current = next;
+    setSelectedIndex(next);
   }, [visibleRoms.length]);
 
   const toggleFavorite = async (rom: string, e: React.MouseEvent) => {
@@ -448,7 +452,12 @@ export function GameLibrary({
       );
       return true;
     } catch (err) {
-      setLaunchError(err instanceof Error ? err.message : "Não foi possível abrir o jogo.");
+      if (!(
+        err instanceof Error &&
+        (err.name === "AbortError" || err.message === "Abertura cancelada.")
+      )) {
+        setLaunchError(err instanceof Error ? err.message : "Não foi possível abrir o jogo.");
+      }
       window.dispatchEvent(
         new CustomEvent("mga-remote-game-launch-result", { detail: { ok: false } }),
       );
@@ -496,23 +505,25 @@ export function GameLibrary({
       );
       if (!cards.length) {
         if (hasResume) {
+          selectedIndexRef.current = -1;
           setSelectedIndex(-1);
           if (command === "library-enter" && resumeGame) void playGame(resumeGame.rom);
         }
         return;
       }
-      if (command === "library-enter" && selectedIndex === -1 && resumeGame) {
+      if (command === "library-enter" && selectedIndexRef.current === -1 && resumeGame) {
         void playGame(resumeGame.rom);
         return;
       }
-      if (selectedIndex === -1) {
+      if (selectedIndexRef.current === -1) {
         if (command === "library-down" || command === "library-right") {
+          selectedIndexRef.current = 0;
           setSelectedIndex(0);
           cards[0]?.scrollIntoView({ block: "nearest", inline: "nearest" });
         }
         return;
       }
-      const current = Math.min(selectedIndex, Math.max(0, cards.length - 1));
+      const current = Math.min(selectedIndexRef.current, Math.max(0, cards.length - 1));
       if (command === "library-enter") {
         const rom = visibleRoms[current];
         if (rom) void playGame(rom);
@@ -533,6 +544,7 @@ export function GameLibrary({
         next = current === 0 && hasResume ? -1 : Math.max(0, current - columns);
       }
       if (command === "library-down") next = Math.min(cards.length - 1, current + columns);
+      selectedIndexRef.current = next;
       setSelectedIndex(next);
       if (next === -1) resumeButtonRef.current?.scrollIntoView({ block: "nearest" });
       else cards[next]?.scrollIntoView({ block: "nearest", inline: "nearest" });

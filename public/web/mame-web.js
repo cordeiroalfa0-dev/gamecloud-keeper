@@ -93,24 +93,23 @@
     {
       bios: "neogeo.zip",
       games: new Set([
-        "aof3", "bjourney", "breakers", "breakrev", "eightman",
+        "androdun", "aof3", "bjourney", "breakers", "breakrev", "eightman",
         "fatfursp", "fatfury3", "garou", "kizuna", "kof94", "kof95",
         "kof96", "kof97", "kof98", "kof99", "kof2000", "kof2001",
         "kof2002", "kof2003", "lastbld2", "lbowling", "magdrop3",
-        "matrim", "mslug", "mslug2", "mslug3", "mslug4", "mslug5",
+        "matrim", "mslug", "mslug2", "mslug3", "mslug3b6", "mslug4", "mslug5",
         "mslugx", "samsho", "samsho2", "samsho3", "samsho4", "sengoku3",
         "sonicwi2", "sonicwi3", "svc", "svcsplus", "twinspri", "wakuwak7",
-        "whp", "neobombe", "rbffspec", "rotd", "samsh5sp", "ninjamas",
+        "savagere", "whp", "neobombe", "rbffspec", "rotd", "samsh5sp", "ninjamas",
         "kf2k2mp2", "kf2k5uni", "kf10thep", "kof2k4se", "strhoop",
         "ssideki3", "ssideki4", "tetrisp", "spinmast", "zedblade",
-        "shocktr2", "sengoku3", "matrim", "puzzled", "kizuna", "pbobblen",
-        "doubledr", "sailormn"
+        "shocktr2", "puzzled", "pbobblen", "doubledr"
       ])
     },
     {
       bios: "pgm.zip",
       games: new Set([
-        "dbz2", "martmast", "pcktgal", "sailormn", "savagere"
+        "dbz2", "martmast", "pcktgal"
       ])
     },
     {
@@ -221,7 +220,8 @@
     message,
     overlay,
     biosUrl = "",
-    biosName = ""
+    biosName = "",
+    onClose = () => {}
   ) {
     window.dispatchEvent(new CustomEvent("mga-player-loading"));
     const iframe = document.createElement("iframe");
@@ -234,9 +234,12 @@
     const playerUrl = new URL("/web/player.html", location.origin);
     playerUrl.searchParams.set("rom", romUrl);
     playerUrl.searchParams.set("name", cleanRomName(romName));
+    if (new URLSearchParams(location.search).get("tv") === "1") {
+      playerUrl.searchParams.set("tv", "1");
+    }
     // O player é alterado junto com o bridge; versionar a URL evita que o
     // navegador reutilize uma versão antiga da rotina de restauração.
-    playerUrl.searchParams.set("v", "20261009-landscape-gesture-v16");
+    playerUrl.searchParams.set("v", "20261018-tv-autoframe-v18");
     if (biosUrl) playerUrl.searchParams.set("bios", biosUrl);
     if (biosName) playerUrl.searchParams.set("biosName", biosName);
 
@@ -259,6 +262,8 @@
       iframe.src = "about:blank";
       iframe.remove();
       overlay.remove();
+      window.dispatchEvent(new CustomEvent("mga-remote-game-launch-result", { detail: { ok: false } }));
+      onClose();
       try {
         if (document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {});
       } catch {}
@@ -351,6 +356,10 @@
         event.source !== iframe.contentWindow
       ) return;
 
+      if (event.data?.type === "mga-emulator-bridge-ready") {
+        window.dispatchEvent(new Event("mga-player-bridge-ready"));
+      }
+
       if (event.data?.type === "mga-emulator-started") {
         message.remove();
         window.dispatchEvent(new CustomEvent("mga-player-ready"));
@@ -424,6 +433,7 @@
       }
 
       if (event.data?.type === "mga-emulator-error") {
+        window.dispatchEvent(new Event("mga-player-faulted"));
         message.style.display = "grid";
         message.style.pointerEvents = "auto";
         message.innerHTML = "";
@@ -439,6 +449,7 @@
         retry.onclick = () => {
           message.textContent = `PREPARANDO ${romName}...`;
           message.style.pointerEvents = "none";
+          window.dispatchEvent(new Event("mga-player-loading"));
           iframe.src = `${playerUrl.href}&retry=${Date.now()}`;
         };
         const exit = document.createElement("button");
@@ -463,7 +474,7 @@
     iframe.src = playerUrl.href;
     overlay.querySelector("#mga-web-player-area").appendChild(iframe);
 
-    return { closePlayer };
+    return { closePlayer, closeImmediately: finishClose };
   }
 
   const enterMobileLandscape = () => {
@@ -547,23 +558,30 @@
 
       let player;
       let launchCancelled = false;
+      const removeRemoteCloseListener = () =>
+        window.removeEventListener("mga-remote-close-player", closeFromRemote);
+      const cancelLaunch = () => {
+        if (launchCancelled) return;
+        launchCancelled = true;
+        removeRemoteCloseListener();
+        overlay.remove();
+        try {
+          if (document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {});
+        } catch {}
+        try { screen.orientation?.unlock?.(); } catch {}
+        reject(new DOMException("Abertura cancelada.", "AbortError"));
+      };
+      const closeFromRemote = () => {
+        if (player) player.closeImmediately();
+        else cancelLaunch();
+      };
+      window.addEventListener("mga-remote-close-player", closeFromRemote);
       close.onclick = () => {
         if (player) {
           player.closePlayer();
           return;
         }
-
-        launchCancelled = true;
-        overlay.remove();
-        try {
-          if (document.fullscreenElement) {
-            document.exitFullscreen?.().catch?.(() => {});
-          }
-        } catch {}
-        try {
-          screen.orientation?.unlock?.();
-        } catch {}
-        resolve();
+        cancelLaunch();
       };
 
       (async () => {
@@ -577,12 +595,17 @@
             message,
             overlay,
             biosUrl,
-            biosName
+            biosName,
+            removeRemoteCloseListener
           );
           resolve();
         } catch (error) {
           message.textContent =
             error?.message || "Falha ao iniciar a ROM.";
+          launchCancelled = true;
+          removeRemoteCloseListener();
+          overlay.remove();
+          try { screen.orientation?.unlock?.(); } catch {}
           reject(error);
         }
       })();

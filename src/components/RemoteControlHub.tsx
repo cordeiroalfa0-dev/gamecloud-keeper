@@ -29,7 +29,10 @@ const ROOM_STORAGE_KEY = "mga-remote-room-v1";
 // SSR usa o domínio publicado como fallback; no navegador o QR acompanha o host atual.
 const PUBLIC_APP_ORIGIN = "https://gamecloud-keeper.lovable.app";
 let gamePlayerReady = false;
+let gamePlayerLaunching = false;
+let gamePlayerBridgeReady = false;
 let queuedFullscreenToggle = false;
+let pendingRemoteInputs: RemotePayload[] = [];
 const makeRoom = () => `MGA-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 const readStoredRoom = () => {
   if (typeof window === "undefined") return "";
@@ -49,17 +52,35 @@ const storeRoom = (value: string) => {
   }
 };
 const relayInputToGame = (input: Partial<RemotePayload>) => {
-  const message = {
-    type: "mga-remote-input",
+  const frame = document.querySelector<HTMLIFrameElement>("#mga-web-player-area iframe");
+  const normalized: RemotePayload = {
+    room: String(input.room || ""),
     player: Number(input.player),
     input: Number(input.input),
     pressed: Boolean(input.pressed),
+  };
+  if (!gamePlayerBridgeReady || !frame?.contentWindow) {
+    const hasQueuedPress = pendingRemoteInputs.some(
+      (entry) =>
+        entry.player === normalized.player && entry.input === normalized.input && entry.pressed,
+    );
+    if (normalized.pressed || hasQueuedPress) {
+      if (pendingRemoteInputs.length >= 128) pendingRemoteInputs.shift();
+      pendingRemoteInputs.push(normalized);
+    }
+    window.dispatchEvent(new CustomEvent("mga-remote-input", { detail: input }));
+    return;
+  }
+  const message = {
+    type: "mga-remote-input",
+    player: normalized.player,
+    input: normalized.input,
+    pressed: normalized.pressed,
   };
 
   // O emulador roda em um iframe e não recebe eventos disparados na janela
   // do launcher. O postMessage é o canal usado pelo player.html para injetar
   // a entrada no GameManager do EmulatorJS.
-  const frame = document.querySelector<HTMLIFrameElement>("#mga-web-player-area iframe");
   frame?.contentWindow?.postMessage(message, window.location.origin);
 
   // Mantém o evento para integrações locais que ainda consumam esse contrato.
@@ -91,6 +112,10 @@ const relayCommandToGame = (command: Partial<RemoteCommand>) => {
     command.command !== "toggle-game-fullscreen"
   )
     return;
+  if (command.command === "save-and-exit" && !gamePlayerReady) {
+    window.dispatchEvent(new Event("mga-remote-close-player"));
+    return;
+  }
   const frame = document.querySelector<HTMLIFrameElement>("#mga-web-player-area iframe");
   if (command.command === "toggle-game-fullscreen" && !gamePlayerReady) {
     queuedFullscreenToggle = true;
@@ -124,24 +149,62 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
     });
     let timer: number | undefined;
     let staleTimer: number | undefined;
+    let queuedLaunchResult: boolean | null = null;
     const onPlayerLoading = () => {
       gamePlayerReady = false;
+      gamePlayerLaunching = true;
+      gamePlayerBridgeReady = false;
+      pendingRemoteInputs = [];
+      queuedLaunchResult = null;
+      broadcastLaunchResult(true);
     };
-    const onPlayerReady = () => {
-      gamePlayerReady = true;
-      if (!queuedFullscreenToggle) return;
-      queuedFullscreenToggle = false;
-      relayCommandToGame({ command: "toggle-game-fullscreen" });
-    };
-    window.addEventListener("mga-player-loading", onPlayerLoading);
-    window.addEventListener("mga-player-ready", onPlayerReady);
-    const onLaunchResult = (event: Event) => {
-      const ok = Boolean((event as CustomEvent<{ ok?: unknown }>).detail?.ok);
+    const broadcastLaunchResult = (ok: boolean) => {
       void channel.send({
         type: "broadcast",
         event: "command",
         payload: { room, command: "library-launch-result", ok },
       });
+    };
+    const onPlayerReady = () => {
+      gamePlayerReady = true;
+      gamePlayerLaunching = false;
+      gamePlayerBridgeReady = true;
+      for (const input of pendingRemoteInputs.splice(0)) relayInputToGame(input);
+      if (queuedLaunchResult !== null) {
+        broadcastLaunchResult(queuedLaunchResult);
+        queuedLaunchResult = null;
+      }
+      if (!queuedFullscreenToggle) return;
+      queuedFullscreenToggle = false;
+      relayCommandToGame({ command: "toggle-game-fullscreen" });
+    };
+    const onPlayerFaulted = () => {
+      gamePlayerReady = false;
+      gamePlayerLaunching = true;
+      queuedFullscreenToggle = false;
+    };
+    const onPlayerBridgeReady = () => {
+      gamePlayerBridgeReady = true;
+      for (const input of pendingRemoteInputs.splice(0)) relayInputToGame(input);
+    };
+    window.addEventListener("mga-player-loading", onPlayerLoading);
+    window.addEventListener("mga-player-ready", onPlayerReady);
+    window.addEventListener("mga-player-faulted", onPlayerFaulted);
+    window.addEventListener("mga-player-bridge-ready", onPlayerBridgeReady);
+    const onLaunchResult = (event: Event) => {
+      const ok = Boolean((event as CustomEvent<{ ok?: unknown }>).detail?.ok);
+      broadcastLaunchResult(ok);
+      if (ok) {
+        gamePlayerLaunching = true;
+        queuedLaunchResult = true;
+      } else {
+        gamePlayerReady = false;
+        gamePlayerLaunching = false;
+        gamePlayerBridgeReady = false;
+        queuedFullscreenToggle = false;
+        pendingRemoteInputs = [];
+        queuedLaunchResult = null;
+      }
     };
     window.addEventListener("mga-remote-game-launch-result", onLaunchResult);
     const lastSeen = new Map<number, number>();
@@ -158,6 +221,7 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
         if (payload?.room !== room) return;
         const player = Number(payload?.player);
         markPlayerSeen(player);
+        if (gamePlayerReady || gamePlayerLaunching) broadcastLaunchResult(true);
       })
       .on("broadcast", { event: "input" }, ({ payload }) => {
         const input = payload as Partial<RemotePayload>;
@@ -170,14 +234,6 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
         const command = payload as Partial<RemoteCommand>;
         if (command.room !== room) return;
         relayCommandToGame(command);
-        // Ao sair do jogo, devolve o celular ao modo biblioteca para navegar.
-        if (command.command === "save-and-exit") {
-          void channel.send({
-            type: "broadcast",
-            event: "command",
-            payload: { room, command: "library-launch-result", ok: false },
-          });
-        }
       })
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
@@ -208,6 +264,8 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
       for (const player of [1, 2]) releaseRemotePlayer(player);
       window.removeEventListener("mga-player-loading", onPlayerLoading);
       window.removeEventListener("mga-player-ready", onPlayerReady);
+      window.removeEventListener("mga-player-faulted", onPlayerFaulted);
+      window.removeEventListener("mga-player-bridge-ready", onPlayerBridgeReady);
       window.removeEventListener("mga-remote-game-launch-result", onLaunchResult);
       void supabase.removeChannel(channel);
     };

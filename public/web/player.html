@@ -500,6 +500,24 @@
     .mga-input-player span{color:#d6d7e1;font-size:10px;line-height:1.5}
     @media(max-width:520px){.mga-input-players{grid-template-columns:1fr}.mga-input-dialog{max-height:94dvh}.mga-input-content{padding:12px}}
 
+    /* Na TV, o canvas ocupa a viewport como moldura e o conteúdo original do
+       jogo se ajusta dentro dela sem cortes nem distorção em qualquer resolução. */
+    body.video-tv-fit #game{
+      position:fixed!important;inset:0!important;width:var(--mga-vw,100dvw)!important;
+      height:var(--mga-vh,100dvh)!important;overflow:hidden!important;transform:none!important
+    }
+    body.video-tv-fit #game .ejs_virtualGamepad_parent{display:none!important}
+    body.video-tv-fit #game .ejs_canvas_parent{
+      position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+      max-width:100%!important;max-height:100%!important;margin:0!important;
+      transform:none!important;object-fit:contain!important;z-index:1
+    }
+    body.video-tv-fit #game canvas,body.video-tv-fit #game video{
+      position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+      max-width:100%!important;max-height:100%!important;object-fit:contain!important;
+      object-position:center center!important;transform:none!important;z-index:1
+    }
+
    </style>
 </head>
 <body translate="no" class="notranslate">
@@ -687,14 +705,15 @@
   };
 
   const VISUAL_KEY='mga-video-profile-v2';
+  const tvMode=q.get('tv')==='1';
   // Perfil inicial mais nítido e colorido para sprites pixelados. A imagem
   // original continua intacta; os ajustes acontecem apenas na saída de vídeo.
   const visualDefaults={aspect:'stretch',integer:true,scanlines:false,vignette:true,palette:'normal',brightness:1.02,contrast:1.06,saturation:1.08};
   let visual={...visualDefaults};
   try{visual={...visual, ...JSON.parse(localStorage.getItem(VISUAL_KEY)||'{}')}}catch{}
-  // Perfis antigos usavam "auto" (contain), que deixava barras laterais.
-  // Migra somente esse modo; preferências explícitas 4:3/stretch continuam.
-  visual.aspect='stretch';
+  // TVs usam sempre o enquadramento automático; celulares e telas comuns
+  // mantêm o preenchimento atual.
+  visual.aspect=tvMode?'auto':'stretch';
   // Em telas de toque (celular) scanlines e vinheta ficam sempre desligados.
   // (Única declaração de isTouchDevice: a duplicada foi removida.)
   const isTouchDevice=navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches;
@@ -708,6 +727,7 @@
     if(embedded&&headerH>0)document.documentElement.style.setProperty('--mga-header-h',headerH+'px');
   }
   const applyVisual=()=>{
+    document.body.classList.toggle('video-tv-fit',tvMode);
     document.body.classList.toggle('video-auto',visual.aspect==='auto');
     document.body.classList.toggle('video-aspect-43',visual.aspect==='4:3');
     document.body.classList.toggle('video-stretch',visual.aspect==='stretch');
@@ -1692,6 +1712,53 @@
       parent.postMessage({type:'mga-emulator-save-failed',message:'Falha ao salvar antes de sair.'},location.origin);
     }
   };
+  const pendingRemoteInputs=[];
+  const remoteInputStates=new Map();
+  let flushingRemoteInputs=false;
+  const applyRemoteInput=(player,input,pressed)=>{
+    const manager=window.EJS_emulator?.gameManager;
+    const key=`${player}:${input}`;
+    if(remoteInputStates.get(key)===pressed)return;
+    remoteInputStates.set(key,pressed);
+    if(!started||typeof manager?.simulateInput!=='function'||flushingRemoteInputs){
+      if(pendingRemoteInputs.length>=128){
+        pendingRemoteInputs.length=0;
+        remoteInputStates.clear();
+      }
+      pendingRemoteInputs.push({player,input,pressed,at:Date.now()});
+      if(started)void flushPendingRemoteInputs();
+      return;
+    }
+    try{manager.simulateInput(player,input,pressed?1:0)}catch(error){log('Controle remoto: '+(error?.message||error))}
+  };
+  const flushPendingRemoteInputs=async()=>{
+    if(flushingRemoteInputs||!started)return;
+    flushingRemoteInputs=true;
+    try{
+      const deadline=Date.now()+5000;
+      let manager=window.EJS_emulator?.gameManager;
+      while(typeof manager?.simulateInput!=='function'&&Date.now()<deadline){
+        await new Promise(resolve=>setTimeout(resolve,80));
+        manager=window.EJS_emulator?.gameManager;
+      }
+      if(typeof manager?.simulateInput!=='function')return;
+      while(pendingRemoteInputs.length){
+        manager=window.EJS_emulator?.gameManager;
+        if(typeof manager?.simulateInput!=='function')break;
+        const event=pendingRemoteInputs.shift();
+        if(!event)continue;
+        try{manager.simulateInput(event.player,event.input,event.pressed?1:0)}
+        catch(error){log('Controle remoto pendente: '+(error?.message||error));continue}
+        const next=pendingRemoteInputs[0];
+        if(event.pressed&&next?.player===event.player&&next.input===event.input&&!next.pressed){
+          await new Promise(resolve=>setTimeout(resolve,Math.max(0,120-(next.at-event.at))));
+        }
+      }
+    }finally{
+      flushingRemoteInputs=false;
+      if(started&&pendingRemoteInputs.length)setTimeout(()=>void flushPendingRemoteInputs(),100);
+    }
+  };
   window.addEventListener('message',e=>{
     if(e.source!==window.parent||e.origin!==location.origin)return;
     if(e.data?.type==='mga-request-save-exit')saveAndExit();
@@ -1705,10 +1772,11 @@
     if(e.data?.type==='mga-remote-input'){
       const player=Math.max(0,Math.min(1,Number(e.data.player)-1));
       const input=Math.max(0,Math.min(9,Number(e.data.input)));
-      const pressed=e.data.pressed?1:0;
-      try{window.EJS_emulator?.gameManager?.simulateInput(player,input,pressed)}catch(error){log('Controle remoto: '+(error?.message||error))}
+      if(!Number.isFinite(player)||!Number.isFinite(input))return;
+      applyRemoteInput(player,input,Boolean(e.data.pressed));
     }
   });
+  parent.postMessage({type:'mga-emulator-bridge-ready'},location.origin);
 
   // Sem painel de saves: o progresso é salvo e restaurado automaticamente.
 
@@ -1805,6 +1873,7 @@
   window.EJS_onGameStart=()=>{
     if(started)return;
     started=true;
+    flushPendingRemoteInputs();
     try{window.EJS_emulator?.gameManager?.setKeyboardEnabled?.(keyboardEnabled)}catch{}
     attempting=false;
     if(retryTimer)clearTimeout(retryTimer);
