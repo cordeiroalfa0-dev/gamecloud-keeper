@@ -223,6 +223,7 @@
     biosUrl = "",
     biosName = ""
   ) {
+    window.dispatchEvent(new CustomEvent("mga-player-loading"));
     const iframe = document.createElement("iframe");
     iframe.title = `Master Games Arcade - ${cleanRomName(romName)}`;
     iframe.allow = "autoplay; fullscreen; gamepad";
@@ -352,6 +353,7 @@
 
       if (event.data?.type === "mga-emulator-started") {
         message.remove();
+        window.dispatchEvent(new CustomEvent("mga-player-ready"));
       }
 
       if (event.data?.type === "mga-emulator-exit") {

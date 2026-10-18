@@ -168,6 +168,7 @@ export function RemoteController() {
   const inputReleaseTimers = useRef(new Map<number, number>());
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const [connected, setConnected] = useState(false);
+  const [connectionError, setConnectionError] = useState(false);
   const [error, setError] = useState("");
   const [latency, setLatency] = useState<number | null>(null);
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
@@ -362,6 +363,7 @@ export function RemoteController() {
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
           setError("");
+          setConnectionError(false);
           announceReady();
           // O computador pode abrir o jogo depois de o QR Code ser lido.
           // Repetir o handshake evita perder o primeiro anúncio nesse caso.
@@ -369,6 +371,7 @@ export function RemoteController() {
         } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
           setConnected(false);
           setLatency(null);
+          setConnectionError(true);
         }
       });
     return () => {
@@ -526,9 +529,16 @@ export function RemoteController() {
             />
             MASTER GAMES
           </div>
-          <div className="mt-1 text-[10px] uppercase tracking-wider text-slate-400 [@media(max-height:500px)]:hidden">
+          <div
+            aria-live="polite"
+            className="mt-1 text-[10px] uppercase tracking-wider text-slate-400"
+          >
             Painel remoto ·{" "}
-            {connected ? `conectado${latency === null ? "" : ` · ${latency} ms`}` : "conectando…"}
+            {connected
+              ? `conectado${latency === null ? "" : ` · ${latency} ms`}`
+              : connectionError
+                ? "sem conexão · reabra o QR"
+                : "conectando…"}
           </div>
           <div className="mt-1 text-[9px] font-bold tracking-[.16em] text-orange-200/80 [@media(max-height:500px)]:hidden">
             DEV EMERSON 2026

@@ -1,6 +1,14 @@
-const TV_MODE_URL = "https://gamecloud-keeper.lovable.app/tv";
+import { useEffect, useState } from "react";
+
+const DEFAULT_TV_MODE_URL = "https://gamecloud-keeper.lovable.app/tv";
 
 export function ConnectToTv() {
+  const [tvModeUrl, setTvModeUrl] = useState(DEFAULT_TV_MODE_URL);
+
+  useEffect(() => {
+    setTvModeUrl(new URL("/tv", window.location.origin).toString());
+  }, []);
+
   return (
     <section className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 p-4 font-mono text-sm text-emerald-50">
       <b className="text-base text-emerald-200">📺 INSTRUÇÕES PARA USAR A TV</b>
@@ -9,7 +17,7 @@ export function ConnectToTv() {
         físico ou o app Google TV para navegar e digitar o endereço.
       </p>
       <p className="mt-3 select-all break-all rounded-lg bg-black/40 px-3 py-3 text-center text-base font-bold text-cyan-200">
-        {TV_MODE_URL}
+        {tvModeUrl}
       </p>
       <ol className="mt-3 list-decimal space-y-2 pl-5 text-zinc-300">
         <li>Na primeira vez, salve a página nos favoritos do navegador da TV.</li>

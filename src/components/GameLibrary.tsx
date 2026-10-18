@@ -473,7 +473,8 @@ export function GameLibrary({
     const cycleTab = (direction: 1 | -1) => {
       setTab((current) => {
         const index = TABS.findIndex((item) => item.id === current);
-        return TABS[(index + direction + TABS.length) % TABS.length].id;
+        const nextIndex = (index + direction + TABS.length) % TABS.length;
+        return TABS[nextIndex]?.id ?? "all";
       });
     };
     const handleLibraryCommand = (event: Event) => {
@@ -493,7 +494,13 @@ export function GameLibrary({
       const cards = Array.from(
         libraryContentRef.current?.querySelectorAll<HTMLElement>("[data-library-card]") || [],
       );
-      if (!cards.length && !hasResume) return;
+      if (!cards.length) {
+        if (hasResume) {
+          setSelectedIndex(-1);
+          if (command === "library-enter" && resumeGame) void playGame(resumeGame.rom);
+        }
+        return;
+      }
       if (command === "library-enter" && selectedIndex === -1 && resumeGame) {
         void playGame(resumeGame.rom);
         return;
@@ -507,11 +514,14 @@ export function GameLibrary({
       }
       const current = Math.min(selectedIndex, Math.max(0, cards.length - 1));
       if (command === "library-enter") {
-        void playGame(visibleRoms[current]);
+        const rom = visibleRoms[current];
+        if (rom) void playGame(rom);
         return;
       }
 
-      const firstTop = cards[0].getBoundingClientRect().top;
+      const firstCard = cards[0];
+      if (!firstCard) return;
+      const firstTop = firstCard.getBoundingClientRect().top;
       const columns = Math.max(
         1,
         cards.findIndex((card) => Math.abs(card.getBoundingClientRect().top - firstTop) > 4),
@@ -711,7 +721,10 @@ export function GameLibrary({
             </div>
           </div>
 
-          <div ref={libraryContentRef} className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
+          <div
+            ref={libraryContentRef}
+            className="game-library-scroll min-h-0 flex-1 touch-pan-y overscroll-contain overflow-y-auto p-3 sm:p-4"
+          >
             {phase === "ready" && resumeGame && !query.trim() && (
               <button
                 ref={resumeButtonRef}

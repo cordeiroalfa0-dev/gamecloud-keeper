@@ -158,3 +158,26 @@ div[style*="Edit with Lovable"],
   position: absolute !important;
   z-index: -9999 !important;
 }
+
+.game-library-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scrollbar-color: oklch(0.8 0.16 203 / 0.75) oklch(0.24 0.03 270 / 0.65);
+  scrollbar-width: thin;
+}
+
+.game-library-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.game-library-scroll::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: oklch(0.24 0.03 270 / 0.65);
+}
+
+.game-library-scroll::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: oklch(0.8 0.16 203 / 0.75);
+  background-clip: padding-box;
+}

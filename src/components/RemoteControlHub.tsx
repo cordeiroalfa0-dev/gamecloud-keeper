@@ -26,16 +26,16 @@ type RemoteCommand = {
 };
 
 const ROOM_STORAGE_KEY = "mga-remote-room-v1";
-// Use o domínio publicado atual do projeto. save-my-games.lovable.app aponta
-// para a versão antiga e deixa o controle preso em "conectando…".
-const PUBLIC_APP_URL = "https://gamecloud-keeper.lovable.app/controller";
+// SSR usa o domínio publicado como fallback; no navegador o QR acompanha o host atual.
+const PUBLIC_APP_ORIGIN = "https://gamecloud-keeper.lovable.app";
 let gamePlayerReady = false;
 let queuedFullscreenToggle = false;
 const makeRoom = () => `MGA-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 const readStoredRoom = () => {
   if (typeof window === "undefined") return "";
   try {
-    return localStorage.getItem(ROOM_STORAGE_KEY) || "";
+    const storedRoom = localStorage.getItem(ROOM_STORAGE_KEY)?.trim().toUpperCase() || "";
+    return /^MGA-[A-Z0-9]{4}$/.test(storedRoom) ? storedRoom : "";
   } catch {
     return "";
   }
@@ -103,7 +103,8 @@ const relayCommandToGame = (command: Partial<RemoteCommand>) => {
 };
 
 const controllerUrl = (room: string, player: number) => {
-  const url = new URL(PUBLIC_APP_URL);
+  const origin = typeof window === "undefined" ? PUBLIC_APP_ORIGIN : window.location.origin;
+  const url = new URL("/controller", origin);
   const params = new URLSearchParams({ controller: "1", room, player: String(player) });
   url.search = params.toString();
   return url.toString();
@@ -151,6 +152,7 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
     };
     channel
       .on("broadcast", { event: "controller-ready" }, ({ payload }) => {
+        if (payload?.room !== room) return;
         const player = Number(payload?.player);
         markPlayerSeen(player);
       })
@@ -207,13 +209,13 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
     }),
     [room],
   );
-  const create = () => {
+  const create = (showDialog = true) => {
     const savedRoom = readStoredRoom();
     const nextRoom = savedRoom || makeRoom();
     storeRoom(nextRoom);
     setRoom(nextRoom);
     setPlayers({});
-    setOpen(true);
+    setOpen(showDialog);
   };
   useEffect(() => {
     // Recupera uma sala se o link já trouxer um código válido.
@@ -226,8 +228,10 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
 
   useEffect(() => {
     if (!autoOpen || !roomLoaded) return;
-    if (room) setOpen(true);
-    else create();
+    const handheldViewport = window.matchMedia("(pointer: coarse) and (max-width: 1024px)").matches;
+    const showDialog = !handheldViewport;
+    if (room) setOpen(showDialog);
+    else create(showDialog);
   }, [autoOpen, roomLoaded, room]);
   const copy = async (value: string, label: string) => {
     try {
@@ -243,7 +247,7 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
     <>
       <button
         type="button"
-        onClick={create}
+        onClick={() => create(true)}
         className="flex items-center justify-center gap-1.5 rounded-full border border-pink-400/40 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-pink-200 transition-colors hover:border-pink-300 hover:bg-pink-400/10"
         title="Abrir QR Code para usar o celular como controle"
       >
@@ -276,10 +280,10 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
                   <div className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 p-3 text-center font-mono text-xs">
                     <b className="text-cyan-200">JOGADOR 1</b>
                     <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(links.p1)}`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=8&data=${encodeURIComponent(links.p1)}`}
                       alt="QR Code do controle do jogador 1"
-                      className="mx-auto my-3 h-32 w-32 rounded-lg bg-white p-1"
-                      loading="lazy"
+                      className="mx-auto my-3 h-32 w-32 rounded-lg bg-white p-1 sm:h-40 sm:w-40"
+                      loading="eager"
                     />
                     <div className="text-zinc-400">
                       {players[1] ? "● conectado" : "○ aguardando leitura"}
@@ -295,10 +299,10 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
                   <div className="rounded-xl border border-pink-400/40 bg-pink-400/10 p-3 text-center font-mono text-xs">
                     <b className="text-pink-200">JOGADOR 2</b>
                     <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(links.p2)}`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=8&data=${encodeURIComponent(links.p2)}`}
                       alt="QR Code do controle do jogador 2"
-                      className="mx-auto my-3 h-32 w-32 rounded-lg bg-white p-1"
-                      loading="lazy"
+                      className="mx-auto my-3 h-32 w-32 rounded-lg bg-white p-1 sm:h-40 sm:w-40"
+                      loading="eager"
                     />
                     <div className="text-zinc-400">
                       {players[2] ? "● conectado" : "○ aguardando leitura"}
