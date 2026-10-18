@@ -581,15 +581,15 @@ export function RemoteController() {
               )}
             </span>
             <span />
-            <span>
+            <span className="translate-y-5">
               {control(
                 "◀",
                 6,
                 "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
               )}
             </span>
-            <span>{control("▼", 5, "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100")}</span>
-            <span>
+            <span className="translate-y-5">{control("▼", 5, "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100")}</span>
+            <span className="translate-y-5">
               {control(
                 "▶",
                 7,
