@@ -541,7 +541,7 @@ export function GameLibrary({
     return () => window.removeEventListener("mga-remote-library-command", handleLibraryCommand);
     // playGame and the visible list are intentionally read from this render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWindowOpen, selectedIndex, visibleRoms]);
+  }, [isWindowOpen, selectedIndex, visibleRoms, resumeGame, query, launching]);
 
   useEffect(() => {
     if (!tvMode) return;
