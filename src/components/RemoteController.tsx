@@ -4,31 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import "./RemoteController.css";
 
 const buttonClass = [
-  "relative isolate inline-flex items-center justify-center overflow-hidden select-none touch-none rounded-full border-2 font-mono font-black tracking-wide transition-[transform,filter,box-shadow] duration-100 backdrop-blur-sm backdrop-saturate-150",
+  "relative isolate inline-flex items-center justify-center overflow-hidden select-none touch-none rounded-full border-2 font-mono font-black tracking-wide transition-[transform,filter,box-shadow] duration-100",
   "shadow-[inset_0_2px_2px_rgba(255,255,255,.58),inset_0_-8px_10px_rgba(0,0,0,.4),0_2px_0_rgba(255,255,255,.12),0_8px_14px_rgba(0,0,0,.52)] active:translate-y-1 active:shadow-[inset_0_3px_7px_rgba(0,0,0,.42),0_2px_0_rgba(15,23,42,.85)] active:brightness-125",
   "before:pointer-events-none before:absolute before:inset-[3px] before:z-0 before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.38)_0%,rgba(255,255,255,.12)_28%,transparent_54%,rgba(0,0,0,.26)_100%)] before:content-['']",
   "after:pointer-events-none after:absolute after:left-[17%] after:right-[17%] after:top-[7%] after:z-0 after:h-[24%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.7),transparent_75%)] after:blur-[2px] after:content-['']",
 ].join(" ");
-
-const panelScrewPositions = [
-  "left-3 top-3",
-  "right-3 top-3",
-  "bottom-3 left-3",
-  "bottom-3 right-3",
-] as const;
-
-const PanelFasteners = () => (
-  <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20">
-    {panelScrewPositions.map((position) => (
-      <span
-        key={position}
-        className={`absolute ${position} grid size-2.5 place-items-center rounded-full border border-white/60 bg-[radial-gradient(circle_at_30%_25%,#f8fafc,#94a3b8_38%,#1e293b_78%)] shadow-[inset_0_1px_1px_rgba(255,255,255,.85),0_1px_2px_rgba(0,0,0,.7)]`}
-      >
-        <span className="h-px w-1.5 rotate-45 bg-slate-950/75" />
-      </span>
-    ))}
-  </div>
-);
 
 type RemotePayload = { room: string; player: number; input: number; pressed: boolean };
 type RemoteCommand = "toggle-pause" | "save-and-exit" | "toggle-game-fullscreen" | "launch-game";
@@ -483,7 +463,7 @@ export function RemoteController() {
       }}
     >
       <div className="pointer-events-none absolute inset-2 rounded-[2rem] border border-white/10 shadow-[inset_0_0_50px_rgba(255,255,255,.035)]" />
-      <header className="relative mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between gap-3 rounded-2xl border border-slate-300/20 bg-slate-200/[.07] px-4 py-3 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_10px_25px_rgba(2,6,23,.22)] backdrop-blur-sm [@media(max-height:500px)]:gap-2 [@media(max-height:500px)]:px-2 [@media(max-height:500px)]:py-1">
+      <header className="relative mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between gap-3 rounded-2xl border border-slate-300/20 bg-slate-200/[.07] px-4 py-3 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_10px_25px_rgba(2,6,23,.22)] [@media(max-height:500px)]:gap-2 [@media(max-height:500px)]:px-2 [@media(max-height:500px)]:py-1">
         <div>
           <div className="flex items-center gap-2 text-xs tracking-[.18em] text-slate-100">
             <img
@@ -503,16 +483,6 @@ export function RemoteController() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {!installed && (
-            <button
-              type="button"
-              onClick={() => setInstallInfoOpen(true)}
-              className="rounded-xl border border-cyan-300/50 bg-cyan-300/10 px-3 py-2 text-[10px] font-bold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
-              aria-label="Instalar o controle remoto como aplicativo"
-            >
-              ⬇ INSTALAR
-            </button>
-          )}
           <button
             type="button"
             onClick={() => sendCommand("toggle-game-fullscreen")}
@@ -530,7 +500,7 @@ export function RemoteController() {
       </header>
       <section
         ref={frameRef}
-        className="relative isolate mx-auto flex min-h-0 flex-1 flex-col justify-between gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] backdrop-blur-[2px] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:py-0"
+        className="relative isolate mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col justify-between gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:py-0"
         style={{
           backgroundImage: `linear-gradient(145deg, rgba(255,255,255,.11), transparent 24%, transparent 76%, rgba(255,255,255,.035)), radial-gradient(ellipse at 50% 52%, rgba(34,211,238,.15), transparent 62%), url("/assets/remote-controller-pcb.webp")`,
           backgroundSize: "100% 100%, cover, cover",
@@ -574,7 +544,7 @@ export function RemoteController() {
           <button
             type="button"
             onClick={() => sendCommand("toggle-pause")}
-            className="relative isolate h-7 overflow-hidden rounded-xl border-2 border-amber-200/70 bg-gradient-to-b from-amber-300/25 to-amber-700/20 px-1 font-mono text-[10px] font-black leading-none text-amber-100 shadow-[inset_0_2px_2px_rgba(255,255,255,.46),inset_0_-5px_7px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.55),0_7px_9px_rgba(0,0,0,.36)] backdrop-blur-sm active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(51,35,15,.8)] before:pointer-events-none before:absolute before:inset-[2px] before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.36)_0%,transparent_48%,rgba(0,0,0,.25)_100%)] before:content-[''] after:pointer-events-none after:absolute after:left-[18%] after:right-[18%] after:top-[7%] after:h-[22%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.68),transparent_75%)] after:blur-[2px] after:content-[''] [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[9px]"
+            className="relative isolate h-7 overflow-hidden rounded-xl border-2 border-amber-200/70 bg-gradient-to-b from-amber-300/25 to-amber-700/20 px-1 font-mono text-[10px] font-black leading-none text-amber-100 shadow-[inset_0_2px_2px_rgba(255,255,255,.46),inset_0_-5px_7px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.55),0_7px_9px_rgba(0,0,0,.36)] active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(51,35,15,.8)] before:pointer-events-none before:absolute before:inset-[2px] before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.36)_0%,transparent_48%,rgba(0,0,0,.25)_100%)] before:content-[''] after:pointer-events-none after:absolute after:left-[18%] after:right-[18%] after:top-[7%] after:h-[22%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.68),transparent_75%)] after:blur-[2px] after:content-[''] [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[9px]"
           >
             <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,.8)]">
               PAUSAR / RETOMAR
@@ -583,7 +553,7 @@ export function RemoteController() {
           <button
             type="button"
             onClick={() => sendCommand("save-and-exit")}
-            className="relative isolate h-7 overflow-hidden rounded-xl border-2 border-emerald-200/70 bg-gradient-to-b from-emerald-300/25 to-emerald-700/20 px-1 font-mono text-[10px] font-black leading-none text-emerald-100 shadow-[inset_0_2px_2px_rgba(255,255,255,.46),inset_0_-5px_7px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.55),0_7px_9px_rgba(0,0,0,.36)] backdrop-blur-sm active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(10,45,35,.8)] before:pointer-events-none before:absolute before:inset-[2px] before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.36)_0%,transparent_48%,rgba(0,0,0,.25)_100%)] before:content-[''] after:pointer-events-none after:absolute after:left-[18%] after:right-[18%] after:top-[7%] after:h-[22%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.68),transparent_75%)] after:blur-[2px] after:content-[''] [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[9px]"
+            className="relative isolate h-7 overflow-hidden rounded-xl border-2 border-emerald-200/70 bg-gradient-to-b from-emerald-300/25 to-emerald-700/20 px-1 font-mono text-[10px] font-black leading-none text-emerald-100 shadow-[inset_0_2px_2px_rgba(255,255,255,.46),inset_0_-5px_7px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.55),0_7px_9px_rgba(0,0,0,.36)] active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(10,45,35,.8)] before:pointer-events-none before:absolute before:inset-[2px] before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.36)_0%,transparent_48%,rgba(0,0,0,.25)_100%)] before:content-[''] after:pointer-events-none after:absolute after:left-[18%] after:right-[18%] after:top-[7%] after:h-[22%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.68),transparent_75%)] after:blur-[2px] after:content-[''] [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[9px]"
           >
             <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,.8)]">
               SALVAR E BIBLIOTECA
@@ -600,9 +570,8 @@ export function RemoteController() {
             "h-7 border-green-300/80 bg-green-400/20 text-xs text-green-100 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[10px]",
           )}
         </div>
-        <div className="relative z-10 flex min-h-0 flex-1 items-center justify-between gap-2 px-1 sm:px-8">
-          <div className="relative grid h-64 w-64 grid-cols-3 grid-rows-3 gap-2 rounded-[1.8rem] border border-white/40 bg-[linear-gradient(145deg,rgba(255,255,255,.3),rgba(148,163,184,.14)_18%,rgba(15,23,42,.62)_68%,rgba(255,255,255,.16))] p-3 shadow-[inset_0_2px_0_rgba(255,255,255,.3),inset_0_-12px_20px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.5),0_14px_28px_rgba(2,6,23,.4)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-1 before:rounded-[1.4rem] before:border before:border-white/25 before:bg-[linear-gradient(140deg,rgba(255,255,255,.18),transparent_36%,rgba(0,0,0,.2))] before:content-[''] sm:h-72 sm:w-72">
-            <PanelFasteners />
+        <div className="relative z-10 flex min-h-0 flex-1 items-center justify-between gap-2 -mx-1 px-0">
+          <div className="relative grid aspect-square w-[min(16rem,46%)] translate-y-6 grid-cols-3 grid-rows-3 gap-2">
             <span />
             <span>
               {control(
@@ -644,8 +613,7 @@ export function RemoteController() {
             </span>
             <span />
           </div>
-          <div className="relative grid h-56 w-56 grid-cols-3 grid-rows-3 gap-3 rounded-[1.8rem] border border-white/40 bg-[linear-gradient(145deg,rgba(255,255,255,.3),rgba(148,163,184,.14)_18%,rgba(15,23,42,.62)_68%,rgba(255,255,255,.16))] p-3 shadow-[inset_0_2px_0_rgba(255,255,255,.3),inset_0_-12px_20px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.5),0_14px_28px_rgba(2,6,23,.4)] backdrop-blur-md before:pointer-events-none before:absolute before:inset-1 before:rounded-[1.4rem] before:border before:border-white/25 before:bg-[linear-gradient(140deg,rgba(255,255,255,.18),transparent_36%,rgba(0,0,0,.2))] before:content-[''] sm:h-72 sm:w-72">
-            <PanelFasteners />
+          <div className="relative grid aspect-square w-[min(14rem,40%)] translate-y-14 grid-cols-3 grid-rows-3 gap-3">
             <span />
             {control(
               "Y",
@@ -673,10 +641,6 @@ export function RemoteController() {
             <span />
           </div>
         </div>
-        <p className="relative z-10 text-center font-mono text-[10px] uppercase tracking-wider text-slate-400">
-          Mantenha esta tela aberta. Os comandos chegam à tela do sistema pela mesma rede Wi-Fi ou
-          pela internet.
-        </p>
       </section>
       {installInfoOpen && (
         <div className="fixed inset-0 z-[120] grid place-items-center bg-[#050a12]/90 p-4 backdrop-blur-md">
