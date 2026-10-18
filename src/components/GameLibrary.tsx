@@ -15,7 +15,6 @@ import {
   X,
 } from "lucide-react";
 import { RemoteControlHub } from "@/components/RemoteControlHub";
-import { CastToTvButton } from "@/components/CastToTvButton";
 
 /**
  * Biblioteca de jogos local.
@@ -145,9 +144,6 @@ export function GameLibrary({
   cloudAccessToken?: string | null;
   tvMode?: boolean;
 }) {
-  const castMode =
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("cast") === "1";
   const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [roms, setRoms] = useState<string[]>([]);
@@ -503,7 +499,7 @@ export function GameLibrary({
               ))}
             </div>
 
-            <CastToTvButton />
+            <RemoteControlHub autoOpen={tvMode} />
 
             <button
               type="button"
@@ -528,7 +524,6 @@ export function GameLibrary({
             >
               <Info className="h-3.5 w-3.5" /> Sobre
             </button>
-            <RemoteControlHub autoOpen={tvMode} castMode={castMode} />
             {accountSlot}
           </div>
         </div>
