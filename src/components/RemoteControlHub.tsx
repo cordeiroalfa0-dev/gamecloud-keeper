@@ -6,7 +6,17 @@ import { ConnectToTv } from "@/components/ConnectToTv";
 type RemotePayload = { room: string; player: number; input: number; pressed: boolean };
 type RemoteCommand = {
   room: string;
-  command: "toggle-pause" | "save-and-exit" | "toggle-game-fullscreen" | "launch-game";
+  command:
+    | "toggle-pause"
+    | "save-and-exit"
+    | "toggle-game-fullscreen"
+    | "launch-game"
+    | "library-up"
+    | "library-down"
+    | "library-left"
+    | "library-right"
+    | "library-enter"
+    | "library-toggle";
   romName?: string;
 };
 
@@ -56,6 +66,12 @@ const releaseRemotePlayer = (player: number) => {
   }
 };
 const relayCommandToGame = (command: Partial<RemoteCommand>) => {
+  if (command.command?.startsWith("library-")) {
+    window.dispatchEvent(
+      new CustomEvent("mga-remote-library-command", { detail: { command: command.command } }),
+    );
+    return;
+  }
   if (command.command === "launch-game") {
     if (typeof command.romName === "string" && /\.(zip|7z|chd)$/i.test(command.romName)) {
       window.dispatchEvent(
@@ -219,8 +235,8 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
         QR CONTROLE
       </button>
       {open && (
-        <div className="fixed inset-0 z-[100] grid place-items-center bg-black/80 p-4 backdrop-blur-sm">
-          <section className="w-full max-w-lg rounded-2xl border border-pink-400/40 bg-[#080012] p-5 text-white shadow-[0_0_40px_rgba(255,43,109,.25)]">
+        <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto bg-black/80 p-4 backdrop-blur-sm">
+          <section className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-pink-400/40 bg-[#080012] p-5 text-white shadow-[0_0_40px_rgba(255,43,109,.25)]">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="font-mono text-lg font-bold text-pink-200">CONTROLES POR CELULAR</h2>
@@ -237,9 +253,6 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
               >
                 ✕
               </button>
-            </div>
-            <div className="mt-4">
-              <ConnectToTv />
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 p-3 text-center font-mono text-xs">
@@ -281,6 +294,9 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
                 </button>
               </div>
             </div>
+            <div className="mt-4">
+              <ConnectToTv />
+            </div>
             <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-3 text-center font-mono text-xs">
               <div className="text-zinc-400">Código da sala</div>
               <strong className="text-3xl tracking-[.3em] text-white">{room}</strong>
@@ -291,7 +307,7 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
             <div className="mt-4 grid grid-cols-2 gap-2">
               <div className="rounded-lg border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-center font-mono text-[10px] text-amber-100">
                 <b className="block text-amber-200">COMANDOS NO CELULAR</b>
-                <span>Pause, salvar e voltar à biblioteca</span>
+                <span>Direcional navega, JANELA abre/fecha e ENTER escolhe</span>
               </div>
               <div className="rounded-lg border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-center font-mono text-[10px] text-cyan-100">
                 <b className="block text-cyan-200">P1 + P2</b>

@@ -42,9 +42,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "recent", label: "Recentes" },
 ];
 
-const BACKGROUND_IMAGES = [
-  "/assets/intro-esteyori-poster.jpg",
-];
+const BACKGROUND_IMAGES = ["/assets/intro-esteyori-poster.jpg"];
 
 const fileBase = (name: string) => name.toLowerCase().replace(/\.(zip|7z|chd)$/i, "");
 
@@ -163,8 +161,10 @@ export function GameLibrary({
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isWindowOpen, setIsWindowOpen] = useState(true);
-  const [isWindowExpanded, setIsWindowExpanded] = useState(false);
+  const [isWindowExpanded, setIsWindowExpanded] = useState(tvMode);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const libraryContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -425,6 +425,45 @@ export function GameLibrary({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roms, launching]);
 
+  useEffect(() => {
+    const handleLibraryCommand = (event: Event) => {
+      const command = (event as CustomEvent<{ command?: string }>).detail?.command;
+      if (!command) return;
+      if (command === "library-toggle") {
+        setIsWindowOpen((open) => !open);
+        return;
+      }
+      if (!isWindowOpen || visibleRoms.length === 0) return;
+
+      const cards = Array.from(
+        libraryContentRef.current?.querySelectorAll<HTMLElement>("[data-library-card]") || [],
+      );
+      if (!cards.length) return;
+      const current = Math.min(selectedIndex, cards.length - 1);
+      if (command === "library-enter") {
+        void playGame(visibleRoms[current]);
+        return;
+      }
+
+      const firstTop = cards[0].getBoundingClientRect().top;
+      const columns = Math.max(
+        1,
+        cards.findIndex((card) => Math.abs(card.getBoundingClientRect().top - firstTop) > 4),
+      );
+      let next = current;
+      if (command === "library-left") next = Math.max(0, current - 1);
+      if (command === "library-right") next = Math.min(cards.length - 1, current + 1);
+      if (command === "library-up") next = Math.max(0, current - columns);
+      if (command === "library-down") next = Math.min(cards.length - 1, current + columns);
+      setSelectedIndex(next);
+      cards[next]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    };
+    window.addEventListener("mga-remote-library-command", handleLibraryCommand);
+    return () => window.removeEventListener("mga-remote-library-command", handleLibraryCommand);
+    // playGame and the visible list are intentionally read from this render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWindowOpen, selectedIndex, visibleRoms]);
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]">
       <div className="pointer-events-none fixed inset-0 z-0 bg-[#050009]">
@@ -539,9 +578,11 @@ export function GameLibrary({
       {isWindowOpen ? (
         <section
           aria-label="Janela da biblioteca de jogos"
-            className={`fixed inset-x-2 top-[16rem] z-30 flex min-w-0 max-h-[calc(100dvh-17rem)] w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-2xl border border-cyan-500/35 bg-[#050009]/90 shadow-[0_0_36px_rgba(0,229,255,.22)] backdrop-blur-xl transition-[width] duration-300 sm:inset-x-auto sm:right-3 sm:top-24 sm:max-h-[calc(100dvh-6rem)] sm:w-[min(92vw,420px)] ${
-            isWindowExpanded ? "sm:w-[min(96vw,1200px)]" : ""
-          }`}
+          className={`fixed z-30 flex min-w-0 flex-col overflow-hidden rounded-2xl border border-cyan-500/35 bg-[#050009]/90 shadow-[0_0_36px_rgba(0,229,255,.22)] backdrop-blur-xl transition-[width] duration-300 ${
+            tvMode
+              ? "inset-x-4 top-20 max-h-[calc(100dvh-6rem)] w-[calc(100vw-2rem)] sm:inset-x-8 sm:right-auto sm:top-20 sm:max-h-[calc(100dvh-6rem)] sm:w-[calc(100vw-4rem)]"
+              : "inset-x-2 top-[16rem] max-h-[calc(100dvh-17rem)] w-[calc(100vw-1rem)] sm:inset-x-auto sm:right-3 sm:top-24 sm:max-h-[calc(100dvh-6rem)] sm:w-[min(92vw,420px)]"
+          } ${isWindowExpanded && !tvMode ? "sm:w-[min(96vw,1200px)]" : ""}`}
         >
           <div className="flex shrink-0 items-center justify-between gap-3 border-b border-cyan-500/20 bg-black/35 px-3 py-2.5">
             <div className="min-w-0">
@@ -580,7 +621,7 @@ export function GameLibrary({
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
+          <div ref={libraryContentRef} className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
             {phase === "ready" && resumeGame && !query.trim() && (
               <button
                 type="button"
@@ -645,6 +686,7 @@ export function GameLibrary({
                     snapUrl={snapFor(rom)}
                     isFavorite={favoriteSet.has(rom)}
                     isLaunching={launching === rom}
+                    isSelected={selectedIndex === visibleRoms.indexOf(rom)}
                     onPlay={() => playGame(rom)}
                     onToggleFavorite={(e) => toggleFavorite(rom, e)}
                   />
@@ -702,7 +744,7 @@ export function GameLibrary({
                       MASTER GAMES ARCADE
                     </h2>
                     <p className="mt-1 font-mono text-xs text-zinc-400">
-                    Seus jogos clássicos, do seu jeito.
+                      Seus jogos clássicos, do seu jeito.
                     </p>
                   </div>
                 </div>
@@ -732,8 +774,8 @@ export function GameLibrary({
                     programas.
                   </p>
                   <p className="mt-2">
-                    Para aproveitar melhor, coloque o jogo em tela cheia usando o botão próprio ou
-                    a tecla F11 no computador.
+                    Para aproveitar melhor, coloque o jogo em tela cheia usando o botão próprio ou a
+                    tecla F11 no computador.
                   </p>
                 </article>
                 <article>
@@ -754,9 +796,10 @@ export function GameLibrary({
                     do celular. Basta conectar o controle antes de começar a partida.
                   </p>
                   <p className="mt-2">
-                    No teclado, as setas movimentam o jogador 1. Use Z e X para os botões principais,
-                    1 para começar e 5 para colocar ficha. Para o jogador 2, use T, F, G e H para
-                    movimentar, J e K para os botões, B para começar e V para colocar ficha.
+                    No teclado, as setas movimentam o jogador 1. Use Z e X para os botões
+                    principais, 1 para começar e 5 para colocar ficha. Para o jogador 2, use T, F, G
+                    e H para movimentar, J e K para os botões, B para começar e V para colocar
+                    ficha.
                   </p>
                 </article>
               </div>
@@ -779,6 +822,7 @@ function GameCard({
   snapUrl,
   isFavorite,
   isLaunching,
+  isSelected,
   onPlay,
   onToggleFavorite,
 }: {
@@ -786,6 +830,7 @@ function GameCard({
   snapUrl?: string | undefined;
   isFavorite: boolean;
   isLaunching: boolean;
+  isSelected: boolean;
   onPlay: () => void;
   onToggleFavorite: (e: React.MouseEvent) => void;
 }) {
@@ -804,7 +849,8 @@ function GameCard({
         }
       }}
       aria-disabled={isLaunching}
-      className="group relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg border border-white/10 bg-[#0a0014] text-left outline-none transition-[border-color,box-shadow] hover:border-cyan-400/70 hover:shadow-[0_0_18px_rgba(0,229,255,.25)] focus-visible:border-cyan-400 aria-disabled:pointer-events-none aria-disabled:opacity-60"
+      data-library-card="true"
+      className={`group relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg border bg-[#0a0014] text-left outline-none transition-[border-color,box-shadow] hover:border-cyan-400/70 hover:shadow-[0_0_18px_rgba(0,229,255,.25)] focus-visible:border-cyan-400 aria-disabled:pointer-events-none aria-disabled:opacity-60 ${isSelected ? "border-cyan-300 shadow-[0_0_20px_rgba(0,229,255,.45)] ring-2 ring-cyan-300/70" : "border-white/10"}`}
     >
       <span className="relative block aspect-[4/3] w-full overflow-hidden bg-linear-to-br from-[#160227] to-[#03000a]">
         {showArt ? (

@@ -11,7 +11,17 @@ const buttonClass = [
 ].join(" ");
 
 type RemotePayload = { room: string; player: number; input: number; pressed: boolean };
-type RemoteCommand = "toggle-pause" | "save-and-exit" | "toggle-game-fullscreen" | "launch-game";
+type RemoteCommand =
+  | "toggle-pause"
+  | "save-and-exit"
+  | "toggle-game-fullscreen"
+  | "launch-game"
+  | "library-up"
+  | "library-down"
+  | "library-left"
+  | "library-right"
+  | "library-enter"
+  | "library-toggle";
 
 type RemoteSession = { room: string; player: 1 | 2 };
 type InstallPromptEvent = Event & {
@@ -159,6 +169,7 @@ export function RemoteController() {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [installInfoOpen, setInstallInfoOpen] = useState(false);
+  const [libraryMode, setLibraryMode] = useState(true);
   const frameRef = useRef<HTMLElement | null>(null);
   const [circuitLayout, setCircuitLayout] = useState<CircuitLayout>({
     width: 0,
@@ -400,6 +411,12 @@ export function RemoteController() {
       payload: { room, command },
     });
   };
+  const navigationCommandByInput: Record<number, RemoteCommand> = {
+    4: "library-up",
+    6: "library-left",
+    7: "library-right",
+    5: "library-down",
+  };
 
   const releaseInput = (input: number) => {
     const pressedAt = inputPressedAt.current.get(input);
@@ -433,6 +450,10 @@ export function RemoteController() {
         const releaseTimer = inputReleaseTimers.current.get(input);
         if (releaseTimer !== undefined) window.clearTimeout(releaseTimer);
         inputReleaseTimers.current.delete(input);
+        if (libraryMode && navigationCommandByInput[input]) {
+          sendCommand(navigationCommandByInput[input]);
+          return;
+        }
         inputPressedAt.current.set(input, Date.now());
         send(input, true);
       }}
@@ -483,6 +504,35 @@ export function RemoteController() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setLibraryMode((mode) => !mode)}
+            className="rounded-xl border border-cyan-300/50 bg-cyan-300/10 px-3 py-2 text-[10px] font-bold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
+            aria-label={libraryMode ? "Mudar para controle do jogo" : "Mudar para biblioteca"}
+          >
+            {libraryMode ? "JOGO" : "BIBLIOTECA"}
+          </button>
+          {libraryMode && (
+            <>
+              <button
+                type="button"
+                onClick={() => sendCommand("library-toggle")}
+                className="rounded-xl border border-violet-300/60 bg-violet-300/10 px-3 py-2 text-[10px] font-bold text-violet-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
+              >
+                JANELA
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sendCommand("library-enter");
+                  setLibraryMode(false);
+                }}
+                className="rounded-xl border border-emerald-300/60 bg-emerald-300/10 px-3 py-2 text-[10px] font-bold text-emerald-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
+              >
+                ENTER
+              </button>
+            </>
+          )}
           <button
             type="button"
             onClick={() => sendCommand("toggle-game-fullscreen")}
@@ -588,7 +638,13 @@ export function RemoteController() {
                 "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
               )}
             </span>
-            <span className="translate-y-5">{control("▼", 5, "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100")}</span>
+            <span className="translate-y-5">
+              {control(
+                "▼",
+                5,
+                "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
+              )}
+            </span>
             <span className="translate-y-5">
               {control(
                 "▶",
