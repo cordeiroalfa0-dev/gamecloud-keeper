@@ -521,16 +521,16 @@
   }
 }
 
-.remote-tv-landscape-guard {
+.remote-landscape-guard {
   display: none !important;
 }
 
 @media (orientation: portrait) {
-  .mga-reference-controller--tv > :not(.remote-tv-landscape-guard) {
+  .mga-reference-controller > :not(.remote-landscape-guard) {
     display: none !important;
   }
 
-  .mga-reference-controller--tv > .remote-tv-landscape-guard {
+  .mga-reference-controller > .remote-landscape-guard {
     display: grid !important;
   }
 }
