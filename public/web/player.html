@@ -23,6 +23,9 @@
     body.video-amber #game canvas,body.video-amber #game video{filter:brightness(var(--video-brightness)) contrast(calc(var(--video-contrast) * 1.08)) saturate(calc(var(--video-saturation) * .82)) sepia(.16)}
     body.video-cool #game canvas,body.video-cool #game video{filter:brightness(var(--video-brightness)) contrast(var(--video-contrast)) saturate(calc(var(--video-saturation) * 1.12)) hue-rotate(8deg)}
     body.video-soft #game canvas,body.video-soft #game video{image-rendering:auto;filter:brightness(var(--video-brightness)) contrast(.96) saturate(var(--video-saturation));}
+    /* TVs de entrada costumam ter pouca GPU: no modo TV, evitar shaders e filtros em tela cheia. */
+    body.video-tv-fit #game canvas,body.video-tv-fit #game video{filter:none!important}
+    body.video-tv-fit #game::before,body.video-tv-fit #game::after{display:none!important}
     @media (min-resolution:2dppx){#game canvas,#game video{image-rendering:pixelated}}
     @media (orientation:portrait){body.video-auto #game canvas,body.video-auto #game video{max-width:100vw;max-height:75vh;object-fit:contain}}
     /* O launcher mostra apenas o jogo, não a interface do emulador. */
@@ -732,11 +735,11 @@
     document.body.classList.toggle('video-aspect-43',visual.aspect==='4:3');
     document.body.classList.toggle('video-stretch',visual.aspect==='stretch');
     document.body.classList.toggle('video-integer',!!visual.integer);
-    document.body.classList.toggle('video-scanlines',!!visual.scanlines&&!isTouchDevice);
-    document.body.classList.toggle('video-vignette',!!visual.vignette&&!isTouchDevice);
-    document.body.classList.toggle('video-amber',visual.palette==='amber');
-    document.body.classList.toggle('video-cool',visual.palette==='cool');
-    document.body.classList.toggle('video-soft',visual.palette==='soft');
+    document.body.classList.toggle('video-scanlines',!!visual.scanlines&&!isTouchDevice&&!tvMode);
+    document.body.classList.toggle('video-vignette',!!visual.vignette&&!isTouchDevice&&!tvMode);
+    document.body.classList.toggle('video-amber',!tvMode&&visual.palette==='amber');
+    document.body.classList.toggle('video-cool',!tvMode&&visual.palette==='cool');
+    document.body.classList.toggle('video-soft',!tvMode&&visual.palette==='soft');
     document.getElementById('game')?.style.setProperty('--video-brightness',visual.brightness);
     document.getElementById('game')?.style.setProperty('--video-contrast',visual.contrast);
     document.getElementById('game')?.style.setProperty('--video-saturation',visual.saturation);
@@ -744,13 +747,15 @@
   };
   const visualHelp=()=>log('Vídeo: F1 shader SABR | F2 scanlines | F3 escala inteira | F5 paleta | F6 brilho | F7 contraste | F8 saturação | F10 vinheta');
   applyVisual();
-  let pixelEnhancement=!isTouchDevice;
+  // O shader SABR pode reduzir a taxa de quadros em TVs com GPU modesta.
+  let pixelEnhancement=!isTouchDevice&&!tvMode;
   const applyPixelEnhancement=()=>{
     const emulator=window.EJS_emulator;
     if(!emulator?.enableShader)return;
     try{
-      emulator.enableShader(pixelEnhancement?'sabr':'disabled');
-      log('Shader de pixels: '+(pixelEnhancement?'SABR ligado':'desligado'));
+      const enabled=pixelEnhancement&&!tvMode;
+      emulator.enableShader(enabled?'sabr':'disabled');
+      log('Shader de pixels: '+(enabled?'SABR ligado':'desligado'));
     }catch(e){
       pixelEnhancement=false;
       log('Shader indisponível; mantendo filtro seguro de vídeo: '+(e?.message||e));
@@ -880,7 +885,8 @@
   window.EJS_volume=1;
   window.EJS_color='#00e5ff';
   window.EJS_backgroundColor='#000';
-  window.EJS_DEBUG_XX=true;
+  // No modo TV, usar a build minificada de produção em vez da build debug.
+  window.EJS_DEBUG_XX=!tvMode;
 
   const hide=()=>{
     if(loadingArtHidden)return;
