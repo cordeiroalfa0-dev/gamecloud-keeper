@@ -521,22 +521,17 @@
   }
 }
 
+.remote-tv-landscape-guard {
+  display: none !important;
+}
+
 @media (orientation: portrait) {
-  .mga-reference-controller {
-    position: fixed !important;
-    top: 0 !important;
-    left: 100dvw !important;
-    width: 100dvh !important;
-    height: 100dvw !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-    transform: rotate(90deg) !important;
-    transform-origin: top left !important;
+  .mga-reference-controller--tv > :not(.remote-tv-landscape-guard) {
+    display: none !important;
   }
 
-  .remote-controller-circuit-overlay {
-    display: none;
+  .mga-reference-controller--tv > .remote-tv-landscape-guard {
+    display: grid !important;
   }
 }
 
