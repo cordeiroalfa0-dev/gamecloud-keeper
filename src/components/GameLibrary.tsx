@@ -136,7 +136,7 @@ const prettyFallback = (name: string) =>
 async function waitForBridge(): Promise<void> {
   await new Promise<void>((resolve) => {
     const script = document.createElement("script");
-    script.src = "/web/mame-web.js?v=20261018-tv-remote-v17";
+    script.src = "/web/mame-web.js?v=20261019-tv-control-reliability-v19";
     script.onload = () => resolve();
     script.onerror = () => resolve();
     document.head.appendChild(script);
@@ -493,6 +493,17 @@ export function GameLibrary({
         setIsWindowOpen((open) => !open);
         return;
       }
+      if (command === "library-home") {
+        setIsWindowOpen(true);
+        setTab("all");
+        setQuery("");
+        selectedIndexRef.current = 0;
+        setSelectedIndex(0);
+        window.requestAnimationFrame(() => {
+          libraryContentRef.current?.scrollTo({ top: 0, behavior: "auto" });
+        });
+        return;
+      }
       if (command === "library-tab-next" || command === "library-tab-prev") {
         cycleTab(command === "library-tab-next" ? 1 : -1);
         return;
@@ -577,7 +588,9 @@ export function GameLibrary({
   }, [tvMode]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]">
+    <div
+      className={`${tvMode ? "mga-tv-shell" : ""} relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]`}
+    >
       <div className="pointer-events-none fixed inset-0 z-0 bg-[#050009]">
         {BACKGROUND_IMAGES.map((image, index) => (
           <img
@@ -598,9 +611,13 @@ export function GameLibrary({
         <div className="absolute inset-0 bg-[#050009]/45" />
       </div>
 
-      <header className="relative z-10 sticky top-0 border-b border-cyan-500/20 bg-[#050009]/90 px-4 py-3 backdrop-blur sm:px-8">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
+      <header
+        className={`${tvMode ? "mga-tv-topbar" : ""} relative z-10 sticky top-0 border-b border-cyan-500/20 bg-[#050009]/90 px-4 py-3 backdrop-blur sm:px-8`}
+      >
+        <div
+          className={`${tvMode ? "mga-tv-topbar-inner" : ""} mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}
+        >
+          <div className={`${tvMode ? "mga-tv-brand" : ""} flex items-center gap-3`}>
             <img
               src="/kali-dragon.png"
               alt="Logo do dragão"
@@ -619,8 +636,10 @@ export function GameLibrary({
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="relative">
+          <div
+            className={`${tvMode ? "mga-tv-actions" : ""} flex flex-col gap-2 sm:flex-row sm:items-center`}
+          >
+            <div className={`${tvMode ? "mga-tv-search" : ""} relative`}>
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cyan-500/60" />
               <input
                 type="search"
@@ -631,7 +650,7 @@ export function GameLibrary({
               />
             </div>
 
-            <div className="flex gap-1.5">
+            <div className={`${tvMode ? "mga-tv-tabs" : ""} flex gap-1.5`}>
               {TABS.map((item) => (
                 <button
                   key={item.id}
@@ -650,14 +669,16 @@ export function GameLibrary({
               ))}
             </div>
 
-            <RemoteControlHub autoOpen={tvMode} />
+            <div className={tvMode ? "mga-tv-remote-control" : undefined}>
+              <RemoteControlHub autoOpen={tvMode} />
+            </div>
 
             <button
               type="button"
               onClick={toggleFullscreen}
               aria-label={isFullscreen ? "Sair da tela cheia" : "Entrar em tela cheia"}
               title={isFullscreen ? "Sair da tela cheia" : "Entrar em tela cheia"}
-              className="flex items-center justify-center gap-1.5 rounded-full border border-cyan-500/30 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-400/10"
+              className={`${tvMode ? "mga-tv-secondary-button" : ""} flex items-center justify-center gap-1.5 rounded-full border border-cyan-500/30 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-400/10`}
             >
               {isFullscreen ? (
                 <Minimize2 className="h-3.5 w-3.5" />
@@ -671,32 +692,33 @@ export function GameLibrary({
               onClick={() => setIsAboutOpen(true)}
               aria-label="Sobre o sistema"
               title="Sobre o sistema"
-              className="flex items-center justify-center gap-1.5 rounded-full border border-pink-400/30 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-pink-200 transition-colors hover:border-pink-300 hover:bg-pink-400/10"
+              className={`${tvMode ? "mga-tv-secondary-button" : ""} flex items-center justify-center gap-1.5 rounded-full border border-pink-400/30 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-pink-200 transition-colors hover:border-pink-300 hover:bg-pink-400/10`}
             >
               <Info className="h-3.5 w-3.5" /> Sobre
             </button>
-            {accountSlot}
+            <div className={tvMode ? "mga-tv-account-slot" : undefined}>{accountSlot}</div>
           </div>
         </div>
       </header>
 
       {tvMode && (
-        <div className="relative z-10 border-b border-pink-400/30 bg-pink-400/10 px-4 py-2 text-center font-mono text-xs text-pink-100 sm:px-8">
-          MODO TV ATIVO · escolha um jogo e leia o QR Code com o celular para usar como controle ·
-          DEV EMERSON 2026
+        <div className="mga-tv-status relative z-10 border-b border-pink-400/30 bg-pink-400/10 px-4 py-2 text-center font-mono text-xs text-pink-100 sm:px-8">
+          MODO TV · use o celular como controle · DEV EMERSON 2026
         </div>
       )}
 
       {isWindowOpen ? (
         <section
           aria-label="Janela da biblioteca de jogos"
-          className={`fixed z-30 flex min-w-0 flex-col overflow-hidden rounded-2xl border border-cyan-500/35 bg-[#050009]/90 shadow-[0_0_36px_rgba(0,229,255,.22)] backdrop-blur-xl transition-[width] duration-300 ${
+          className={`${tvMode ? "mga-tv-library-window" : ""} fixed z-30 flex min-w-0 flex-col overflow-hidden rounded-2xl border border-cyan-500/35 bg-[#050009]/90 shadow-[0_0_36px_rgba(0,229,255,.22)] backdrop-blur-xl transition-[width] duration-300 ${
             tvMode
               ? "inset-x-4 top-20 max-h-[calc(100dvh-6rem)] w-[calc(100vw-2rem)] sm:inset-x-8 sm:right-auto sm:top-20 sm:max-h-[calc(100dvh-6rem)] sm:w-[calc(100vw-4rem)]"
               : "inset-x-2 top-[16rem] max-h-[calc(100dvh-17rem)] w-[calc(100vw-1rem)] sm:inset-x-auto sm:right-3 sm:top-24 sm:max-h-[calc(100dvh-6rem)] sm:w-[min(92vw,420px)]"
           } ${isWindowExpanded && !tvMode ? "sm:w-[min(96vw,1200px)]" : ""}`}
         >
-          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-cyan-500/20 bg-black/35 px-3 py-2.5">
+          <div
+            className={`${tvMode ? "mga-tv-library-header" : ""} flex shrink-0 items-center justify-between gap-3 border-b border-cyan-500/20 bg-black/35 px-3 py-2.5`}
+          >
             <div className="min-w-0">
               <h2 className="font-mono text-xs font-bold tracking-[0.16em] text-cyan-300">
                 BIBLIOTECA
@@ -735,7 +757,7 @@ export function GameLibrary({
 
           <div
             ref={libraryContentRef}
-            className="game-library-scroll min-h-0 flex-1 touch-pan-y overscroll-contain overflow-y-auto p-3 sm:p-4"
+            className={`${tvMode ? "mga-tv-library-body" : ""} game-library-scroll min-h-0 flex-1 touch-pan-y overscroll-contain overflow-y-auto p-3 sm:p-4`}
           >
             {phase === "ready" && resumeGame && !query.trim() && (
               <button
@@ -793,7 +815,7 @@ export function GameLibrary({
 
             {phase === "ready" && visibleRoms.length > 0 && (
               <div
-                className={`grid w-full min-w-0 grid-cols-2 gap-3 ${isWindowExpanded ? "sm:grid-cols-3 xl:grid-cols-4" : ""}`}
+                className={`${tvMode ? "mga-tv-grid" : ""} grid w-full min-w-0 grid-cols-2 gap-3 ${isWindowExpanded ? "sm:grid-cols-3 xl:grid-cols-4" : ""}`}
               >
                 {visibleRoms.map((rom) => (
                   <GameCard

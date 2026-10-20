@@ -2321,17 +2321,25 @@
 
   new MutationObserver(scheduleHideEmulatorUi).observe(document.getElementById('game'),{childList:true,subtree:true});
 
+  // No modo TV, o pacote WebAssembly, a ROM e a BIOS podem levar mais tempo
+  // em conexões de televisão; mantenha o prazo original no modo Web.
+  const readyTimeout = tvMode ? 90000 : 30000;
+  const startTimeout = tvMode ? 150000 : 45000;
   startWatchdog=setTimeout(()=>{
     if(!ready&&!started){
-      fail('Arcade não carregou em 30s. Verifique a ROM, o BIOS e o endpoint de download.');
+      fail(tvMode
+        ? 'Arcade ainda não ficou pronto após 90 s. Verifique a conexão, a ROM e o BIOS.'
+        : 'Arcade não carregou em 30s. Verifique a ROM, o BIOS e o endpoint de download.');
     }
-  },30000);
+  },readyTimeout);
 
   setTimeout(()=>{
     if(ready&&!started){
-      fail('EmulatorJS ficou pronto, mas o core Arcade (FBNeo) não iniciou a ROM. Confirme o romset e o BIOS.');
+      fail(tvMode
+        ? 'O core Arcade (FBNeo) ainda não iniciou após 150 s. Verifique o romset e o BIOS e tente novamente.'
+        : 'EmulatorJS ficou pronto, mas o core Arcade (FBNeo) não iniciou a ROM. Confirme o romset e o BIOS.');
     }
-  },45000);
+  },startTimeout);
 
   // Os controles de teclado e gamepad são tratados pelo próprio EmulatorJS
   // através de EJS_defaultControls (mapa acima). Nenhum remapeamento manual.

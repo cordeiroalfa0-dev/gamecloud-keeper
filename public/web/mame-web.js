@@ -239,7 +239,7 @@
     }
     // O player é alterado junto com o bridge; versionar a URL evita que o
     // navegador reutilize uma versão antiga da rotina de restauração.
-    playerUrl.searchParams.set("v", "20261018-tv-autoframe-v18");
+    playerUrl.searchParams.set("v", "20261019-tv-control-reliability-v19");
     if (biosUrl) playerUrl.searchParams.set("bios", biosUrl);
     if (biosName) playerUrl.searchParams.set("biosName", biosName);
 

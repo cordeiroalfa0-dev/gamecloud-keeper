@@ -16,6 +16,7 @@ type RemoteCommand =
   | "save-and-exit"
   | "toggle-game-fullscreen"
   | "launch-game"
+  | "return-home"
   | "library-up"
   | "library-down"
   | "library-left"
@@ -175,6 +176,8 @@ export function RemoteController() {
   const [installed, setInstalled] = useState(false);
   const [installInfoOpen, setInstallInfoOpen] = useState(false);
   const [libraryMode, setLibraryMode] = useState(true);
+  const [tvMode, setTvMode] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(false);
   const frameRef = useRef<HTMLElement | null>(null);
   const [circuitLayout, setCircuitLayout] = useState<CircuitLayout>({
     width: 0,
@@ -183,6 +186,7 @@ export function RemoteController() {
   });
 
   useEffect(() => {
+    setTvMode(new URLSearchParams(window.location.search).get("tv") === "1");
     // REGRA DE OURO: o link do QR code nunca deve ficar exposto na experiência
     // do controle remoto. Os parâmetros já foram capturados em memória acima;
     // removê-los do histórico também evita que apareçam ao compartilhar a tela.
@@ -223,6 +227,19 @@ export function RemoteController() {
     return () => {
       window.removeEventListener("beforeinstallprompt", onInstallAvailable);
       window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  useEffect(() => {
+    const syncOrientation = () => {
+      setIsPortrait(window.matchMedia("(orientation: portrait)").matches);
+    };
+    syncOrientation();
+    window.addEventListener("resize", syncOrientation);
+    window.addEventListener("orientationchange", syncOrientation);
+    return () => {
+      window.removeEventListener("resize", syncOrientation);
+      window.removeEventListener("orientationchange", syncOrientation);
     };
   }, []);
 
@@ -547,12 +564,42 @@ export function RemoteController() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setLibraryMode((mode) => !mode)}
+            onClick={() => {
+              if (tvMode && !libraryMode) sendCommand("save-and-exit");
+              else setLibraryMode((mode) => !mode);
+            }}
             className="rounded-xl border border-cyan-300/50 bg-cyan-300/10 px-3 py-2 text-[10px] font-bold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
-            aria-label={libraryMode ? "Mudar para controle do jogo" : "Mudar para biblioteca"}
+            aria-label={
+              tvMode && !libraryMode
+                ? "Salvar e voltar à biblioteca"
+                : libraryMode
+                  ? "Mudar para controle do jogo"
+                  : "Mudar para navegação da biblioteca"
+            }
+            title={
+              tvMode && !libraryMode
+                ? "Salvar e voltar à biblioteca"
+                : libraryMode
+                  ? "Mudar para controle do jogo"
+                  : "Mudar para navegação da biblioteca"
+            }
           >
-            {libraryMode ? "JOGO" : "BIBLIOTECA"}
+            {tvMode && !libraryMode ? "← VOLTAR" : libraryMode ? "JOGO" : "BIBLIOTECA"}
           </button>
+          {tvMode && (
+            <button
+              type="button"
+              onClick={() => {
+                setLibraryMode(true);
+                sendCommand("return-home");
+              }}
+              className="rounded-xl border border-emerald-300/60 bg-emerald-300/10 px-3 py-2 text-[10px] font-bold text-emerald-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
+              aria-label="Voltar ao início da biblioteca"
+              title="Abrir Todos e voltar ao primeiro jogo"
+            >
+              INÍCIO
+            </button>
+          )}
           {libraryMode && (
             <>
               <button
@@ -646,7 +693,7 @@ export function RemoteController() {
             className="relative isolate h-7 overflow-hidden rounded-xl border-2 border-emerald-200/70 bg-gradient-to-b from-emerald-300/25 to-emerald-700/20 px-1 font-mono text-[10px] font-black leading-none text-emerald-100 shadow-[inset_0_2px_2px_rgba(255,255,255,.46),inset_0_-5px_7px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.55),0_7px_9px_rgba(0,0,0,.36)] active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(10,45,35,.8)] before:pointer-events-none before:absolute before:inset-[2px] before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.36)_0%,transparent_48%,rgba(0,0,0,.25)_100%)] before:content-[''] after:pointer-events-none after:absolute after:left-[18%] after:right-[18%] after:top-[7%] after:h-[22%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.68),transparent_75%)] after:blur-[2px] after:content-[''] [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[9px]"
           >
             <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,.8)]">
-              SALVAR E BIBLIOTECA
+              {tvMode ? "SALVAR E VOLTAR À BIBLIOTECA" : "SALVAR E BIBLIOTECA"}
             </span>
           </button>
           {control(
@@ -802,6 +849,33 @@ export function RemoteController() {
               className="mt-3 w-full rounded-xl border border-white/15 px-4 py-3 font-mono text-xs font-bold text-slate-300 transition hover:bg-white/5"
             >
               CONTINUAR NO NAVEGADOR
+            </button>
+          </section>
+        </div>
+      )}
+      {isPortrait && tvMode && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="remote-landscape-title"
+          className="fixed inset-0 z-[1000] grid place-items-center bg-[#050a12]/95 p-6 text-center backdrop-blur-xl"
+        >
+          <section className="w-full max-w-sm rounded-3xl border border-cyan-300/35 bg-[#0b141c] p-7 text-slate-100 shadow-[0_0_55px_rgba(34,211,238,.2)]">
+            <div aria-hidden="true" className="mb-3 text-5xl text-cyan-200">
+              ↻
+            </div>
+            <h2 id="remote-landscape-title" className="font-mono text-xl font-black tracking-wide">
+              GIRE O CELULAR
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-slate-300">
+              A versão retrato foi removida. Este controle funciona somente na horizontal.
+            </p>
+            <button
+              type="button"
+              onClick={() => void requestLandscape()}
+              className="mt-5 w-full rounded-2xl border border-cyan-200/70 bg-cyan-300/10 px-4 py-3 font-mono text-xs font-black text-cyan-100"
+            >
+              TENTAR TRAVAR EM PAISAGEM
             </button>
           </section>
         </div>

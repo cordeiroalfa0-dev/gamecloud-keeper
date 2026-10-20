@@ -521,39 +521,6 @@
   }
 }
 
-@media (orientation: portrait) {
-  .remote-controller-screen {
-    height: auto;
-    min-height: 100dvh;
-    overflow: auto;
-    padding: 8px;
-  }
-
-  .remote-controller-frame {
-    height: auto;
-    min-height: calc(100dvh - 16px);
-  }
-
-  .remote-controller-decks {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: repeat(2, minmax(230px, 1fr));
-    gap: 9px;
-    padding: 0 3vw;
-  }
-
-  .remote-controller-deck {
-    min-height: 230px;
-  }
-
-  .remote-controller-dpad-grid,
-  .remote-controller-face-grid {
-    width: min(67vw, 30vh, 250px);
-    margin-right: 0;
-    margin-left: 0;
-    justify-self: center;
-  }
-}
-
 @media (max-width: 390px) {
   .remote-controller-topbar {
     gap: 4px;
