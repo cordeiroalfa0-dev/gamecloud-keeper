@@ -521,6 +521,25 @@
   }
 }
 
+@media (orientation: portrait) {
+  .mga-reference-controller {
+    position: fixed !important;
+    top: 0 !important;
+    left: 100dvw !important;
+    width: 100dvh !important;
+    height: 100dvw !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    transform: rotate(90deg) !important;
+    transform-origin: top left !important;
+  }
+
+  .remote-controller-circuit-overlay {
+    display: none;
+  }
+}
+
 @media (max-width: 390px) {
   .remote-controller-topbar {
     gap: 4px;

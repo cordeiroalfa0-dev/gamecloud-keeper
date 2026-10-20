@@ -177,7 +177,6 @@ export function RemoteController() {
   const [installInfoOpen, setInstallInfoOpen] = useState(false);
   const [libraryMode, setLibraryMode] = useState(true);
   const [tvMode, setTvMode] = useState(false);
-  const [isPortrait, setIsPortrait] = useState(false);
   const frameRef = useRef<HTMLElement | null>(null);
   const [circuitLayout, setCircuitLayout] = useState<CircuitLayout>({
     width: 0,
@@ -227,19 +226,6 @@ export function RemoteController() {
     return () => {
       window.removeEventListener("beforeinstallprompt", onInstallAvailable);
       window.removeEventListener("appinstalled", onInstalled);
-    };
-  }, []);
-
-  useEffect(() => {
-    const syncOrientation = () => {
-      setIsPortrait(window.matchMedia("(orientation: portrait)").matches);
-    };
-    syncOrientation();
-    window.addEventListener("resize", syncOrientation);
-    window.addEventListener("orientationchange", syncOrientation);
-    return () => {
-      window.removeEventListener("resize", syncOrientation);
-      window.removeEventListener("orientationchange", syncOrientation);
     };
   }, []);
 
@@ -459,10 +445,15 @@ export function RemoteController() {
     7: "library-right",
     5: "library-down",
     8: "library-enter",
-    3: "library-enter",
     0: "library-toggle",
     2: "library-tab-next",
     9: "library-tab-prev",
+  };
+  const libraryCommandLabelByInput: Partial<Record<number, string>> = {
+    0: "Mostrar ou ocultar a janela da biblioteca",
+    2: "Próxima aba da biblioteca",
+    8: "Abrir o jogo selecionado",
+    9: "Aba anterior da biblioteca",
   };
 
   const releaseInput = (input: number) => {
@@ -491,6 +482,8 @@ export function RemoteController() {
       className={`${buttonClass} ${className}`}
       data-circuit-pad={CIRCUIT_PAD_BY_INPUT[input]?.id}
       data-circuit-side={CIRCUIT_PAD_BY_INPUT[input]?.side}
+      aria-label={libraryMode ? libraryCommandLabelByInput[input] || label : label}
+      title={libraryMode ? libraryCommandLabelByInput[input] || label : label}
       onPointerDown={(event) => {
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
@@ -562,74 +555,23 @@ export function RemoteController() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              if (tvMode && !libraryMode) sendCommand("save-and-exit");
-              else setLibraryMode((mode) => !mode);
-            }}
-            className="rounded-xl border border-cyan-300/50 bg-cyan-300/10 px-3 py-2 text-[10px] font-bold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
-            aria-label={
-              tvMode && !libraryMode
-                ? "Salvar e voltar à biblioteca"
-                : libraryMode
-                  ? "Mudar para controle do jogo"
-                  : "Mudar para navegação da biblioteca"
-            }
-            title={
-              tvMode && !libraryMode
-                ? "Salvar e voltar à biblioteca"
-                : libraryMode
-                  ? "Mudar para controle do jogo"
-                  : "Mudar para navegação da biblioteca"
-            }
-          >
-            {tvMode && !libraryMode ? "← VOLTAR" : libraryMode ? "JOGO" : "BIBLIOTECA"}
-          </button>
-          {tvMode && (
+          {tvMode && !libraryMode && (
             <button
               type="button"
-              onClick={() => {
-                setLibraryMode(true);
-                sendCommand("return-home");
-              }}
-              className="rounded-xl border border-emerald-300/60 bg-emerald-300/10 px-3 py-2 text-[10px] font-bold text-emerald-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
-              aria-label="Voltar ao início da biblioteca"
-              title="Abrir Todos e voltar ao primeiro jogo"
+              onClick={() => sendCommand("return-home")}
+              className="rounded-xl border border-cyan-300/50 bg-cyan-300/10 px-3 py-2 text-[10px] font-bold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
+              aria-label="Salvar e voltar à biblioteca"
+              title="Salvar e voltar à biblioteca"
             >
-              INÍCIO
+              ← BIBLIOTECA
             </button>
           )}
-          {libraryMode && (
-            <>
-              <button
-                type="button"
-                onClick={() => sendCommand("library-toggle")}
-                className="rounded-xl border border-violet-300/60 bg-violet-300/10 px-3 py-2 text-[10px] font-bold text-violet-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
-              >
-                JANELA
-              </button>
-              <button
-                type="button"
-                onClick={() => sendCommand("library-enter")}
-                className="rounded-xl border border-emerald-300/60 bg-emerald-300/10 px-3 py-2 text-[10px] font-bold text-emerald-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
-              >
-                ENTER
-              </button>
-            </>
-          )}
-          <button
-            type="button"
-            onClick={() => sendCommand("toggle-game-fullscreen")}
-            className="rounded-xl border border-slate-300/50 bg-slate-300/10 px-3 py-2 text-[10px] font-bold text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
-            aria-label="Alternar tela cheia do jogo"
-          >
-            ⛶ JOGO
-          </button>
           <strong
-            className={`rounded-xl border px-4 py-2 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,.2),0_3px_8px_rgba(2,6,23,.3)] ${player === 1 ? "border-cyan-300/60 bg-cyan-300/10 text-cyan-100" : "border-orange-300/70 bg-orange-300/10 text-orange-100"}`}
+            className={`rounded-lg border px-2 py-1 text-[10px] font-bold shadow-[inset_0_1px_0_rgba(255,255,255,.2),0_3px_8px_rgba(2,6,23,.3)] ${player === 1 ? "border-cyan-300/60 bg-cyan-300/10 text-cyan-100" : "border-orange-300/70 bg-orange-300/10 text-orange-100"}`}
+            aria-label={`Jogador ${player}`}
+            title={`Jogador ${player}`}
           >
-            JOGADOR {player}
+            P{player}
           </strong>
         </div>
       </header>
@@ -675,37 +617,38 @@ export function RemoteController() {
             ))}
           </svg>
         )}
-        <div className="relative z-10 grid grid-cols-2 gap-2 px-2 sm:grid-cols-4">
-          <button
-            type="button"
-            onClick={() => sendCommand("toggle-pause")}
-            className="relative isolate h-7 overflow-hidden rounded-xl border-2 border-amber-200/70 bg-gradient-to-b from-amber-300/25 to-amber-700/20 px-1 font-mono text-[10px] font-black leading-none text-amber-100 shadow-[inset_0_2px_2px_rgba(255,255,255,.46),inset_0_-5px_7px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.55),0_7px_9px_rgba(0,0,0,.36)] active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(51,35,15,.8)] before:pointer-events-none before:absolute before:inset-[2px] before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.36)_0%,transparent_48%,rgba(0,0,0,.25)_100%)] before:content-[''] after:pointer-events-none after:absolute after:left-[18%] after:right-[18%] after:top-[7%] after:h-[22%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.68),transparent_75%)] after:blur-[2px] after:content-[''] [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[9px]"
-          >
-            <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,.8)]">
-              PAUSAR / RETOMAR
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              sendCommand("save-and-exit");
-            }}
-            className="relative isolate h-7 overflow-hidden rounded-xl border-2 border-emerald-200/70 bg-gradient-to-b from-emerald-300/25 to-emerald-700/20 px-1 font-mono text-[10px] font-black leading-none text-emerald-100 shadow-[inset_0_2px_2px_rgba(255,255,255,.46),inset_0_-5px_7px_rgba(0,0,0,.34),0_3px_0_rgba(0,0,0,.55),0_7px_9px_rgba(0,0,0,.36)] active:translate-y-1 active:shadow-[inset_0_2px_5px_rgba(0,0,0,.3),0_2px_0_rgba(10,45,35,.8)] before:pointer-events-none before:absolute before:inset-[2px] before:rounded-[inherit] before:border before:border-white/35 before:bg-[linear-gradient(145deg,rgba(255,255,255,.36)_0%,transparent_48%,rgba(0,0,0,.25)_100%)] before:content-[''] after:pointer-events-none after:absolute after:left-[18%] after:right-[18%] after:top-[7%] after:h-[22%] after:rounded-full after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,.68),transparent_75%)] after:blur-[2px] after:content-[''] [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[9px]"
-          >
-            <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,.8)]">
-              {tvMode ? "SALVAR E VOLTAR À BIBLIOTECA" : "SALVAR E BIBLIOTECA"}
-            </span>
-          </button>
+        <div
+          className={`relative z-10 grid w-full max-w-3xl gap-2 px-2 ${libraryMode ? "mx-auto max-w-xs grid-cols-1" : tvMode ? "grid-cols-3" : "grid-cols-4"}`}
+        >
+          {!libraryMode && (
+            <button
+              type="button"
+              onClick={() => sendCommand("toggle-pause")}
+              className="h-8 rounded-xl border border-amber-300/70 bg-amber-400/20 px-2 font-mono text-[10px] font-bold text-amber-100 active:brightness-125"
+            >
+              PAUSAR
+            </button>
+          )}
+          {!libraryMode && !tvMode && (
+            <button
+              type="button"
+              onClick={() => sendCommand("save-and-exit")}
+              className="h-8 rounded-xl border border-emerald-300/70 bg-emerald-400/20 px-2 font-mono text-[10px] font-bold text-emerald-100 active:brightness-125"
+            >
+              BIBLIOTECA
+            </button>
+          )}
           {control(
-            "CRÉDITO",
+            libraryMode ? "ABA +" : "CRÉDITO",
             REMOTE_INPUT.CREDIT,
-            "h-7 border-amber-300/80 bg-amber-400/20 text-xs text-amber-100 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[10px]",
+            "h-8 border-amber-300/80 bg-amber-400/20 text-xs text-amber-100",
           )}
-          {control(
-            "START",
-            REMOTE_INPUT.START,
-            "h-7 border-green-300/80 bg-green-400/20 text-xs text-green-100 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:text-[10px]",
-          )}
+          {!libraryMode &&
+            control(
+              "START",
+              REMOTE_INPUT.START,
+              "h-8 border-green-300/80 bg-green-400/20 text-xs text-green-100",
+            )}
         </div>
         <div className="relative z-10 flex min-h-0 flex-1 items-center justify-between gap-2 -mx-1 px-0">
           <div className="relative grid aspect-square w-[min(13rem,38%)] translate-y-6 grid-cols-3 grid-rows-3 gap-2">
@@ -745,10 +688,14 @@ export function RemoteController() {
           </div>
           <div className="relative grid aspect-square w-[min(11.5rem,34%)] translate-y-14 grid-cols-3 grid-rows-3 gap-3">
             <span />
-            {control(
-              "Y",
-              1,
-              "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-2xl text-slate-100",
+            {libraryMode ? (
+              <span />
+            ) : (
+              control(
+                "Y",
+                1,
+                "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-2xl text-slate-100",
+              )
             )}
             <span />
             {control(
@@ -849,33 +796,6 @@ export function RemoteController() {
               className="mt-3 w-full rounded-xl border border-white/15 px-4 py-3 font-mono text-xs font-bold text-slate-300 transition hover:bg-white/5"
             >
               CONTINUAR NO NAVEGADOR
-            </button>
-          </section>
-        </div>
-      )}
-      {isPortrait && tvMode && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="remote-landscape-title"
-          className="fixed inset-0 z-[1000] grid place-items-center bg-[#050a12]/95 p-6 text-center backdrop-blur-xl"
-        >
-          <section className="w-full max-w-sm rounded-3xl border border-cyan-300/35 bg-[#0b141c] p-7 text-slate-100 shadow-[0_0_55px_rgba(34,211,238,.2)]">
-            <div aria-hidden="true" className="mb-3 text-5xl text-cyan-200">
-              ↻
-            </div>
-            <h2 id="remote-landscape-title" className="font-mono text-xl font-black tracking-wide">
-              GIRE O CELULAR
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-300">
-              A versão retrato foi removida. Este controle funciona somente na horizontal.
-            </p>
-            <button
-              type="button"
-              onClick={() => void requestLandscape()}
-              className="mt-5 w-full rounded-2xl border border-cyan-200/70 bg-cyan-300/10 px-4 py-3 font-mono text-xs font-black text-cyan-100"
-            >
-              TENTAR TRAVAR EM PAISAGEM
             </button>
           </section>
         </div>
