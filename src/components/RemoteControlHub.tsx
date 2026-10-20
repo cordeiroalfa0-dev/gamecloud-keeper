@@ -233,7 +233,9 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
       if (player !== 1 && player !== 2) return;
       const isNewConnection = !lastSeen.has(player);
       lastSeen.set(player, Date.now());
-      setPlayers((current) => ({ ...current, [player]: true }));
+      // Muitos eventos chegam por segundo enquanto o jogador toca nos botões.
+      // Só redesenha a biblioteca quando o estado de conexão realmente muda.
+      setPlayers((current) => (current[player] ? current : { ...current, [player]: true }));
       // Fecha a janela do QR Code assim que um celular se conecta.
       if (isNewConnection) setOpen(false);
     };
@@ -273,7 +275,9 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
               if (seenAt && now - seenAt > 7000) {
                 releaseRemotePlayer(player);
                 lastSeen.delete(player);
-                setPlayers((current) => ({ ...current, [player]: false }));
+                setPlayers((current) =>
+                  current[player] ? { ...current, [player]: false } : current,
+                );
               }
             }
           }, 1000);
