@@ -885,8 +885,12 @@
   window.EJS_volume=1;
   window.EJS_color='#00e5ff';
   window.EJS_backgroundColor='#000';
-  // No modo TV, usar a build minificada de produção em vez da build debug.
-  window.EJS_DEBUG_XX=!tvMode;
+  // A cópia local tem os arquivos-fonte; sem o bundle minificado, o modo
+  // "produção" tenta um arquivo ausente e ativa a consulta HEAD/IndexedDB.
+  // O GET direto evita essa etapa opcional que pode falhar em browsers de TV.
+  window.EJS_DEBUG_XX=true;
+  // No modo TV, manter a ROM só na memória da sessão; ao fechar o iframe ela é liberada.
+  window.EJS_CacheLimit=tvMode?0:undefined;
 
   const hide=()=>{
     if(loadingArtHidden)return;
