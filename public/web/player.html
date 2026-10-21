@@ -1987,12 +1987,14 @@
       mgaInitialLoadTimer=null;
       loadProgress();
     },isTouchDevice?3500:2500);
-    // Mantém checkpoints locais frequentes em todas as plataformas: fechar a
-    // aba encerra o JS e não garante que o save assíncrono de pagehide termine.
+    // O autosave pausa brevemente o loop para copiar o estado para o IndexedDB.
+    // Na TV, um intervalo maior evita uma pausa perceptível durante a partida;
+    // pagehide, visibilitychange e o fluxo "Salvar e sair" continuam ativos.
     if(mgaSaveTimer)clearInterval(mgaSaveTimer);
     // O fechamento imediato ainda pode perder alguns segundos; para sair sem
     // perda, use o botão Sair do jogo e espere a confirmação do launcher.
-    mgaSaveTimer=setInterval(()=>{if(!document.hidden)saveProgress(true)},60000);
+    const autoSaveInterval=tvMode?120000:60000;
+    mgaSaveTimer=setInterval(()=>{if(!document.hidden)saveProgress(true)},autoSaveInterval);
     // O shader só pode ser ativado depois de o contexto gráfico do core existir.
     setTimeout(applyPixelEnhancement,0);
     requestWakeLock();
@@ -2355,13 +2357,13 @@
   // através de EJS_defaultControls (mapa acima). Nenhum remapeamento manual.
 
   const script=document.createElement('script');
-  script.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-performance-v23';
+  script.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-performance-v24';
   script.async=true;
   script.onerror=()=>{
     log('loader.js local falhou — tentando fallback pelo CDN oficial.');
     window.EJS_pathtodata='https://cdn.emulatorjs.org/'+EJS_PINNED_VERSION+'/data/';
     const fallback=document.createElement('script');
-    fallback.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-performance-v23';
+    fallback.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-performance-v24';
     fallback.async=true;
     fallback.crossOrigin='anonymous';
     fallback.onerror=()=>fail('Não foi possível carregar o EmulatorJS (local nem CDN).');
