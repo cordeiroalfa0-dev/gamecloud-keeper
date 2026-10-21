@@ -723,12 +723,14 @@ class EmulatorJS {
             }
 
             this.textElem.innerText = progressMessage;
-            if (!this.debug) {
+            if (!this.debug && this.config.cacheLimit !== 0) {
                 const res = await this.downloadFile(assetUrl, null, true, { method: "HEAD" });
-                const result = await this.storage.rom.get(assetUrl.split("/").pop());
-                if (result && result["content-length"] === res.headers["content-length"] && result.type === type) {
-                    await gotData(result.data);
-                    return resolve(assetUrl);
+                if (res !== -1) {
+                    const result = await this.storage.rom.get(assetUrl.split("/").pop());
+                    if (result && result["content-length"] === res.headers["content-length"] && result.type === type) {
+                        await gotData(result.data);
+                        return resolve(assetUrl);
+                    }
                 }
             }
             const res = await this.downloadFile(assetUrl, (progress) => {
@@ -898,13 +900,15 @@ class EmulatorJS {
                 }
             }
 
-            if (!this.debug) {
+            if (!this.debug && this.config.cacheLimit !== 0) {
                 this.downloadFile(this.config.gameUrl, null, true, { method: "HEAD" }).then(async (res) => {
                     const name = (typeof this.config.gameUrl === "string") ? this.config.gameUrl.split("/").pop() : "game";
-                    const result = await this.storage.rom.get(name);
-                    if (result && result["content-length"] === res.headers["content-length"] && name !== "game") {
-                        gotGameData(result.data);
-                        return;
+                    if (res !== -1) {
+                        const result = await this.storage.rom.get(name);
+                        if (result && result["content-length"] === res.headers["content-length"] && name !== "game") {
+                            gotGameData(result.data);
+                            return;
+                        }
                     }
                     downloadFile();
                 })

@@ -69,7 +69,7 @@
         }
     }
 
-    if (("undefined" != typeof EJS_DEBUG_XX && true === EJS_DEBUG_XX)) {
+    if (("undefined" != typeof EJS_DEBUG_XX && true === EJS_DEBUG_XX) || window.EJS_USE_SOURCE_FILES === true) {
         for (let i = 0; i < scripts.length; i++) {
             await loadScript(scripts[i]);
         }

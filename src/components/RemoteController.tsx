@@ -653,11 +653,12 @@ export function RemoteController() {
               BIBLIOTECA
             </button>
           )}
-          {control(
-            libraryMode ? "ABA +" : "CRÉDITO",
-            REMOTE_INPUT.CREDIT,
-            "h-8 border-amber-300/80 bg-amber-400/20 text-xs text-amber-100",
-          )}
+          {(!libraryMode || !tvMode) &&
+            control(
+              libraryMode ? "ABA +" : "CRÉDITO",
+              REMOTE_INPUT.CREDIT,
+              "h-8 border-amber-300/80 bg-amber-400/20 text-xs text-amber-100",
+            )}
           {!libraryMode &&
             control(
               "START",
@@ -713,10 +714,14 @@ export function RemoteController() {
               )
             )}
             <span />
-            {control(
-              "X",
-              9,
-              "h-full w-full border-amber-200/70 bg-gradient-to-b from-amber-300/35 to-amber-700/25 text-2xl text-amber-50",
+            {tvMode && libraryMode ? (
+              <span />
+            ) : (
+              control(
+                "X",
+                9,
+                "h-full w-full border-amber-200/70 bg-gradient-to-b from-amber-300/35 to-amber-700/25 text-2xl text-amber-50",
+              )
             )}
             {control(
               "A",

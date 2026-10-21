@@ -810,13 +810,6 @@
 
   if(window.EJS_biosUrl){
     log('BIOS configurado via EJS_biosUrl: '+window.EJS_biosUrl);
-    // Diagnóstico não deve bloquear o início do emulador: alguns CDNs e
-    // navegadores móveis atrasam ou recusam HEAD mesmo aceitando GET.
-    fetch(window.EJS_biosUrl,{method:'HEAD'}).then(head=>{
-      const len=head.headers.get('content-length');
-      log('Checagem HEAD da BIOS: status '+head.status+', tamanho '+(len||'desconhecido')+' bytes');
-      if(!head.ok)log('AVISO: endpoint da BIOS não respondeu OK — o core pode falhar ao montar o arquivo.');
-    }).catch(e=>log('Checagem HEAD da BIOS falhou: '+(e?.message||e)+' (pode ser CORS ou rede)'));
   }
 
   // Jogos CPS2 precisam de arquivo .key nos romsets para o FBNeo (core "arcade").
@@ -885,10 +878,10 @@
   window.EJS_volume=1;
   window.EJS_color='#00e5ff';
   window.EJS_backgroundColor='#000';
-  // A cópia local tem os arquivos-fonte; sem o bundle minificado, o modo
-  // "produção" tenta um arquivo ausente e ativa a consulta HEAD/IndexedDB.
-  // O GET direto evita essa etapa opcional que pode falhar em browsers de TV.
-  window.EJS_DEBUG_XX=true;
+  // O pacote local contém os fontes separados; debug não deve ficar ligado em produção,
+  // pois ele desativa o cache de cores e força o download do core a cada partida.
+  window.EJS_DEBUG_XX=false;
+  window.EJS_USE_SOURCE_FILES=true;
   // No modo TV, manter a ROM só na memória da sessão; ao fechar o iframe ela é liberada.
   window.EJS_CacheLimit=tvMode?0:undefined;
 
@@ -2355,13 +2348,13 @@
   // através de EJS_defaultControls (mapa acima). Nenhum remapeamento manual.
 
   const script=document.createElement('script');
-  script.src=window.EJS_pathtodata+'loader.js';
+  script.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-core-cache-v22';
   script.async=true;
   script.onerror=()=>{
     log('loader.js local falhou — tentando fallback pelo CDN oficial.');
     window.EJS_pathtodata='https://cdn.emulatorjs.org/'+EJS_PINNED_VERSION+'/data/';
     const fallback=document.createElement('script');
-    fallback.src=window.EJS_pathtodata+'loader.js';
+    fallback.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-core-cache-v22';
     fallback.async=true;
     fallback.crossOrigin='anonymous';
     fallback.onerror=()=>fail('Não foi possível carregar o EmulatorJS (local nem CDN).');

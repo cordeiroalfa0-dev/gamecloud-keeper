@@ -136,7 +136,7 @@ const prettyFallback = (name: string) =>
 async function waitForBridge(): Promise<void> {
   await new Promise<void>((resolve) => {
     const script = document.createElement("script");
-    script.src = "/web/mame-web.js?v=20261020-tv-rom-temp-v21";
+    script.src = "/web/mame-web.js?v=20261021-tv-core-cache-v22";
     script.onload = () => resolve();
     script.onerror = () => resolve();
     document.head.appendChild(script);
@@ -162,11 +162,8 @@ export function GameLibrary({
   const [resumeGame, setResumeGame] = useState<{ rom: string; savedAt: number | null } | null>(
     null,
   );
-  const [query, setQuery] = useState(() => (tvMode ? readTvPreference("query", "") : ""));
-  const [tab, setTab] = useState<Tab>(() => {
-    const stored = tvMode ? readTvPreference("tab", "all") : "all";
-    return stored === "favorites" || stored === "recent" ? stored : "all";
-  });
+  const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<Tab>("all");
   const [launching, setLaunching] = useState<string | null>(null);
   const [launchError, setLaunchError] = useState("");
   const mountedRef = useRef(true);
@@ -186,13 +183,20 @@ export function GameLibrary({
   useEffect(() => {
     if (!tvMode) return;
     try {
-      window.localStorage.setItem(`${TV_LIBRARY_STORAGE_PREFIX}:query`, query);
-      window.localStorage.setItem(`${TV_LIBRARY_STORAGE_PREFIX}:tab`, tab);
       window.localStorage.setItem(`${TV_LIBRARY_STORAGE_PREFIX}:open`, isWindowOpen ? "1" : "0");
     } catch {
       // A TV browser pode bloquear o armazenamento local.
     }
-  }, [isWindowOpen, query, tab, tvMode]);
+  }, [isWindowOpen, tvMode]);
+
+  useEffect(() => {
+    if (!tvMode || !isWindowOpen) return;
+    setTab("all");
+    setQuery("");
+    selectedIndexRef.current = 0;
+    setSelectedIndex(0);
+    libraryContentRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }, [isWindowOpen, tvMode]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -353,8 +357,8 @@ export function GameLibrary({
 
   const visibleRoms = useMemo(() => {
     let list = roms;
-    if (tab === "favorites") list = roms.filter((rom) => favoriteSet.has(rom));
-    if (tab === "recent") {
+    if (!tvMode && tab === "favorites") list = roms.filter((rom) => favoriteSet.has(rom));
+    if (!tvMode && tab === "recent") {
       const order = new Map(recent.map((rom, index) => [rom, index]));
       list = roms.filter((rom) => order.has(rom)).sort((a, b) => order.get(a)! - order.get(b)!);
     }
@@ -365,7 +369,7 @@ export function GameLibrary({
       (rom) => titleFor(rom).toLowerCase().includes(q) || fileBase(rom).includes(q),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roms, tab, favoriteSet, recent, query, names]);
+  }, [roms, tvMode, tab, favoriteSet, recent, query, names]);
 
   useEffect(() => {
     selectedIndexRef.current = 0;
@@ -505,7 +509,7 @@ export function GameLibrary({
         return;
       }
       if (command === "library-tab-next" || command === "library-tab-prev") {
-        cycleTab(command === "library-tab-next" ? 1 : -1);
+        if (!tvMode) cycleTab(command === "library-tab-next" ? 1 : -1);
         return;
       }
       const hasResume = Boolean(resumeGame && !query.trim());
@@ -564,7 +568,7 @@ export function GameLibrary({
     return () => window.removeEventListener("mga-remote-library-command", handleLibraryCommand);
     // playGame and the visible list are intentionally read from this render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWindowOpen, selectedIndex, visibleRoms, resumeGame, query, launching]);
+  }, [isWindowOpen, selectedIndex, visibleRoms, resumeGame, query, launching, tvMode]);
 
   useEffect(() => {
     if (!tvMode) return;
@@ -575,8 +579,6 @@ export function GameLibrary({
         ArrowLeft: "library-left",
         ArrowRight: "library-right",
         Enter: "library-enter",
-        PageUp: "library-tab-prev",
-        PageDown: "library-tab-next",
       };
       const command = commandByKey[event.key];
       if (!command) return;
@@ -651,7 +653,7 @@ export function GameLibrary({
             </div>
 
             <div className={`${tvMode ? "mga-tv-tabs" : ""} flex gap-1.5`}>
-              {TABS.map((item) => (
+              {TABS.filter((item) => !tvMode || item.id === "all").map((item) => (
                 <button
                   key={item.id}
                   type="button"
@@ -817,14 +819,14 @@ export function GameLibrary({
               <div
                 className={`${tvMode ? "mga-tv-grid" : ""} grid w-full min-w-0 grid-cols-2 gap-3 ${isWindowExpanded ? "sm:grid-cols-3 xl:grid-cols-4" : ""}`}
               >
-                {visibleRoms.map((rom) => (
+                {visibleRoms.map((rom, index) => (
                   <GameCard
                     key={rom}
                     title={titleFor(rom)}
                     snapUrl={snapFor(rom)}
                     isFavorite={favoriteSet.has(rom)}
                     isLaunching={launching === rom}
-                    isSelected={selectedIndex === visibleRoms.indexOf(rom)}
+                    isSelected={selectedIndex === index}
                     onPlay={() => playGame(rom)}
                     onToggleFavorite={(e) => toggleFavorite(rom, e)}
                   />
