@@ -305,6 +305,17 @@ div[style*="Edit with Lovable"],
   transition: none;
 }
 
+/* O player é um overlay irmão da biblioteca. Durante a partida, preserve o
+   estado do React, mas retire a tela de TV da árvore de pintura para não
+   competir com o canvas do emulador em aparelhos com pouca GPU. */
+body.mga-game-active .mga-tv-shell {
+  content-visibility: hidden;
+}
+
+body.mga-game-active .mga-game-background {
+  visibility: hidden;
+}
+
 .mga-tv-shell .mga-tv-library-header {
   min-height: clamp(36px, 5dvh, 58px);
   gap: clamp(6px, 1vw, 14px);

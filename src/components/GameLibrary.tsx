@@ -213,6 +213,7 @@ export function GameLibrary({
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
+      if (document.body.classList.contains("mga-game-active")) return;
       setBackgroundIndex((current) => (current + 1) % BACKGROUND_IMAGES.length);
     }, 10_000);
 
@@ -233,12 +234,14 @@ export function GameLibrary({
       root.style.setProperty("--mga-parallax-y", `${y}px`);
     };
     const onPointerMove = (event: PointerEvent) => {
+      if (document.body.classList.contains("mga-game-active")) return;
       if (reducedMotion.matches || event.pointerType === "touch") return;
       x = Math.max(-12, Math.min(12, (event.clientX / window.innerWidth - 0.5) * -24));
       y = Math.max(-8, Math.min(8, (event.clientY / window.innerHeight - 0.5) * -16));
       if (!frame) frame = window.requestAnimationFrame(render);
     };
     const reset = () => {
+      if (document.body.classList.contains("mga-game-active")) return;
       x = 0;
       y = 0;
       if (!frame) frame = window.requestAnimationFrame(render);
@@ -593,7 +596,7 @@ export function GameLibrary({
     <div
       className={`${tvMode ? "mga-tv-shell" : ""} relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]`}
     >
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[#050009]">
+      <div className="mga-game-background pointer-events-none fixed inset-0 z-0 bg-[#050009]">
         {BACKGROUND_IMAGES.map((image, index) => (
           <img
             key={image}

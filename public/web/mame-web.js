@@ -258,6 +258,7 @@
       closed = true;
       closeInProgress = false;
       dismissExitDialog();
+      document.body.classList.remove("mga-game-active");
       window.removeEventListener("message", onMessage);
       iframe.src = "about:blank";
       iframe.remove();
@@ -552,6 +553,9 @@
 
       overlay.append(area, message, bar);
       document.body.appendChild(overlay);
+      // A biblioteca continua montada para preservar seu estado, mas não
+      // precisa disputar CPU/GPU com o emulador enquanto o jogo ocupa a tela.
+      document.body.classList.add("mga-game-active");
       // O jogo ocupa a viewport sem solicitar tela cheia automaticamente.
       enterMobileLandscape();
       overlay.addEventListener("pointerdown", enterMobileLandscape, { once: true, passive: true });
@@ -564,6 +568,7 @@
         if (launchCancelled) return;
         launchCancelled = true;
         removeRemoteCloseListener();
+        document.body.classList.remove("mga-game-active");
         overlay.remove();
         try {
           if (document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {});
@@ -604,6 +609,7 @@
             error?.message || "Falha ao iniciar a ROM.";
           launchCancelled = true;
           removeRemoteCloseListener();
+          document.body.classList.remove("mga-game-active");
           overlay.remove();
           try { screen.orientation?.unlock?.(); } catch {}
           reject(error);
