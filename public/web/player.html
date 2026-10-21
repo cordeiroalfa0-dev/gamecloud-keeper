@@ -882,8 +882,10 @@
   // pois ele desativa o cache de cores e força o download do core a cada partida.
   window.EJS_DEBUG_XX=false;
   window.EJS_USE_SOURCE_FILES=true;
-  // No modo TV, manter a ROM só na memória da sessão; ao fechar o iframe ela é liberada.
-  window.EJS_CacheLimit=tvMode?0:undefined;
+  // O cache também fica ativo na TV. Desativá-lo fazia cada jogo baixar e
+  // remontar ROM/BIOS novamente, o que deixava a abertura lenta e podia
+  // provocar pausas em televisores com pouca memória ou rede mais limitada.
+  window.EJS_CacheLimit=undefined;
 
   const hide=()=>{
     if(loadingArtHidden)return;
@@ -2322,7 +2324,12 @@
     log('unhandledrejection: '+(e.reason?.message||e.reason));
   });
 
-  new MutationObserver(scheduleHideEmulatorUi).observe(document.getElementById('game'),{childList:true,subtree:true});
+  // No modo TV os controles internos já ficam ocultos pelo layout; manter um
+  // MutationObserver acompanhando toda alteração do EmulatorJS só adiciona
+  // trabalho ao thread principal durante a partida.
+  if(!tvMode){
+    new MutationObserver(scheduleHideEmulatorUi).observe(document.getElementById('game'),{childList:true,subtree:true});
+  }
 
   // No modo TV, o pacote WebAssembly, a ROM e a BIOS podem levar mais tempo
   // em conexões de televisão; mantenha o prazo original no modo Web.
@@ -2348,13 +2355,13 @@
   // através de EJS_defaultControls (mapa acima). Nenhum remapeamento manual.
 
   const script=document.createElement('script');
-  script.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-core-cache-v22';
+  script.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-performance-v23';
   script.async=true;
   script.onerror=()=>{
     log('loader.js local falhou — tentando fallback pelo CDN oficial.');
     window.EJS_pathtodata='https://cdn.emulatorjs.org/'+EJS_PINNED_VERSION+'/data/';
     const fallback=document.createElement('script');
-    fallback.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-core-cache-v22';
+    fallback.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-performance-v23';
     fallback.async=true;
     fallback.crossOrigin='anonymous';
     fallback.onerror=()=>fail('Não foi possível carregar o EmulatorJS (local nem CDN).');
