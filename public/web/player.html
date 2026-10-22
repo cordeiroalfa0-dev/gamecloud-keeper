@@ -1198,7 +1198,7 @@
   // Este vigia religa o contexto de áudio assim que ele sai do ar.
   // No celular, visibilitychange/focus/pageshow já cobrem a retomada sem
   // manter um loop periódico concorrendo com o core.
-  if(!isTouchDevice)setInterval(()=>{
+  if(!isTouchDevice&&!tvMode)setInterval(()=>{
     if(document.hidden)return;
     const emu=window.EJS_emulator;
     const mod=emu?.gameManager?.Module||window.Module;
@@ -1988,13 +1988,13 @@
       loadProgress();
     },isTouchDevice?3500:2500);
     // O autosave pausa brevemente o loop para copiar o estado para o IndexedDB.
-    // Na TV, um intervalo maior evita uma pausa perceptível durante a partida;
-    // pagehide, visibilitychange e o fluxo "Salvar e sair" continuam ativos.
+    // Em TVs de entrada, até uma pausa a cada dois minutos é perceptível e pode
+    // parecer travamento. A TV salva manualmente, ao sair e nos eventos de
+    // pagehide/visibilitychange; o autosave periódico continua nos demais modos.
     if(mgaSaveTimer)clearInterval(mgaSaveTimer);
     // O fechamento imediato ainda pode perder alguns segundos; para sair sem
     // perda, use o botão Sair do jogo e espere a confirmação do launcher.
-    const autoSaveInterval=tvMode?120000:60000;
-    mgaSaveTimer=setInterval(()=>{if(!document.hidden)saveProgress(true)},autoSaveInterval);
+    if(!tvMode)mgaSaveTimer=setInterval(()=>{if(!document.hidden)saveProgress(true)},60000);
     // O shader só pode ser ativado depois de o contexto gráfico do core existir.
     setTimeout(applyPixelEnhancement,0);
     requestWakeLock();
@@ -2179,6 +2179,7 @@
     gamepadPollFrame=window.requestAnimationFrame(pollGamepads);
   };
   const startGamepadPolling=()=>{
+    if(tvMode)return;
     if(!gamepadPollFrame)gamepadPollFrame=window.requestAnimationFrame(pollGamepads);
   };
   const closeInputModal=()=>window.MGA_closeInputSettings?.();
@@ -2193,11 +2194,13 @@
     startGamepadPolling();
     showToast(pads.length?`${pads.length} controle(s) detectado(s)`:'Nenhum controle detectado');
   });
-  addEventListener('gamepadconnected',()=>{listGamepads();startGamepadPolling()});
-  addEventListener('gamepaddisconnected',()=>{listGamepads();startGamepadPolling()});
+  if(!tvMode){
+    addEventListener('gamepadconnected',()=>{listGamepads();startGamepadPolling()});
+    addEventListener('gamepaddisconnected',()=>{listGamepads();startGamepadPolling()});
+  }
   addEventListener('blur',releaseGamepadInputs);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseGamepadInputs()});
-  startGamepadPolling();
+  if(!tvMode)startGamepadPolling();
   document.getElementById('mga-open-remap')?.addEventListener('click',()=>{
     closeInputModal();
     const emulator=window.EJS_emulator;
@@ -2357,13 +2360,13 @@
   // através de EJS_defaultControls (mapa acima). Nenhum remapeamento manual.
 
   const script=document.createElement('script');
-  script.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-performance-v24';
+  script.src=window.EJS_pathtodata+'loader.js?v=20261022-tv-stability-v25';
   script.async=true;
   script.onerror=()=>{
     log('loader.js local falhou — tentando fallback pelo CDN oficial.');
     window.EJS_pathtodata='https://cdn.emulatorjs.org/'+EJS_PINNED_VERSION+'/data/';
     const fallback=document.createElement('script');
-    fallback.src=window.EJS_pathtodata+'loader.js?v=20261021-tv-performance-v24';
+    fallback.src=window.EJS_pathtodata+'loader.js?v=20261022-tv-stability-v25';
     fallback.async=true;
     fallback.crossOrigin='anonymous';
     fallback.onerror=()=>fail('Não foi possível carregar o EmulatorJS (local nem CDN).');
