@@ -249,6 +249,20 @@ function Index() {
     };
   }, [isController, isTv]);
 
+  useEffect(() => {
+    // O player da TV carrega vários assets estáticos do EmulatorJS. Registrar
+    // o service worker no launcher permite reutilizar esses arquivos na próxima
+    // partida, sem cachear ROMs ou saves potencialmente grandes.
+    if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+    const params = new URLSearchParams(window.location.search);
+    const isLauncher = params.get("launcher") === "1";
+    if (!isController && !isTv && !isLauncher) return;
+    void navigator.serviceWorker.register("/sw.js").catch(() => {
+      // Navegadores de TV podem bloquear service workers; o player continua
+      // funcionando normalmente sem o cache opcional.
+    });
+  }, [isController, isTv]);
+
   if (isController) return <RemoteController />;
 
   if (authState === "checking" && (!ready || oauthReturnPending)) {
