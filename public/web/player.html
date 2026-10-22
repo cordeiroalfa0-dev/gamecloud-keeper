@@ -507,7 +507,8 @@
        jogo se ajusta dentro dela sem cortes nem distorção em qualquer resolução. */
     body.video-tv-fit #game{
       position:fixed!important;inset:0!important;width:var(--mga-vw,100dvw)!important;
-      height:var(--mga-vh,100dvh)!important;overflow:hidden!important;transform:none!important
+      height:var(--mga-vh,100dvh)!important;overflow:hidden!important;transform:none!important;
+      contain:strict!important;isolation:isolate
     }
     body.video-tv-fit #game .ejs_virtualGamepad_parent{display:none!important}
     body.video-tv-fit #game .ejs_canvas_parent{

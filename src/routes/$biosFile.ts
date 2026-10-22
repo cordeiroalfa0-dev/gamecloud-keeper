@@ -69,6 +69,9 @@ async function serveBios(request: Request, fileName: string) {
   const out = new Headers(CORS);
   out.set("Content-Type", upstream.headers.get("content-type") || "application/zip");
   out.set("Content-Disposition", `inline; filename="${fileName}"`);
+  // BIOS do catálogo são imutáveis; cachear reduz a latência de boot do FBNeo
+  // e evita nova transferência quando o usuário troca de jogo na TV.
+  out.set("Cache-Control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400");
   out.set("Accept-Ranges", upstream.headers.get("accept-ranges") || "bytes");
   const len = upstream.headers.get("content-length");
   if (len) out.set("Content-Length", len);
