@@ -1871,7 +1871,11 @@
 
   window.MGA_saveProgress=()=>saveProgress(false);
   document.addEventListener('visibilitychange',()=>{
-    if(document.hidden)saveProgress(true);
+    // Durante transmissão/cast a aba pode ficar hidden sem que a partida
+    // tenha terminado. Salvar aqui pausa o core e causa um congelamento visível
+    // em TVs mais lentas; no modo TV o pagehide e o comando de saída continuam
+    // sendo os pontos seguros de persistência.
+    if(document.hidden&&!tvMode)saveProgress(true);
   });
   addEventListener('pagehide',()=>saveProgress(true),{capture:true});
 
