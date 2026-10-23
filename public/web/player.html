@@ -1,9 +1,8 @@
 <!doctype html>
-<html lang="pt-BR" translate="no" class="notranslate">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-  <meta name="google" content="notranslate">
   <title>Master Games Arcade - Player</title>
   <style>
     html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;touch-action:manipulation;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
@@ -23,9 +22,6 @@
     body.video-amber #game canvas,body.video-amber #game video{filter:brightness(var(--video-brightness)) contrast(calc(var(--video-contrast) * 1.08)) saturate(calc(var(--video-saturation) * .82)) sepia(.16)}
     body.video-cool #game canvas,body.video-cool #game video{filter:brightness(var(--video-brightness)) contrast(var(--video-contrast)) saturate(calc(var(--video-saturation) * 1.12)) hue-rotate(8deg)}
     body.video-soft #game canvas,body.video-soft #game video{image-rendering:auto;filter:brightness(var(--video-brightness)) contrast(.96) saturate(var(--video-saturation));}
-    /* TVs de entrada costumam ter pouca GPU: no modo TV, evitar shaders e filtros em tela cheia. */
-    body.video-tv-fit #game canvas,body.video-tv-fit #game video{filter:none!important}
-    body.video-tv-fit #game::before,body.video-tv-fit #game::after{display:none!important}
     @media (min-resolution:2dppx){#game canvas,#game video{image-rendering:pixelated}}
     @media (orientation:portrait){body.video-auto #game canvas,body.video-auto #game video{max-width:100vw;max-height:75vh;object-fit:contain}}
     /* O launcher mostra apenas o jogo, não a interface do emulador. */
@@ -361,13 +357,11 @@
     #loading-art{position:fixed;inset:0;z-index:99990;background:#030006 url('/assets/game-loading-art.png') center/cover no-repeat;transition:opacity .35s ease;}
     #loading-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.62));}
     #loading-art.hidden{opacity:0;pointer-events:none;}
-    #mga-rotate-warning{position:fixed;inset:0;z-index:100020;display:none;place-items:center;gap:14px;background:rgba(3,0,8,.96);color:#00e5ff;text-align:center;padding:24px;box-sizing:border-box;font:bold 16px monospace;line-height:1.6;text-shadow:0 0 10px #00e5ff}
+    #mga-rotate-warning{position:fixed;inset:0;z-index:100020;display:none;place-items:center;background:rgba(3,0,8,.96);color:#00e5ff;text-align:center;padding:24px;box-sizing:border-box;font:bold 16px monospace;line-height:1.6;text-shadow:0 0 10px #00e5ff}
     #mga-rotate-warning.show{display:grid!important}
-    #mga-rotate-action{min-height:48px;max-width:min(420px,100%);padding:12px 18px;background:#08000f;border:2px solid #00e5ff;border-radius:6px;box-shadow:0 0 16px #00e5ff55;color:#00e5ff;font:bold 13px monospace;cursor:pointer;touch-action:manipulation;pointer-events:auto;-webkit-tap-highlight-color:transparent}
-    #mga-rotate-action:active{background:#00e5ff22;transform:scale(.98)}
     @media (orientation:portrait), (max-aspect-ratio:3/4){
-      #loading-art{background-image:url('/assets/fighters-loading-portrait.png');}
-      #difficulty-setup{background-image:linear-gradient(rgba(3,0,6,.68),rgba(3,0,6,.82)),url('/assets/fighters-loading-portrait.png');}
+      #loading-art{background-image:url('/assets/game-loading-art-portrait.png');}
+      #difficulty-setup{background-image:linear-gradient(rgba(3,0,6,.68),rgba(3,0,6,.82)),url('/assets/game-loading-art-portrait.png');}
     }
     @media (min-aspect-ratio:7/5) and (orientation:landscape){
       #loading-art{background-image:url('/assets/game-loading-art.png');}
@@ -379,9 +373,6 @@
     #player-controls::-webkit-scrollbar{display:none}
     #player-controls>button{flex:0 0 auto}
     #btn-close{display:none!important}
-    #mga-mobile-quick-save{position:fixed;top:max(8px,env(safe-area-inset-top));left:max(8px,env(safe-area-inset-left));z-index:100004;display:none;min-height:44px;padding:0 13px;align-items:center;justify-content:center;gap:6px;background:rgba(8,0,18,.92);border:1px solid #39ff88;color:#8dffb8;box-shadow:0 0 12px rgba(57,255,136,.32);border-radius:8px;font:bold 12px monospace;letter-spacing:.04em;cursor:pointer;backdrop-filter:blur(5px);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-    #mga-mobile-quick-save:active{transform:scale(.96);background:rgba(57,255,136,.2)}
-    #mga-mobile-quick-save:disabled{opacity:.62;cursor:wait}
     #btn-fullscreen{width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);border:1px solid #00e5ff66;color:#00e5ff;font-size:20px;cursor:pointer;backdrop-filter:blur(4px);transition:opacity .2s;border-radius:4px;touch-action:manipulation;pointer-events:auto;-webkit-tap-highlight-color:transparent}
     #btn-close:hover,#btn-fullscreen:hover{background:rgba(0,0,0,.8);border-color:#00e5ff}
     #player-controls.hidden{opacity:0;pointer-events:none}
@@ -400,20 +391,10 @@
     }
     body.mga-embedded #mga-credit-start-toggle{display:none!important}
     @media (hover:none) and (pointer:coarse){
-      #loading-art{background-image:url('/assets/fighters-loading-portrait.png');}
       #btn-close,#btn-fullscreen{width:36px;height:36px;padding:0;font-size:19px}
-      /* No celular o launcher já entra em tela cheia automaticamente; os
-         controles de desktop não devem ocupar espaço sobre o arcade. */
-      #btn-fullscreen,#btn-haptic,#mga-open-inputs{display:none!important}
       #player-controls{top:max(8px,env(safe-area-inset-top));right:calc(max(8px,env(safe-area-inset-right)) + 50px);gap:6px;max-width:calc(100vw - 68px)}
-      #mga-mobile-quick-save.show{display:flex}
       #difficulty-setup label:has([data-setting="scanlines"]),
       #difficulty-setup label:has([data-setting="vignette"]){display:none!important}
-    }
-    @media (hover:none) and (pointer:coarse) and (orientation:landscape){
-      /* A arte é vertical; no celular deitado, mostre a composição inteira
-         em vez de ampliar e cortar as personagens nas laterais. */
-      #loading-art{background-size:contain;background-color:#030006;}
     }
 
     /* Dentro do launcher (iframe) o cabeçalho externo já tem Saves (1-15) e
@@ -425,11 +406,6 @@
     body.mga-embedded #player-controls{
       top:calc(max(8px,env(safe-area-inset-top)) + var(--mga-header-h));
       right:max(10px,env(safe-area-inset-right))
-    }
-    @media (hover:none) and (pointer:coarse){
-      body.mga-embedded #mga-mobile-quick-save.show{
-        top:calc(max(8px,env(safe-area-inset-top)) + var(--mga-header-h) + 6px)
-      }
     }
 
     /* No launcher, mantenha os controles internos abaixo do cabeçalho externo
@@ -503,40 +479,18 @@
     .mga-input-player span{color:#d6d7e1;font-size:10px;line-height:1.5}
     @media(max-width:520px){.mga-input-players{grid-template-columns:1fr}.mga-input-dialog{max-height:94dvh}.mga-input-content{padding:12px}}
 
-    /* Na TV, o canvas ocupa a viewport como moldura e o conteúdo original do
-       jogo se ajusta dentro dela sem cortes nem distorção em qualquer resolução. */
-    body.video-tv-fit #game{
-      position:fixed!important;inset:0!important;width:var(--mga-vw,100dvw)!important;
-      height:var(--mga-vh,100dvh)!important;overflow:hidden!important;transform:none!important;
-      contain:strict!important;isolation:isolate
-    }
-    body.video-tv-fit #game .ejs_virtualGamepad_parent{display:none!important}
-    body.video-tv-fit #game .ejs_canvas_parent{
-      position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
-      max-width:100%!important;max-height:100%!important;margin:0!important;
-      transform:none!important;object-fit:contain!important;z-index:1
-    }
-    body.video-tv-fit #game canvas,body.video-tv-fit #game video{
-      position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
-      max-width:100%!important;max-height:100%!important;object-fit:contain!important;
-      object-position:center center!important;transform:none!important;z-index:1
-    }
-
    </style>
 </head>
-<body translate="no" class="notranslate">
+<body>
   <div id="game"></div>
   <div id="loading-art" aria-label="Imagem de carregamento"></div>
-  <div id="mga-rotate-warning" role="dialog" aria-modal="true" aria-label="Orientação horizontal">
-    <strong>ESTE JOGO FUNCIONA NA HORIZONTAL</strong>
-    <small id="mga-rotate-help" style="color:#fff;font-size:12px">Toque para tentar tela cheia horizontal ou gire o aparelho.</small>
-    <button id="mga-rotate-action" type="button">⛶ TENTAR MODO HORIZONTAL</button>
-  </div>
+  <div id="mga-rotate-warning" role="status">GIRE O CELULAR<br><small style="color:#fff;font-size:12px">Este jogo funciona na horizontal.</small></div>
   <div id="status">CARREGANDO...</div>
   <pre id="debug"></pre>
   <button id="manual-start" type="button">▶ CLIQUE PARA INICIAR</button>
   
   <div id="player-controls">
+      <button id="btn-save" class="mga-ctrl-btn" type="button" title="Último momento salvo" aria-label="Último momento salvo">💾 Momento</button>
     <button id="btn-pause" class="mga-ctrl-btn" type="button" title="Pausar / Retomar Jogo" aria-label="Pausa">⏸</button>
     <button id="btn-haptic" class="mga-ctrl-btn" type="button" title="Vibração Tátil nos Botões (Haptic)" aria-label="Vibração">📳</button>
     <button id="btn-opacity" class="mga-ctrl-btn" type="button" title="Ajustar Opacidade dos Controles Virtuais" aria-label="Opacidade">👁 75%</button>
@@ -547,6 +501,21 @@
   <button id="mga-credit-start-toggle" type="button" aria-label="Mostrar Crédito e Start" aria-pressed="false" hidden>MOSTRAR C/S</button>
 
 
+  <div id="mga-saves-modal" role="dialog" aria-modal="true" aria-labelledby="mga-modal-title">
+    <div class="mga-modal-dialog">
+      <div class="mga-modal-header">
+        <span id="mga-modal-title" class="mga-modal-title">💾 ÚLTIMO MOMENTO SALVO</span>
+        <button id="mga-modal-close" class="mga-modal-close" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="mga-modal-actions">
+        <button id="mga-btn-return" class="mga-btn-action mga-btn-return" type="button">▶ Voltar à partida</button>
+        <button id="mga-btn-quick-save" class="mga-btn-action" type="button">📸 Salvar momento</button>
+        <button id="mga-btn-quick-load" class="mga-btn-action" type="button">▶ Retornar ao momento</button>
+        <span style="font-size:10px;color:#888;margin-left:auto;">Imagem e estado da partida salvos juntos</span>
+      </div>
+      <div id="mga-slots-list" class="mga-slots-grid"></div>
+    </div>
+  </div>
   <div id="mga-input-modal" role="dialog" aria-modal="true" aria-labelledby="mga-input-modal-title">
     <section class="mga-input-dialog">
       <header class="mga-input-header"><h2 id="mga-input-modal-title" class="mga-input-title">CONTROLES · JOGADORES 1 E 2</h2><button id="mga-input-close" class="mga-modal-close" type="button" aria-label="Fechar configurações de controles">✕</button></header>
@@ -575,14 +544,11 @@
 
 <script>
 (async()=>{
-  let cloudAccessToken='';
-  window.addEventListener('message',e=>{
-    if(e.source!==window.parent||e.origin!==location.origin)return;
-    if(e.data?.type!=='mga-set-cloud-access-token')return;
-    const token=e.data.accessToken;
-    cloudAccessToken=typeof token==='string'&&token.length<=8192?token:'';
-  });
-  window.parent.postMessage({type:'mga-request-cloud-access-token'},location.origin);
+  try {
+    if (screen.orientation?.lock) {
+      screen.orientation.lock("landscape").catch(()=>{});
+    }
+  } catch {}
   const q=new URLSearchParams(location.search);
   const rom=q.get('rom');
   const biosUrl=q.get('bios')||'';
@@ -590,17 +556,33 @@
   const name=q.get('name')||'Master Games Arcade';
   const status=document.getElementById('status');
   const loadingArt=document.getElementById('loading-art');
-  const loadingStartedAt=Date.now();
-  let loadingArtHidden=false;
   const debug=document.getElementById('debug');
   const manual=document.getElementById('manual-start');
   const rotateWarning=document.getElementById('mga-rotate-warning');
-  const rotateAction=document.getElementById('mga-rotate-action');
-  const rotateHelp=document.getElementById('mga-rotate-help');
   const logs=[];
   let difficulty;
 
-  // O salvamento e a retomada são automáticos; não há mais painel de saves.
+  // Ative a janela de partidas antes de qualquer await ou inicialização do
+  // emulador. Assim o botão Saves continua funcionando mesmo se o core/BIOS
+  // travar ou falhar antes de terminar o restante deste script.
+  const earlySavesModal=document.getElementById('mga-saves-modal');
+  const earlySavesButton=document.getElementById('btn-save');
+  const earlySavesClose=document.getElementById('mga-modal-close');
+  const earlySavesReturn=document.getElementById('mga-btn-return');
+  const earlyOpenSaves=()=>{
+    if(!earlySavesModal)return;
+    earlySavesModal.classList.add('open');
+    const list=document.getElementById('mga-slots-list');
+    if(list&&!window.MGA_refreshSaves)list.innerHTML='<div style="color:#00e5ff;font-size:12px;padding:8px;">Carregando slots...</div>';
+    window.MGA_refreshSaves?.();
+  };
+  const earlyCloseSaves=()=>earlySavesModal?.classList.remove('open');
+  earlySavesButton?.addEventListener('click',earlyOpenSaves);
+  earlySavesClose?.addEventListener('click',earlyCloseSaves);
+  earlySavesReturn?.addEventListener('click',earlyCloseSaves);
+  earlySavesModal?.addEventListener('click',e=>{
+    if(e.target===earlySavesModal)earlyCloseSaves();
+  });
   const earlyInputModal=document.getElementById('mga-input-modal');
   const earlyProfileSelect=document.getElementById('mga-keyboard-profile');
   const earlyKeyboardButton=document.getElementById('mga-keyboard-mode');
@@ -656,6 +638,7 @@
   document.getElementById('mga-refresh-gamepads')?.addEventListener('click',earlyListGamepads);
   addEventListener('gamepadconnected',earlyListGamepads);
   addEventListener('gamepaddisconnected',earlyListGamepads);
+  window.MGA_openSaves=earlyOpenSaves;
   window.MGA_setCreditStartVisibility=visible=>{
     const show=Boolean(visible);
     document.body.classList.toggle('mga-manually-hide-credit-start',!show);
@@ -669,6 +652,7 @@
     }
   };
   window.addEventListener('message',e=>{
+    if(e.data?.type==='mga-open-saves')earlyOpenSaves();
     if(e.source===window.parent&&e.origin===location.origin&&e.data?.type==='mga-set-credit-start-visible'){
       window.MGA_setCreditStartVisibility(e.data.visible);
     }
@@ -692,8 +676,31 @@
       localStorage.setItem(difficultyStorageKey,JSON.stringify(saved));
     }catch{}
   };
-  // A configuração antiga continua sendo lida silenciosamente para preservar
-  // preferências já salvas, sem interromper o início da partida com um painel.
+  const chooseDifficulty=()=>new Promise(resolve=>{
+    const current=readDifficulty();
+    const panel=document.createElement('div');
+    panel.id='difficulty-setup';
+    panel.innerHTML=`<div class="difficulty-card"><div style="color:#00e5ff;font-size:12px;letter-spacing:2px;margin-bottom:12px">CONFIGURAÇÃO DO JOGO</div><h1>${esc(name||'Master Games Arcade')}</h1><p>Escolha o modo e ajuste a apresentação antes de iniciar. Os jogos para celular funcionam somente na horizontal.</p><div class="difficulty-actions"><button type="button" data-difficulty="easy">FÁCIL<br><small>mais vidas e continues</small></button><button type="button" data-difficulty="hard">DIFÍCIL<br><small>desafio máximo</small></button></div><div class="config-section"><div class="config-title">VÍDEO</div><div class="config-grid"><label>Paleta <select data-setting="palette"><option value="normal">Normal</option><option value="cool">Fria</option><option value="amber">Âmbar</option><option value="soft">Suave</option></select></label><label><input type="checkbox" data-setting="scanlines"> Scanlines</label><label><input type="checkbox" data-setting="vignette"> Vinheta</label><label><input type="checkbox" data-setting="integer"> Escala inteira</label><label><input type="checkbox" data-setting="shader"> Shader SABR</label></div></div><div class="config-section"><div class="config-title">CONTROLES · TECLADO</div><div class="controls-note"><b>P1:</b> setas + Z/X/A/S · C crédito · Enter start.<br><b>P2:</b> T/F/G/H + J/K/U/I · V crédito · B start.<br>Teclas usam posição física; abra 🎮 para ver gamepads, trocar perfil ou remapear.</div></div><div style="margin-top:18px;color:#aaa;font-size:10px">DIP switches são aplicados quando o core expõe a opção.</div></div>`;
+    const palette=panel.querySelector('[data-setting="palette"]');
+    palette.value=visual.palette;
+    for(const key of ['scanlines','vignette','integer'])panel.querySelector(`[data-setting="${key}"]`).checked=!!visual[key];
+    panel.querySelector('[data-setting="shader"]').checked=pixelEnhancement;
+    const buttons=[...panel.querySelectorAll('[data-difficulty]')];
+    buttons.forEach(button=>{
+      if(button.dataset.difficulty===current)button.classList.add('selected');
+      button.addEventListener('click',()=>{
+        const mode=button.dataset.difficulty==='hard'?'hard':'easy';
+        saveDifficulty(mode);
+        visual.palette=palette.value;
+        for(const key of ['scanlines','vignette','integer'])visual[key]=panel.querySelector(`[data-setting="${key}"]`).checked;
+        pixelEnhancement=panel.querySelector('[data-setting="shader"]').checked;
+        applyVisual();
+        panel.remove();
+        resolve(mode);
+      });
+    });
+    document.body.appendChild(panel);
+  });
   let ready=false;
   let started=false;
   let attempting=false;
@@ -709,15 +716,14 @@
   };
 
   const VISUAL_KEY='mga-video-profile-v2';
-  const tvMode=q.get('tv')==='1';
   // Perfil inicial mais nítido e colorido para sprites pixelados. A imagem
   // original continua intacta; os ajustes acontecem apenas na saída de vídeo.
   const visualDefaults={aspect:'stretch',integer:true,scanlines:false,vignette:true,palette:'normal',brightness:1.02,contrast:1.06,saturation:1.08};
   let visual={...visualDefaults};
   try{visual={...visual, ...JSON.parse(localStorage.getItem(VISUAL_KEY)||'{}')}}catch{}
-  // TVs usam sempre o enquadramento automático; celulares e telas comuns
-  // mantêm o preenchimento atual.
-  visual.aspect=tvMode?'auto':'stretch';
+  // Perfis antigos usavam "auto" (contain), que deixava barras laterais.
+  // Migra somente esse modo; preferências explícitas 4:3/stretch continuam.
+  visual.aspect='stretch';
   // Em telas de toque (celular) scanlines e vinheta ficam sempre desligados.
   // (Única declaração de isTouchDevice: a duplicada foi removida.)
   const isTouchDevice=navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches;
@@ -731,16 +737,15 @@
     if(embedded&&headerH>0)document.documentElement.style.setProperty('--mga-header-h',headerH+'px');
   }
   const applyVisual=()=>{
-    document.body.classList.toggle('video-tv-fit',tvMode);
     document.body.classList.toggle('video-auto',visual.aspect==='auto');
     document.body.classList.toggle('video-aspect-43',visual.aspect==='4:3');
     document.body.classList.toggle('video-stretch',visual.aspect==='stretch');
     document.body.classList.toggle('video-integer',!!visual.integer);
-    document.body.classList.toggle('video-scanlines',!!visual.scanlines&&!isTouchDevice&&!tvMode);
-    document.body.classList.toggle('video-vignette',!!visual.vignette&&!isTouchDevice&&!tvMode);
-    document.body.classList.toggle('video-amber',!tvMode&&visual.palette==='amber');
-    document.body.classList.toggle('video-cool',!tvMode&&visual.palette==='cool');
-    document.body.classList.toggle('video-soft',!tvMode&&visual.palette==='soft');
+    document.body.classList.toggle('video-scanlines',!!visual.scanlines&&!isTouchDevice);
+    document.body.classList.toggle('video-vignette',!!visual.vignette&&!isTouchDevice);
+    document.body.classList.toggle('video-amber',visual.palette==='amber');
+    document.body.classList.toggle('video-cool',visual.palette==='cool');
+    document.body.classList.toggle('video-soft',visual.palette==='soft');
     document.getElementById('game')?.style.setProperty('--video-brightness',visual.brightness);
     document.getElementById('game')?.style.setProperty('--video-contrast',visual.contrast);
     document.getElementById('game')?.style.setProperty('--video-saturation',visual.saturation);
@@ -748,21 +753,19 @@
   };
   const visualHelp=()=>log('Vídeo: F1 shader SABR | F2 scanlines | F3 escala inteira | F5 paleta | F6 brilho | F7 contraste | F8 saturação | F10 vinheta');
   applyVisual();
-  // O shader SABR pode reduzir a taxa de quadros em TVs com GPU modesta.
-  let pixelEnhancement=!isTouchDevice&&!tvMode;
+  let pixelEnhancement=!isTouchDevice;
   const applyPixelEnhancement=()=>{
     const emulator=window.EJS_emulator;
     if(!emulator?.enableShader)return;
     try{
-      const enabled=pixelEnhancement&&!tvMode;
-      emulator.enableShader(enabled?'sabr':'disabled');
-      log('Shader de pixels: '+(enabled?'SABR ligado':'desligado'));
+      emulator.enableShader(pixelEnhancement?'sabr':'disabled');
+      log('Shader de pixels: '+(pixelEnhancement?'SABR ligado':'desligado'));
     }catch(e){
       pixelEnhancement=false;
       log('Shader indisponível; mantendo filtro seguro de vídeo: '+(e?.message||e));
     }
   };
-  difficulty=readDifficulty();
+  difficulty=await chooseDifficulty();
 
   const fail=x=>{
     status.textContent=x;
@@ -811,6 +814,13 @@
 
   if(window.EJS_biosUrl){
     log('BIOS configurado via EJS_biosUrl: '+window.EJS_biosUrl);
+    // Diagnóstico não deve bloquear o início do emulador: alguns CDNs e
+    // navegadores móveis atrasam ou recusam HEAD mesmo aceitando GET.
+    fetch(window.EJS_biosUrl,{method:'HEAD'}).then(head=>{
+      const len=head.headers.get('content-length');
+      log('Checagem HEAD da BIOS: status '+head.status+', tamanho '+(len||'desconhecido')+' bytes');
+      if(!head.ok)log('AVISO: endpoint da BIOS não respondeu OK — o core pode falhar ao montar o arquivo.');
+    }).catch(e=>log('Checagem HEAD da BIOS falhou: '+(e?.message||e)+' (pode ser CORS ou rede)'));
   }
 
   // Jogos CPS2 precisam de arquivo .key nos romsets para o FBNeo (core "arcade").
@@ -846,10 +856,10 @@
   // compartilhavam o perfil "ejs-arcade-settings"; um core salvo ou inválido
   // podia fazer o próximo título abrir apenas o menu do EmulatorJS.
   let gameId=0;
-  // O perfil anterior podia ter salvo controles com o jogador 2 bloqueado.
-  // Mudar a assinatura força o EmulatorJS a criar um perfil novo com P1 e P2
-  // disponíveis, sem apagar volume ou outras preferências do usuário.
-  const CONTROL_PROFILE_VERSION='mga-players-credits-p1-p2-enabled-v4';
+  // O perfil anterior podia ter salvo START/SELECT compartilhados entre os
+  // jogadores. Mudar a assinatura força o EmulatorJS a usar os controles
+  // corrigidos sem apagar volume ou outras preferências do usuário.
+  const CONTROL_PROFILE_VERSION='mga-players-credits-p1-only-v3';
   for(const char of `${CONTROL_PROFILE_VERSION}:${romBase}`) gameId=((gameId*31)+char.charCodeAt(0))>>>0;
   window.EJS_gameID=gameId||1;
   // Define o core esperado mesmo quando há configurações antigas salvas.
@@ -879,23 +889,9 @@
   window.EJS_volume=1;
   window.EJS_color='#00e5ff';
   window.EJS_backgroundColor='#000';
-  // O pacote local contém os fontes separados; debug não deve ficar ligado em produção,
-  // pois ele desativa o cache de cores e força o download do core a cada partida.
-  window.EJS_DEBUG_XX=false;
-  window.EJS_USE_SOURCE_FILES=true;
-  // O cache também fica ativo na TV. Desativá-lo fazia cada jogo baixar e
-  // remontar ROM/BIOS novamente, o que deixava a abertura lenta e podia
-  // provocar pausas em televisores com pouca memória ou rede mais limitada.
-  window.EJS_CacheLimit=undefined;
+  window.EJS_DEBUG_XX=true;
 
   const hide=()=>{
-    if(loadingArtHidden)return;
-    const wait=Math.max(0,1400-(Date.now()-loadingStartedAt));
-    if(wait){
-      setTimeout(hide,wait);
-      return;
-    }
-    loadingArtHidden=true;
     status.style.display='none';
     manual.style.display='none';
     loadingArt.classList.add('hidden');
@@ -934,52 +930,24 @@
   };
 
   const goFullscreen=()=>{
-    const setRotateHelp=text=>{if(rotateHelp)rotateHelp.textContent=text;};
-    const lockLandscape=()=>{
-      if(!isTouchDevice)return;
-      try{
-        const orientation=screen.orientation;
-        const lock=orientation?.lock;
-        if(!lock){
-          setRotateHelp('Este navegador não bloqueia a orientação. Gire o aparelho e ative a rotação automática.');
-          return;
-        }
-        Promise.resolve(lock.call(orientation,'landscape')).then(()=>{
-          setRotateHelp('Modo horizontal ativado.');
-        }).catch(err=>{
-          setRotateHelp('Não foi possível girar automaticamente. Ative a rotação automática e gire o aparelho.');
-          log('Bloqueio de orientação recusado: '+(err?.message||err));
-        });
-      }catch(e){
-        setRotateHelp('Gire o aparelho manualmente e confirme que a rotação automática está ativada.');
-        log('Bloqueio de orientação falhou: '+(e?.message||e));
-      }
-    };
     try{
       const el=document.documentElement;
-      if(document.fullscreenElement){lockLandscape();return;}
+      if(document.fullscreenElement)return;
       const req=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;
-      if(!req){
-        setRotateHelp('Tela cheia indisponível neste navegador. Gire o aparelho manualmente.');
-        lockLandscape();
-        return;
+      if(req){
+        const p=req.call(el,{navigationUI:'hide'});
+        if(p&&p.then)p.then(()=>{
+          // Ao abrir o jogo, trava a tela em horizontal automaticamente.
+          if(isTouchDevice&&screen.orientation?.lock){
+            screen.orientation.lock('landscape').catch(err=>log('Bloqueio de orientação recusado: '+(err?.message||err)));
+          }
+        }).catch(err=>log('Tela cheia recusada: '+(err?.message||err)));
+        log('Tela cheia solicitada');
       }
-      const p=req.call(el,{navigationUI:'hide'});
-      // A primeira tentativa usa o gesto atual; a segunda roda depois da
-      // confirmação de fullscreen, exigida por alguns navegadores.
-      lockLandscape();
-      if(p&&p.then)p.then(lockLandscape).catch(err=>{
-        setRotateHelp('Tela cheia bloqueada. Gire o aparelho e ative a rotação automática.');
-        log('Tela cheia recusada: '+(err?.message||err));
-      });
-      log('Tela cheia solicitada pelo usuário');
     }catch(e){
-      setRotateHelp('Tela cheia bloqueada. Gire o aparelho e ative a rotação automática.');
       log('Tela cheia falhou: '+(e?.message||e));
-      lockLandscape();
     }
   };
-  rotateAction?.addEventListener('click',goFullscreen);
 
   document.addEventListener('fullscreenchange',()=>{
     if(!document.fullscreenElement&&screen.orientation?.unlock){
@@ -1199,7 +1167,7 @@
   // Este vigia religa o contexto de áudio assim que ele sai do ar.
   // No celular, visibilitychange/focus/pageshow já cobrem a retomada sem
   // manter um loop periódico concorrendo com o core.
-  if(!isTouchDevice&&!tvMode)setInterval(()=>{
+  if(!isTouchDevice)setInterval(()=>{
     if(document.hidden)return;
     const emu=window.EJS_emulator;
     const mod=emu?.gameManager?.Module||window.Module;
@@ -1222,24 +1190,7 @@
   // ---------------------------------------------------------------
   const MGA_SAVE_DB='mga-progress-v1';
   const MGA_SAVE_STORE='states';
-  // O escopo local acompanha a conta autenticada quando o token já está
-  // disponível no storage. Convidados continuam isolados no próprio perfil.
-  const MGA_SAVE_SCOPE=(()=>{
-    try{
-      for(let i=0;i<localStorage.length;i++){
-        const key=localStorage.key(i);
-        if(!key||!/^sb-.+-auth-token$/.test(key))continue;
-        const raw=JSON.parse(localStorage.getItem(key)||'null');
-        const token=raw?.access_token||raw?.currentSession?.access_token||raw?.session?.access_token||'';
-        const payload=token.split('.')[1];
-        const sub=payload?JSON.parse(atob(payload.replace(/-/g,'+').replace(/_/g,'/')))?.sub:'';
-        if(typeof sub==='string'&&sub)return `user:${sub}`;
-      }
-    }catch{}
-    return 'guest';
-  })();
-  const MGA_SAVE_KEY=`${MGA_SAVE_SCOPE}:${romBase}:${core}`;
-  const MGA_SAVE_BACKUP_KEY=`${MGA_SAVE_KEY}:backup`;
+  const MGA_SAVE_KEY=`${romBase}:${core}`;
   const MGA_TOTAL_SLOTS=15;
   let mgaSaveTimer=null;
   let mgaSaveBusy=false;
@@ -1247,8 +1198,6 @@
   let mgaLoadBusy=false;
   let mgaInitialLoadTimer=null;
   let mgaInitialLoadStarted=false;
-  let lastCloudSyncAt=0;
-  const cloudSyncInterval=isTouchDevice?5*60*1000:60*1000;
 
   const showToast=(msg,duration=2600)=>{
     const toast=document.getElementById('mga-toast');
@@ -1279,44 +1228,17 @@
     try{return await task(db)}finally{db.close()}
   };
 
-  const checkpointCompare=(a,b)=>{
-    if(!a||!b)return 0;
-    const at=Number(a.savedAt)||0, bt=Number(b.savedAt)||0;
-    if(at!==bt)return at>bt?1:-1;
-    const av=Number(a.checkpointVersion)||0, bv=Number(b.checkpointVersion)||0;
-    return av===bv?0:(av>bv?1:-1);
-  };
-  const putAndVerifyRecord=async(db,key,record,backupKey='')=>{
-    const stored=await new Promise((resolve,reject)=>{
-      const req=db.transaction(MGA_SAVE_STORE,'readonly').objectStore(MGA_SAVE_STORE).get(key);
-      req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
-    });
-    if(isValidSavedRecord(stored)&&checkpointCompare(stored,record)>0)return false;
+  const putAndVerifyRecord=async(db,key,record)=>{
     await new Promise((resolve,reject)=>{
       const tx=db.transaction(MGA_SAVE_STORE,'readwrite');
-      const store=tx.objectStore(MGA_SAVE_STORE);
-      const fail=error=>reject(error||tx.error||new Error('Falha na transação do save'));
-      tx.oncomplete=resolve;tx.onerror=()=>fail(tx.error);tx.onabort=()=>fail(tx.error);
-      const writeCurrent=()=>{
-        try{store.put(record,key)}catch(e){try{tx.abort()}catch{}fail(e)}
-      };
-      if(backupKey){
-        const previous=store.get(key);
-        previous.onsuccess=()=>{
-          try{
-            if(isValidSavedRecord(previous.result))store.put({...previous.result,preview:''},backupKey);
-            writeCurrent();
-          }catch(e){try{tx.abort()}catch{}fail(e)}
-        };
-        previous.onerror=()=>fail(previous.error);
-      }else writeCurrent();
+      tx.objectStore(MGA_SAVE_STORE).put(record,key);
+      tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
     });
     const persisted=await new Promise((resolve,reject)=>{
       const req=db.transaction(MGA_SAVE_STORE,'readonly').objectStore(MGA_SAVE_STORE).get(key);
       req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
     });
     if(!isValidSavedRecord(persisted))throw new Error('Estado não confirmado no IndexedDB');
-    return true;
   };
 
   const getSlotKey=slot=>`${MGA_SAVE_KEY}:slot_${slot}`;
@@ -1339,6 +1261,20 @@
       const bytes=new Uint8Array(state);
       return bytes.byteLength?new Uint8Array(bytes):null;
     }catch{return null}
+  };
+
+  // Guarda uma prévia visual do mesmo frame usado para o estado. A imagem é
+  // apenas a confirmação visual do momento; o estado binário continua sendo
+  // salvo para que "Retornar ao momento" realmente restaure a partida.
+  const captureMomentImage=()=>{
+    try{
+      const canvas=document.querySelector('#game canvas');
+      if(!canvas||!canvas.width||!canvas.height)return '';
+      return canvas.toDataURL('image/jpeg',.78);
+    }catch(e){
+      log('Imagem do momento indisponível: '+(e?.message||e));
+      return '';
+    }
   };
 
   const isValidSavedRecord=record=>{
@@ -1367,101 +1303,88 @@
     }catch{return null}
   };
   const cloudUrl=`/api/saves/?rom=${encodeURIComponent(romBase)}&core=${encodeURIComponent(core)}`;
-  // O login do site fica salvo neste mesmo endereço; lemos o token atual a cada
-  // chamada (ele é renovado pelo site), sem depender de uma resposta da página pai.
-  const readStoredAccessToken=()=>{
-    const scan=store=>{
-      try{
-        for(let i=0;i<store.length;i++){
-          const k=store.key(i);
-          if(!k||!/^sb-.+-auth-token$/.test(k))continue;
-          const v=JSON.parse(store.getItem(k)||'null');
-          const s=v?.access_token?v:(v?.currentSession||v?.session||null);
-          if(s?.access_token&&(!s.expires_at||s.expires_at*1000>Date.now()+5000))return s.access_token;
-        }
-      }catch{}
-      return '';
-    };
-    let t=scan(localStorage);
-    try{if(!t&&window.parent!==window)t=scan(window.parent.localStorage)}catch{}
-    return t;
-  };
-  const cloudAuthHeaders=()=>{
-    const token=readStoredAccessToken()||cloudAccessToken;
-    return token?{Authorization:`Bearer ${token}`}:{};
-  };
   let cloudAvailable=null;
-  let lastCloudSaveStatus='unknown';
-  let driveSaveNoticeShown=false;
   const syncCloudSave=async record=>{
     let cloudTimeout;
     try{
       const bytes=normalizeStateBytes(record?.state);
-      if(!bytes){lastCloudSaveStatus='failed';return false}
-      const stateB64=bytesToBase64(bytes);
+      if(!bytes)return false;
       const controller=new AbortController();
       cloudTimeout=setTimeout(()=>controller.abort(),8000);
       const response=await fetch('/api/saves/',{
-        method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json',...cloudAuthHeaders()},
+        method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},
         signal:controller.signal,
-        body:JSON.stringify({rom:romBase,core,stateB64,preview:record.preview||'',savedAt:record.savedAt,checkpointVersion:record.checkpointVersion,dateStr:record.dateStr})
+        body:JSON.stringify({rom:romBase,core,stateB64:bytesToBase64(bytes),preview:record.preview||'',savedAt:record.savedAt,dateStr:record.dateStr})
       });
-      const result=await response.json().catch(()=>null);
-      if(response.status===401){cloudAvailable=false;lastCloudSaveStatus='local-only';return false}
-      if(response.status===409&&result?.reason==='newer_remote'){
-        cloudAvailable=true;lastCloudSaveStatus='remote-newer';
-        log('Nuvem já possui um checkpoint mais novo; save local preservado');
-        return true;
-      }
-      if(!response.ok||result?.ok!==true){lastCloudSaveStatus='failed';return false}
-      // Confirma a leitura do mesmo estado após o POST. Um 2xx isolado não
-      // garante que a versão correta ficou disponível para o próximo login.
-      const verified=await readCloudSave();
-      if(verified&&checkpointCompare(verified,record)>0){
-        cloudAvailable=true;lastCloudSaveStatus='remote-newer';
-        log('Outro dispositivo gravou um checkpoint mais novo durante a sincronização');
-        return true;
-      }
-      if(!verified||checkpointCompare(verified,record)<0||verified.stateB64!==stateB64){
-        cloudAvailable=false;lastCloudSaveStatus='failed';
-        log('Nuvem: escrita respondeu, mas a verificação não encontrou o mesmo checkpoint');
-        return false;
-      }
-      cloudAvailable=true;
-      lastCloudSaveStatus='synced';
-      if(result?.storage==='google_drive'&&!driveSaveNoticeShown){
-        driveSaveNoticeShown=true;
-        showToast('☁ Save confirmado no Google Drive',4000);
-      }
+      cloudAvailable=response.status!==401;
+      if(!response.ok)return false;
       log('Save sincronizado na nuvem');
       return true;
     }catch(e){
       cloudAvailable=false;
-      lastCloudSaveStatus='failed';
       log('Nuvem indisponível; mantendo save local ('+(e?.message||e)+')');
       return false;
     }finally{clearTimeout(cloudTimeout)}
   };
   const readCloudSave=async()=>{
-    let cloudTimeout;
     try{
-      // Uma API remota lenta não deve impedir a retomada do save local.
-      const controller=new AbortController();
-      cloudTimeout=setTimeout(()=>controller.abort(),6000);
-      const response=await fetch(cloudUrl,{credentials:'same-origin',cache:'no-store',headers:{...cloudAuthHeaders(),'Cache-Control':'no-cache'},signal:controller.signal});
+      const response=await fetch(cloudUrl,{credentials:'same-origin'});
       if(response.status===401){cloudAvailable=false;return null}
       if(!response.ok){cloudAvailable=false;return null}
       const data=await response.json();
       const remote=data?.save;
       const state=base64ToBytes(remote?.stateB64);
-      if(!state||!remote?.stateB64||remote.stateB64.length>8_000_000)return null;
+      if(!state)return null;
       cloudAvailable=true;
-      return {state,stateB64:remote.stateB64,stateSize:state.byteLength,savedAt:Number(remote.savedAt)||0,checkpointVersion:Number(remote.checkpointVersion)||0,dateStr:remote.dateStr||'',preview:remote.preview||''};
+      return {state,stateSize:state.byteLength,savedAt:Number(remote.savedAt)||0,dateStr:remote.dateStr||'',preview:remote.preview||''};
     }catch(e){
       cloudAvailable=false;
-      log('Nuvem indisponível/timeout ao carregar; usando save local');
+      log('Nuvem indisponível ao carregar; usando save local');
       return null;
-    }finally{clearTimeout(cloudTimeout)}
+    }
+  };
+
+  const saveToSlot=async(slot,silent=false)=>{
+    const manager=window.EJS_emulator?.gameManager;
+    if(!manager||!started||mgaSaveBusy||mgaLoadBusy){
+      return false;
+    }
+    mgaSaveBusy=true;
+    const emulator=window.EJS_emulator;
+    const wasPaused=!!emulator?.paused;
+    try{
+      // Captura um frame estável; salvar enquanto o core escreve a memória
+      // podia gerar um estado incompleto e fazer o retorno parecer vazio.
+      if(!wasPaused){
+        if(typeof emulator?.pause==='function')emulator.pause(true);
+        else manager.toggleMainLoop?.(0);
+        await mgaSleep(150);
+      }
+      const state=normalizeStateBytes(manager.getState());
+      if(!state)throw new Error('Estado vazio ou inválido');
+      const now=Date.now();
+      const dateStr=new Date(now).toLocaleString('pt-BR');
+      const key=getSlotKey(slot);
+      const record={key,slot,rom:romBase,core,savedAt:now,dateStr,state,stateSize:state.byteLength,preview:captureMomentImage()};
+      await withProgressDb(db=>putAndVerifyRecord(db,key,record));
+      setLastSlot(slot);
+      if(!silent)showToast(`💾 Partida salva no Slot ${slot}!`);
+      log(`Slot ${slot} salvo com sucesso`);
+      await renderSlotsList();
+      return true;
+    }catch(e){
+      log(`Progresso: falha ao salvar slot ${slot} (${e?.message||e})`);
+      if(!silent)showToast(`❌ Falha ao salvar slot ${slot}`);
+      return false;
+    }finally{
+      if(!wasPaused){
+        try{
+          if(typeof emulator?.play==='function')emulator.play(true);
+          else manager.toggleMainLoop?.(1);
+        }catch(e){log(`Progresso: falha ao retomar após salvar (${e?.message||e})`)}
+      }
+      mgaSaveBusy=false;
+    }
   };
 
   const mgaSleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -1469,18 +1392,12 @@
   // O carregamento só funciona depois que o core realmente iniciou a ROM.
   // Antes disso o loadState era descartado em silêncio e a partida sumia.
   const waitForGameReady=async(timeout=25000)=>{
-    const coreCanLoad=()=>{
-      const manager=window.EJS_emulator?.gameManager;
-      // Aguarda a API pública do GameManager; ela também cancela o timer de
-      // reset do EmulatorJS antes de aplicar o estado restaurado.
-      return !!(started&&typeof manager?.loadState==='function');
-    };
     const deadline=Date.now()+timeout;
     while(Date.now()<deadline){
-      if(coreCanLoad())return true;
+      if(started&&window.EJS_emulator?.gameManager?.loadState)return true;
       await mgaSleep(250);
     }
-    return coreCanLoad();
+    return !!(started&&window.EJS_emulator?.gameManager?.loadState);
   };
 
   // Se o jogo estiver pausado, o core não processa o estado restaurado.
@@ -1503,14 +1420,17 @@
       if(manager?.loadState){
         const emulator=window.EJS_emulator;
         try{
-          // Use a API oficial: além de gravar e carregar o arquivo, ela
-          // cancela EJS.resetTimeout. Chamar functions.loadState diretamente
-          // deixava o reset pendente sobrescrever o checkpoint recém-aplicado.
-          // O core CPS2 (FBAlpha 2012) só aceita um estado depois de calcular
-          // o tamanho do save nesta sessão (retro_serialize_size). Num jogo
-          // recém-aberto isso nunca aconteceu e o load falhava em silêncio.
-          try{manager.getState()}catch(e){log(`${label}: preparo do estado falhou (${e?.message||e})`)}
-          manager.loadState(bytes);
+          // O GameManager do EmulatorJS 4.2.3 recebe o caminho do arquivo no
+          // cwrap do core (load_state), não o Uint8Array. Passar os bytes
+          // diretamente fazia o slot parecer carregado, mas o core ignorava
+          // o estado e continuava no início da partida.
+          const fs=manager.FS||emulator?.gameManager?.FS;
+          if(!fs?.writeFile||!manager.functions?.loadState){
+            throw new Error('API de arquivo do core indisponível');
+          }
+          try{fs.unlink('/game.state')}catch{}
+          fs.writeFile('/game.state',new Uint8Array(bytes));
+          manager.functions.loadState('game.state',0);
           if(emulator?.paused){
             if(typeof emulator.play==='function')emulator.play(true);
             else manager.toggleMainLoop?.(1);
@@ -1539,7 +1459,66 @@
     }));
   };
 
-  const saveProgress=async(silent=false,forceCloud=false)=>{
+  const loadFromSlot=async(slot,silent=false)=>{
+    if(mgaLoadBusy||mgaSaveBusy){
+      if(!silent)showToast('⏳ Aguarde a operação de save terminar.',3000);
+      return false;
+    }
+    mgaLoadBusy=true;
+    try{
+      // Um load manual tem prioridade. Sem cancelar o timer, o auto-load
+      // agendado no início podia aplicar o slot automático logo depois e
+      // substituir silenciosamente o slot escolhido pelo jogador.
+      if(mgaInitialLoadTimer){
+        clearTimeout(mgaInitialLoadTimer);
+        mgaInitialLoadTimer=null;
+      }
+      mgaInitialLoadStarted=true;
+      const saved=await readSlotRecord(getSlotKey(slot));
+      if(!isValidSavedRecord(saved)){
+        return false;
+      }
+      if(!silent)showToast(`⏳ Restaurando o Slot ${slot}...`,4000);
+      const ready=await waitForGameReady();
+      if(!ready){
+        log(`Slot ${slot}: o jogo não iniciou a tempo para restaurar`);
+        return false;
+      }
+      const ok=await applyStateWithRetry(saved.state,`Slot ${slot}`);
+      if(!ok){
+        if(!silent)showToast(`❌ Não foi possível carregar o Slot ${slot}. Tente novamente.`,4000);
+        return false;
+      }
+      setLastSlot(slot);
+      if(!silent)showToast(`🎮 Partida do Slot ${slot} carregada!`);
+      log(`Slot ${slot} restaurado`);
+      closeSavesModal();
+      return true;
+    }catch(e){
+      log(`Progresso: falha ao carregar slot ${slot} (${e?.message||e})`);
+      if(!silent)showToast(`❌ Falha ao carregar slot ${slot}`);
+      return false;
+    }finally{mgaLoadBusy=false}
+  };
+
+  const deleteSlot=async(slot)=>{
+    try{
+      const key=getSlotKey(slot);
+      await withProgressDb(db=>new Promise((resolve,reject)=>{
+        const tx=db.transaction(MGA_SAVE_STORE,'readwrite');
+        tx.objectStore(MGA_SAVE_STORE).delete(key);
+        tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+      }));
+      showToast(`🗑 Slot ${slot} apagado.`);
+      await renderSlotsList();
+      return true;
+    }catch(e){
+      log(`Progresso: falha ao apagar slot ${slot} (${e?.message||e})`);
+      return false;
+    }
+  };
+
+  const saveProgress=async(silent=false)=>{
     const manager=window.EJS_emulator?.gameManager;
     if(!manager||!started||mgaLoadBusy)return false;
     if(mgaSaveBusy){
@@ -1562,46 +1541,12 @@
       if(!state)throw new Error('Estado vazio ou inválido');
       const now=Date.now();
       const dateStr=new Date(now).toLocaleString('pt-BR');
-      // A versão desempata relógios iguais e impede uma gravação atrasada de
-      // substituir um checkpoint mais novo.
-      const previous=await readSlotRecord(MGA_SAVE_KEY).catch(()=>null);
-      const backup=await readSlotRecord(MGA_SAVE_BACKUP_KEY).catch(()=>null);
-      const checkpointVersion=Math.max(Number(previous?.checkpointVersion)||0,Number(backup?.checkpointVersion)||0,now)+1;
-      // Saves armazenam somente o estado binário; nenhuma imagem de prévia é gerada.
-      const record={state,stateSize:state.byteLength,savedAt:now,checkpointVersion,dateStr,rom:romBase,core,preview:''};
-      await withProgressDb(async db=>{
-        try{
-          await putAndVerifyRecord(db,MGA_SAVE_KEY,record,MGA_SAVE_BACKUP_KEY);
-        }catch(backupError){
-          // Se o backup não couber no armazenamento ou falhar por outro
-          // motivo, priorize gravar o checkpoint atual sem a cópia anterior.
-          log('Backup local não atualizado; tentando salvar só o checkpoint atual ('+(backupError?.message||backupError)+')');
-          await putAndVerifyRecord(db,MGA_SAVE_KEY,record);
-        }
-      });
-      if(!silent){
-        try{parent.postMessage({type:'mga-emulator-checkpoint-saved',rom:romBase,savedAt:now},location.origin)}catch{}
-        showToast('✅ Checkpoint salvo neste aparelho');
-      }
-      const shouldSyncCloud=forceCloud||!silent||Date.now()-lastCloudSyncAt>=cloudSyncInterval;
-      let cloudSynced=true;
-      if(shouldSyncCloud){
-        cloudSynced=await syncCloudSave(record);
-        lastCloudSyncAt=Date.now();
-      }else{
-        lastCloudSaveStatus='local-only';
-      }
-      if(!silent&&!cloudSynced){
-        showToast(lastCloudSaveStatus==='local-only'
-          ?'✅ Save confirmado neste aparelho; sem nuvem. Não apague os dados do navegador.'
-          :'⚠️ Save local confirmado; falha ao confirmar backup na nuvem.',6000);
-      }
+      const record={state,stateSize:state.byteLength,savedAt:now,dateStr,rom:romBase,core,preview:captureMomentImage()};
+      await withProgressDb(db=>putAndVerifyRecord(db,MGA_SAVE_KEY,record));
+      await syncCloudSave(record);
+      if(!silent)showToast('📸 Momento salvo');
       return true;
-    }catch(e){
-      log('Progresso: falha ao salvar auto '+(e?.message||e));
-      if(!silent)showToast('❌ Falha ao salvar o checkpoint. Tente novamente.',4000);
-      return false;
-    }
+    }catch(e){log('Progresso: falha ao salvar auto '+(e?.message||e));return false}
     finally{
       if(!wasPaused){
         try{
@@ -1617,52 +1562,20 @@
     }
   };
 
-  const saveWhenReady=async()=>{
-    const deadline=Date.now()+10000;
-    while(mgaSaveBusy||mgaLoadBusy){
-      if(Date.now()>=deadline){
-        showToast('⏳ Salvamento anterior ainda está em andamento.',4000);
-        return false;
-      }
-      await mgaSleep(100);
-    }
-    return saveProgress(false);
-  };
-
   const loadProgress=async(manual=false)=>{
     if(mgaLoadBusy||mgaSaveBusy)return false;
     if(mgaInitialLoadStarted&&!manual)return false;
     mgaInitialLoadStarted=true;
     mgaLoadBusy=true;
     try{
-      const readLocalRecord=async key=>{
-        try{return await readSlotRecord(key)}
-        catch(e){log('Save local indisponível para '+key+' ('+(e?.message||e)+')');return null}
-      };
-      const localSaved=await readLocalRecord(MGA_SAVE_KEY);
-      const backupSaved=await readLocalRecord(MGA_SAVE_BACKUP_KEY);
-      const recoverableLocal=isValidSavedRecord(localSaved)?localSaved:backupSaved;
+      const localSaved=await readSlotRecord(MGA_SAVE_KEY);
       const cloudSaved=await readCloudSave();
-      const saved=isValidSavedRecord(cloudSaved)&&(!isValidSavedRecord(recoverableLocal)||checkpointCompare(cloudSaved,recoverableLocal)>0)
-        ? cloudSaved : recoverableLocal;
+      const saved=isValidSavedRecord(cloudSaved)&&(!isValidSavedRecord(localSaved)||cloudSaved.savedAt>localSaved.savedAt)
+        ? cloudSaved : localSaved;
       if(!isValidSavedRecord(saved))return false;
       if(saved===cloudSaved){
-        try{
-          await withProgressDb(async db=>{
-            try{await putAndVerifyRecord(db,MGA_SAVE_KEY,saved,MGA_SAVE_BACKUP_KEY)}
-            catch{await putAndVerifyRecord(db,MGA_SAVE_KEY,saved)}
-          });
-          log('Save da nuvem baixado para este dispositivo');
-        }catch(e){
-          log('Save da nuvem disponível; cache local não pôde ser atualizado ('+(e?.message||e)+')');
-        }
-      }else if(saved===backupSaved&&!isValidSavedRecord(localSaved)){
-        try{
-          await withProgressDb(db=>putAndVerifyRecord(db,MGA_SAVE_KEY,backupSaved));
-          log('Checkpoint local recuperado do backup');
-        }catch(e){
-          log('Backup válido em memória; não foi possível reparar o checkpoint principal ('+(e?.message||e)+')');
-        }
+        await withProgressDb(db=>putAndVerifyRecord(db,MGA_SAVE_KEY,saved));
+        log('Save da nuvem baixado para este dispositivo');
       }
       const ready=await waitForGameReady();
       if(!ready){
@@ -1676,7 +1589,10 @@
         return false;
       }
       log('Progresso anterior restaurado');
-      showToast('🎮 Último checkpoint restaurado');
+      if(manual){
+        showToast('🎮 Momento restaurado!');
+        closeSavesModal();
+      }
       return true;
     }catch(e){log('Progresso: nenhum save auto restaurado ('+(e?.message||e)+')');return false}
     finally{mgaLoadBusy=false}
@@ -1684,6 +1600,7 @@
 
   const saveAndExit=async()=>{
     try{
+      closeSavesModal?.();
       showToast('💾 Salvando antes de sair...',30000);
       const deadline=Date.now()+20000;
       let idleSince=0;
@@ -1695,96 +1612,134 @@
         await mgaSleep(100);
       }
       if(mgaSaveBusy||mgaLoadBusy)throw new Error('Uma gravação ou restauração anterior continua em andamento.');
-      const ok=await saveProgress(true,true);
-      if(ok&&lastCloudSaveStatus==='failed'){
-        parent.postMessage({
-          type:'mga-emulator-cloud-save-failed',
-          message:'O save local foi confirmado, mas não foi possível confirmar a cópia na nuvem.'
-        },location.origin);
-        return;
-      }
-      const cloudStatus=lastCloudSaveStatus;
+      const ok=await saveProgress(true);
       parent.postMessage({
         type:ok?'mga-emulator-save-complete':'mga-emulator-save-failed',
-        cloudStatus,
-        message:!ok?'Não foi possível confirmar o save local.':cloudStatus==='synced'
-          ?'Save confirmado neste aparelho e na nuvem.'
-          :cloudStatus==='remote-newer'
-          ?'A nuvem já possui um checkpoint mais novo; ele foi preservado.'
-          :'Save confirmado neste aparelho; sem nuvem. Não apague os dados do navegador.'
+        message:ok?'Partida salva com sucesso.':'Não foi possível salvar a partida.'
       },location.origin);
     }catch(e){
       log('Progresso: falha ao salvar antes de sair '+(e?.message||e));
       parent.postMessage({type:'mga-emulator-save-failed',message:'Falha ao salvar antes de sair.'},location.origin);
     }
   };
-  const pendingRemoteInputs=[];
-  const remoteInputStates=new Map();
-  let flushingRemoteInputs=false;
-  const applyRemoteInput=(player,input,pressed)=>{
-    const manager=window.EJS_emulator?.gameManager;
-    const key=`${player}:${input}`;
-    if(remoteInputStates.get(key)===pressed)return;
-    remoteInputStates.set(key,pressed);
-    if(!started||typeof manager?.simulateInput!=='function'||flushingRemoteInputs){
-      if(pendingRemoteInputs.length>=128){
-        pendingRemoteInputs.length=0;
-        remoteInputStates.clear();
-      }
-      pendingRemoteInputs.push({player,input,pressed,at:Date.now()});
-      if(started)void flushPendingRemoteInputs();
-      return;
-    }
-    try{manager.simulateInput(player,input,pressed?1:0)}catch(error){log('Controle remoto: '+(error?.message||error))}
-  };
-  const flushPendingRemoteInputs=async()=>{
-    if(flushingRemoteInputs||!started)return;
-    flushingRemoteInputs=true;
-    try{
-      const deadline=Date.now()+5000;
-      let manager=window.EJS_emulator?.gameManager;
-      while(typeof manager?.simulateInput!=='function'&&Date.now()<deadline){
-        await new Promise(resolve=>setTimeout(resolve,80));
-        manager=window.EJS_emulator?.gameManager;
-      }
-      if(typeof manager?.simulateInput!=='function')return;
-      while(pendingRemoteInputs.length){
-        manager=window.EJS_emulator?.gameManager;
-        if(typeof manager?.simulateInput!=='function')break;
-        const event=pendingRemoteInputs.shift();
-        if(!event)continue;
-        try{manager.simulateInput(event.player,event.input,event.pressed?1:0)}
-        catch(error){log('Controle remoto pendente: '+(error?.message||error));continue}
-        const next=pendingRemoteInputs[0];
-        if(event.pressed&&next?.player===event.player&&next.input===event.input&&!next.pressed){
-          await new Promise(resolve=>setTimeout(resolve,Math.max(0,120-(next.at-event.at))));
-        }
-      }
-    }finally{
-      flushingRemoteInputs=false;
-      if(started&&pendingRemoteInputs.length)setTimeout(()=>void flushPendingRemoteInputs(),100);
-    }
-  };
   window.addEventListener('message',e=>{
     if(e.source!==window.parent||e.origin!==location.origin)return;
     if(e.data?.type==='mga-request-save-exit')saveAndExit();
-    if(e.data?.type==='mga-remote-command'){
-      if(e.data.command==='toggle-pause')window.MGA_togglePause?.();
-      if(e.data.command==='save-and-exit')saveAndExit();
-      if(e.data.command==='toggle-game-fullscreen'){
-        document.fullscreenElement?document.exitFullscreen():goFullscreen();
-      }
-    }
-    if(e.data?.type==='mga-remote-input'){
-      const player=Math.max(0,Math.min(1,Number(e.data.player)-1));
-      const input=Math.max(0,Math.min(9,Number(e.data.input)));
-      if(!Number.isFinite(player)||!Number.isFinite(input))return;
-      applyRemoteInput(player,input,Boolean(e.data.pressed));
-    }
   });
-  parent.postMessage({type:'mga-emulator-bridge-ready'},location.origin);
 
-  // Sem painel de saves: o progresso é salvo e restaurado automaticamente.
+  const renderSlotsList=async()=>{
+    const container=document.getElementById('mga-slots-list');
+    if(!container)return;
+      container.innerHTML='<div style="color:#00e5ff;font-size:12px;padding:8px;">Carregando último momento...</div>';
+    try{
+      const db=await openProgressDb();
+      const recordsMap={};
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction(MGA_SAVE_STORE,'readonly');
+        const store=tx.objectStore(MGA_SAVE_STORE);
+        const req=store.openCursor();
+        req.onsuccess=e=>{
+          const cursor=e.target.result;
+          if(cursor){
+            const key=String(cursor.key);
+            if(key.startsWith(`${MGA_SAVE_KEY}:slot_`)){
+              const slotNum=parseInt(key.split(':slot_')[1],10);
+              recordsMap[slotNum]=cursor.value;
+            }else if(key===MGA_SAVE_KEY){
+              recordsMap['auto']=cursor.value;
+            }
+            cursor.continue();
+          }else{
+            resolve();
+          }
+        };
+        req.onerror=()=>reject(req.error);
+      });
+      db.close();
+
+      container.innerHTML='';
+
+      // Um único momento: a imagem confirma visualmente o frame salvo e o
+      // estado binário permite retornar exatamente à partida.
+      const autoSave=recordsMap['auto'];
+      const autoCard=document.createElement('div');
+      autoCard.className='mga-slot-card'+(autoSave?' has-data':'');
+      autoCard.style.borderLeft='3px solid #ffbb00';
+      autoCard.innerHTML=`
+        ${autoSave?.preview?`<img src="${autoSave.preview}" alt="Imagem do último momento salvo" style="display:block;width:100%;max-height:220px;object-fit:contain;background:#000;border:1px solid #00e5ff44;margin-bottom:10px;">`:''}
+        <div class="mga-slot-left">
+          <span class="mga-slot-badge" style="color:#ffbb00">📸 ÚLTIMO MOMENTO</span>
+          <span class="mga-slot-time">${autoSave?('💾 '+ (autoSave.dateStr || new Date(autoSave.savedAt).toLocaleString('pt-BR'))):'Nenhum momento salvo ainda'}</span>
+        </div>
+        <div class="mga-slot-btns">
+          <button class="mga-btn-load" type="button" ${autoSave?'':'disabled'}>▶ Retornar</button>
+          ${autoSave?.preview?`<a class="mga-btn-action" download="master-games-momento.jpg" href="${autoSave.preview}" style="text-decoration:none;display:inline-block;">⬇ Baixar imagem</a>`:''}
+        </div>
+      `;
+      autoCard.querySelector('.mga-btn-load').onclick=()=>loadProgress(true);
+      container.appendChild(autoCard);
+      return;
+
+      // Slots 1 a 15
+      for(let i=1;i<=MGA_TOTAL_SLOTS;i++){
+        const item=recordsMap[i];
+        const card=document.createElement('div');
+        card.className='mga-slot-card'+(item?' has-data':'');
+        const numStr=i<10?('0'+i):(''+i);
+        card.innerHTML=`
+          <div class="mga-slot-left">
+            <span class="mga-slot-badge">SLOT ${numStr}</span>
+            <span class="mga-slot-time">${item?('💾 '+(item.dateStr || new Date(item.savedAt).toLocaleString('pt-BR'))):'Vazio — livre para salvar'}</span>
+          </div>
+          <div class="mga-slot-btns">
+            <button class="mga-btn-save" type="button" title="Salvar progresso atual no slot ${i}">💾 Salvar</button>
+            <button class="mga-btn-load" type="button" title="Carregar progresso do slot ${i}" ${item?'':'disabled'}>▶ Carregar</button>
+            <button class="mga-btn-del" type="button" title="Excluir save do slot ${i}" ${item?'':'disabled'}>🗑</button>
+          </div>
+        `;
+        card.querySelector('.mga-btn-save').onclick=()=>saveToSlot(i);
+        card.querySelector('.mga-btn-load').onclick=()=>loadFromSlot(i);
+        card.querySelector('.mga-btn-del').onclick=()=>{
+          if(confirm(`Deseja apagar o save do Slot ${i}?`))deleteSlot(i);
+        };
+        container.appendChild(card);
+      }
+    }catch(e){
+      container.innerHTML=`<div style="color:#ff2b6d;font-size:12px;padding:8px;">Erro ao listar saves: ${esc(e?.message||e)}</div>`;
+    }
+  };
+
+  const openSavesModal=()=>{
+    const modal=document.getElementById('mga-saves-modal');
+    if(!modal)return;
+    modal.classList.add('open');
+    renderSlotsList();
+    if(screen.orientation?.lock){
+      screen.orientation.lock("landscape").catch(()=>{});
+    }
+  };
+
+  const closeSavesModal=()=>{
+    const modal=document.getElementById('mga-saves-modal');
+    if(modal)modal.classList.remove('open');
+  };
+
+  // O listener do botão já foi instalado no início do script. Este callback
+  // apenas conecta a listagem dos 15 slots quando ela estiver disponível.
+  window.MGA_refreshSaves=renderSlotsList;
+  // Se o usuário abriu o painel antes do core terminar a inicialização, o
+  // listener antecipado já exibiu o modal, mas ainda não havia uma função de
+  // listagem registrada. Preenche o painel assim que esta rotina fica pronta.
+  if(earlySavesModal?.classList.contains('open'))renderSlotsList();
+
+  // Wire up saves controls
+  const btnQuickSave=document.getElementById('mga-btn-quick-save');
+  const btnQuickLoad=document.getElementById('mga-btn-quick-load');
+  const btnReturn=document.getElementById('mga-btn-return');
+  if(btnReturn)btnReturn.addEventListener('click',closeSavesModal);
+
+  if(btnQuickSave)btnQuickSave.addEventListener('click',()=>saveProgress(false));
+  if(btnQuickLoad)btnQuickLoad.addEventListener('click',()=>loadProgress(true));
 
   // ===============================================================
   // MELHORIAS MOBILE: Haptic Feedback, Pausa Rápida, Opacidade & Anti-Gestos
@@ -1842,22 +1797,20 @@
 
   // Pausa rápida para celular (atender ligação / notificações sem perder vida)
   const btnPause = document.getElementById('btn-pause');
-  const togglePause = () => {
-    const emu = window.EJS_emulator;
-    if (!emu || !started) return;
-    emu.togglePlaying?.();
-    const isPaused = !!emu.paused;
-    if (btnPause) {
+  if (btnPause) {
+    btnPause.addEventListener('click', () => {
+      const emu = window.EJS_emulator;
+      if (!emu || !started) {
+        return;
+      }
+      emu.togglePlaying?.();
+      const isPaused = !!emu.paused;
       btnPause.textContent = isPaused ? '▶' : '⏸';
       btnPause.title = isPaused ? 'Retomar Emulação' : 'Pausar Emulação';
       btnPause.style.color = isPaused ? '#ffbb00' : '#00e5ff';
-    }
-    showToast(isPaused ? '⏸ Jogo Pausado' : '▶ Jogo Retomado');
-    triggerHaptic(20);
-  };
-  window.MGA_togglePause = togglePause;
-  if (btnPause) {
-    btnPause.addEventListener('click', togglePause);
+      showToast(isPaused ? '⏸ Jogo Pausado' : '▶ Jogo Retomado');
+      triggerHaptic(20);
+    });
   }
 
   // Hooking de toque no Gamepad touch para Haptic Feedback imediato
@@ -1870,12 +1823,11 @@
   }, { passive: true, capture: true });
 
   window.MGA_saveProgress=()=>saveProgress(false);
+  window.MGA_openSaves=openSavesModal;
+  window.MGA_saveToSlot=saveToSlot;
+  window.MGA_loadFromSlot=loadFromSlot;
   document.addEventListener('visibilitychange',()=>{
-    // Durante transmissão/cast a aba pode ficar hidden sem que a partida
-    // tenha terminado. Salvar aqui pausa o core e causa um congelamento visível
-    // em TVs mais lentas; no modo TV o pagehide e o comando de saída continuam
-    // sendo os pontos seguros de persistência.
-    if(document.hidden&&!tvMode)saveProgress(true);
+    if(document.hidden)saveProgress(true);
   });
   addEventListener('pagehide',()=>saveProgress(true),{capture:true});
 
@@ -1883,7 +1835,6 @@
   window.EJS_onGameStart=()=>{
     if(started)return;
     started=true;
-    flushPendingRemoteInputs();
     try{window.EJS_emulator?.gameManager?.setKeyboardEnabled?.(keyboardEnabled)}catch{}
     attempting=false;
     if(retryTimer)clearTimeout(retryTimer);
@@ -1973,11 +1924,6 @@
     // Durante a partida, deixe somente a área do jogo e os controles touch
     // indispensáveis; a barra de navegação não deve cobrir a imagem.
     document.getElementById('player-controls')?.classList.add('hidden');
-    if(isTouchDevice){
-      const quickSaveButton=document.getElementById('mga-mobile-quick-save');
-      quickSaveButton?.classList.add('show');
-      if(quickSaveButton)quickSaveButton.disabled=false;
-    }
     log('Arcade/FBNeo iniciou o jogo');
     [0,250,1000].forEach(ms=>setTimeout(fitMobileGameViewport,ms));
     applyDifficultyToCore();
@@ -1992,14 +1938,12 @@
       mgaInitialLoadTimer=null;
       loadProgress();
     },isTouchDevice?3500:2500);
-    // O autosave pausa brevemente o loop para copiar o estado para o IndexedDB.
-    // Em TVs de entrada, até uma pausa a cada dois minutos é perceptível e pode
-    // parecer travamento. A TV salva manualmente, ao sair e nos eventos de
-    // pagehide/visibilitychange; o autosave periódico continua nos demais modos.
+    // Mantém um checkpoint periódico em qualquer dispositivo. A captura pausa
+    // o core por poucos milissegundos e evita depender de pagehide no celular.
     if(mgaSaveTimer)clearInterval(mgaSaveTimer);
-    // O fechamento imediato ainda pode perder alguns segundos; para sair sem
-    // perda, use o botão Sair do jogo e espere a confirmação do launcher.
-    if(!tvMode)mgaSaveTimer=setInterval(()=>{if(!document.hidden)saveProgress(true)},60000);
+    // Checkpoint mais frequente no celular reduz a janela de perda quando o
+    // sistema encerra a aba sem entregar pagehide ao navegador.
+    mgaSaveTimer=setInterval(()=>{if(!document.hidden)saveProgress(true)},isTouchDevice?30000:120000);
     // O shader só pode ser ativado depois de o contexto gráfico do core existir.
     setTimeout(applyPixelEnhancement,0);
     requestWakeLock();
@@ -2112,80 +2056,10 @@
       const selection=window.EJS_emulator?.gamepadSelection||[];
       const playerIndex=selection.indexOf(`${pad.id}_${pad.index}`);
       const playerLabel=playerIndex>=0?`P${playerIndex+1}`:`Controle ${index+1}`;
-      const mapping=pad.mapping==='standard'?'padrão':'genérico';
-      return `<strong>${playerLabel} · ${safeId}</strong> — conectado · ${mapping} (índice ${pad.index})`;
+      return `<strong>${playerLabel} · ${safeId}</strong> — conectado (índice ${pad.index})`;
       }).join('<br>'):'Nenhum controle conectado. Conecte USB/Bluetooth e toque em “Atualizar controles”.';
     }
     return pads;
-  };
-  // Fallback independente do mapeamento do EmulatorJS. Alguns controles USB,
-  // Bluetooth, arcade sticks e adaptadores baratos aparecem como "genérico"
-  // e não recebem um perfil automático do navegador. Neste caso, traduzimos
-  // a Gamepad API diretamente para os 10 inputs do arcade, com suporte a dois
-  // jogadores e ao analógico como D-pad alternativo.
-  const gamepadPressed=new Map();
-  let gamepadPollFrame=0;
-  const gamepadCanInput=()=>started&&!inputModal?.classList.contains('open')&&!document.activeElement?.matches('input,textarea,select,[contenteditable="true"]');
-  const gamepadDown=(pad,index)=>Boolean(pad.buttons?.[index]?.pressed||Number(pad.buttons?.[index]?.value)>0.5);
-  const gamepadAxis=(pad,index,positive)=>{
-    const value=Number(pad.axes?.[index]||0);
-    return positive?value>0.45:value<-0.45;
-  };
-  const releaseGamepadInputs=()=>{
-    const manager=window.EJS_emulator?.gameManager;
-    if(typeof manager?.simulateInput==='function'){
-      for(const key of gamepadPressed.keys()){
-        const [player,input]=key.split(':').map(Number);
-        try{manager.simulateInput(player,input,0)}catch{}
-      }
-    }
-    gamepadPressed.clear();
-  };
-  const pollGamepads=()=>{
-    gamepadPollFrame=0;
-    let pads=[];
-    try{pads=[...navigator.getGamepads()].filter(pad=>pad?.connected).sort((a,b)=>a.index-b.index)}catch{}
-    if(!pads.length||!gamepadCanInput()){
-      if(gamepadPressed.size)releaseGamepadInputs();
-      if(pads.length)gamepadPollFrame=window.requestAnimationFrame(pollGamepads);
-      return;
-    }
-    const next=new Set();
-    const add=(player,input,active)=>{if(active)next.add(`${player}:${input}`)};
-    pads.slice(0,2).forEach((pad,player)=>{
-      // Face buttons: A/B/X/Y e os equivalentes do layout genérico.
-      add(player,0,gamepadDown(pad,0));
-      add(player,1,gamepadDown(pad,1));
-      add(player,8,gamepadDown(pad,2));
-      add(player,9,gamepadDown(pad,3));
-      // Select/Start e o D-pad padrão.
-      add(player,2,gamepadDown(pad,8));
-      add(player,3,gamepadDown(pad,9));
-      add(player,4,gamepadDown(pad,12)||gamepadAxis(pad,1,false));
-      add(player,5,gamepadDown(pad,13)||gamepadAxis(pad,1,true));
-      add(player,6,gamepadDown(pad,14)||gamepadAxis(pad,0,false));
-      add(player,7,gamepadDown(pad,15)||gamepadAxis(pad,0,true));
-    });
-    const manager=window.EJS_emulator?.gameManager;
-    if(typeof manager?.simulateInput==='function'){
-      for(const key of gamepadPressed){
-        if(next.has(key))continue;
-        const [player,input]=key.split(':').map(Number);
-        try{manager.simulateInput(player,input,0)}catch{}
-      }
-      for(const key of next){
-        if(gamepadPressed.has(key))continue;
-        const [player,input]=key.split(':').map(Number);
-        try{manager.simulateInput(player,input,1)}catch{}
-      }
-    }
-    gamepadPressed.clear();
-    next.forEach(key=>gamepadPressed.set(key,true));
-    gamepadPollFrame=window.requestAnimationFrame(pollGamepads);
-  };
-  const startGamepadPolling=()=>{
-    if(tvMode)return;
-    if(!gamepadPollFrame)gamepadPollFrame=window.requestAnimationFrame(pollGamepads);
   };
   const closeInputModal=()=>window.MGA_closeInputSettings?.();
   document.addEventListener('keydown',event=>{
@@ -2196,16 +2070,8 @@
   document.getElementById('mga-refresh-gamepads')?.addEventListener('click',()=>{
     const pads=listGamepads();
     try{window.EJS_emulator?.updateGamepadLabels?.();window.EJS_emulator?.checkGamepadInputs?.()}catch{}
-    startGamepadPolling();
     showToast(pads.length?`${pads.length} controle(s) detectado(s)`:'Nenhum controle detectado');
   });
-  if(!tvMode){
-    addEventListener('gamepadconnected',()=>{listGamepads();startGamepadPolling()});
-    addEventListener('gamepaddisconnected',()=>{listGamepads();startGamepadPolling()});
-  }
-  addEventListener('blur',releaseGamepadInputs);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)releaseGamepadInputs()});
-  if(!tvMode)startGamepadPolling();
   document.getElementById('mga-open-remap')?.addEventListener('click',()=>{
     closeInputModal();
     const emulator=window.EJS_emulator;
@@ -2334,44 +2200,129 @@
     log('unhandledrejection: '+(e.reason?.message||e.reason));
   });
 
-  // No modo TV os controles internos já ficam ocultos pelo layout; manter um
-  // MutationObserver acompanhando toda alteração do EmulatorJS só adiciona
-  // trabalho ao thread principal durante a partida.
-  if(!tvMode){
-    new MutationObserver(scheduleHideEmulatorUi).observe(document.getElementById('game'),{childList:true,subtree:true});
+  new MutationObserver(scheduleHideEmulatorUi).observe(document.getElementById('game'),{childList:true,subtree:true});
+
+  // ---------------------------------------------------------------
+  // MODO TV + DOWNLOAD SEGURO DAS ROMs
+  // TVs (Tizen, webOS, Android TV, Fire TV, Chromecast) costumam ter Wi-Fi
+  // fraco e pouca memória. Baixamos BIOS e ROM antes do EmulatorJS, um de
+  // cada vez, com retentativas, verificação de integridade (ZIP + tamanho) e
+  // cache local. O emulador só é carregado depois que os arquivos estão OK,
+  // então o relógio de 30s não estoura durante downloads lentos.
+  const isTvMode=q.get('tv')==='1'||/SmartTV|SMART-TV|Tizen|Web0S|webOS|NetCast|BRAVIA|Android TV|GoogleTV|AFT[A-Z]|CrKey|HbbTV|Roku|Viera|AQUOS/i.test(navigator.userAgent);
+  const conn=navigator.connection||{};
+  const lowBandwidth=isTvMode||conn.saveData||/(^|-)2g|3g/.test(conn.effectiveType||'');
+  if(isTvMode){
+    document.body.classList.add('mga-tv-mode');
+    // Modo leve: sem shader SABR, scanlines ou vinheta (pesam em GPU de TV).
+    pixelEnhancement=false;
+    ['video-scanlines','video-vignette'].forEach(c=>document.body.classList.remove(c));
+    window.EJS_threads=false;
+    log('Modo TV ativo: carregamento leve, shader e efeitos desligados.');
+  }
+  const ROM_CACHE='mga-roms-v1';
+  const fmtMB=n=>(n/1048576).toFixed(1)+' MB';
+  const isZip=async blob=>{
+    const h=new Uint8Array(await blob.slice(0,4).arrayBuffer());
+    return h[0]===0x50&&h[1]===0x4b&&(h[2]===3||h[2]===5||h[2]===7);
+  };
+  const secureDownload=async(url,label)=>{
+    const abs=new URL(url,location.origin).href;
+    const expectZip=/\.zip(\?|#|$)/i.test(abs);
+    let cache=null;
+    try{cache=await caches.open(ROM_CACHE)}catch{}
+    if(cache){
+      try{
+        const hit=await cache.match(abs);
+        if(hit){
+          const b=await hit.blob();
+          if(b.size>0&&(!expectZip||await isZip(b))){log(label+': usando cópia local verificada ('+fmtMB(b.size)+')');return b;}
+          await cache.delete(abs);
+        }
+      }catch{}
+    }
+    const attempts=lowBandwidth?4:3;
+    let lastErr='';
+    for(let i=1;i<=attempts;i++){
+      const ctrl=new AbortController();
+      let stall;
+      const arm=()=>{clearTimeout(stall);stall=setTimeout(()=>ctrl.abort(),lowBandwidth?45000:25000);};
+      try{
+        arm();
+        const res=await fetch(abs,{signal:ctrl.signal,cache:'default',credentials:'same-origin'});
+        if(!res.ok)throw new Error('HTTP '+res.status);
+        const total=Number(res.headers.get('content-length'))||0;
+        const ctype=res.headers.get('content-type')||'';
+        if(/text\/html/i.test(ctype))throw new Error('servidor devolveu uma página em vez do arquivo');
+        let blob;
+        if(res.body?.getReader){
+          const reader=res.body.getReader();const parts=[];let got=0;
+          for(;;){
+            const {done,value}=await reader.read();
+            if(done)break;
+            arm();parts.push(value);got+=value.length;
+            status.textContent='BAIXANDO '+label+' — '+(total?Math.floor(got*100/total)+'% ('+fmtMB(got)+' de '+fmtMB(total)+')':fmtMB(got));
+          }
+          blob=new Blob(parts);
+        }else blob=await res.blob();
+        clearTimeout(stall);
+        if(!blob.size)throw new Error('arquivo vazio');
+        const enc=res.headers.get('content-encoding');
+        if(total&&!enc&&blob.size!==total)throw new Error('download incompleto ('+blob.size+' de '+total+' bytes)');
+        if(expectZip&&!(await isZip(blob)))throw new Error('arquivo corrompido (não é ZIP válido)');
+        if(cache){try{await cache.put(abs,new Response(blob,{headers:{'content-type':'application/zip','content-length':String(blob.size)}}))}catch(e){log('Cache local indisponível: '+(e?.message||e))}}
+        log(label+': download verificado ('+fmtMB(blob.size)+', tentativa '+i+')');
+        return blob;
+      }catch(e){
+        clearTimeout(stall);
+        lastErr=e?.name==='AbortError'?'conexão parada (Wi-Fi lento)':(e?.message||String(e));
+        log(label+': tentativa '+i+'/'+attempts+' falhou — '+lastErr);
+        if(i<attempts){
+          status.textContent='REDE INSTÁVEL — NOVA TENTATIVA '+(i+1)+'/'+attempts+'...';
+          await new Promise(r=>setTimeout(r,1500*i));
+        }
+      }
+    }
+    throw new Error(label+': '+lastErr);
+  };
+  try{
+    // Sequencial (não em paralelo) para não disputar banda no Wi-Fi.
+    if(biosUrl)await secureDownload(biosUrl,'BIOS '+(biosName||''));
+    const romBlob=await secureDownload(romUrl,'ROM '+name);
+    // Entrega a ROM já verificada ao emulador, com o nome do romset intacto
+    // (o FBNeo identifica o jogo pelo nome do ZIP). Evita um segundo download.
+    try{
+      window.EJS_gameUrl=new File([romBlob],(decodeURIComponent(new URL(romUrl).pathname.split('/').pop()||'')||romBase+'.zip'),{type:'application/zip'});
+    }catch{window.EJS_gameUrl=romUrl;}
+    status.textContent='ARQUIVOS VERIFICADOS — INICIANDO '+coreLabel+'...';
+  }catch(e){
+    fail('Falha ao baixar o jogo com segurança. '+(e?.message||e)+'. Verifique o Wi-Fi e tente novamente.');
+    return;
   }
 
-  // No modo TV, o pacote WebAssembly, a ROM e a BIOS podem levar mais tempo
-  // em conexões de televisão; mantenha o prazo original no modo Web.
-  const readyTimeout = tvMode ? 90000 : 30000;
-  const startTimeout = tvMode ? 150000 : 45000;
   startWatchdog=setTimeout(()=>{
     if(!ready&&!started){
-      fail(tvMode
-        ? 'Arcade ainda não ficou pronto após 90 s. Verifique a conexão, a ROM e o BIOS.'
-        : 'Arcade não carregou em 30s. Verifique a ROM, o BIOS e o endpoint de download.');
+      fail('Arcade não carregou em 30s. Verifique a ROM, o BIOS e o endpoint de download.');
     }
-  },readyTimeout);
+  },30000);
 
   setTimeout(()=>{
     if(ready&&!started){
-      fail(tvMode
-        ? 'O core Arcade (FBNeo) ainda não iniciou após 150 s. Verifique o romset e o BIOS e tente novamente.'
-        : 'EmulatorJS ficou pronto, mas o core Arcade (FBNeo) não iniciou a ROM. Confirme o romset e o BIOS.');
+      fail('EmulatorJS ficou pronto, mas o core Arcade (FBNeo) não iniciou a ROM. Confirme o romset e o BIOS.');
     }
-  },startTimeout);
+  },45000);
 
   // Os controles de teclado e gamepad são tratados pelo próprio EmulatorJS
   // através de EJS_defaultControls (mapa acima). Nenhum remapeamento manual.
 
   const script=document.createElement('script');
-  script.src=window.EJS_pathtodata+'loader.js?v=20261022-tv-stability-v25';
+  script.src=window.EJS_pathtodata+'loader.js';
   script.async=true;
   script.onerror=()=>{
     log('loader.js local falhou — tentando fallback pelo CDN oficial.');
     window.EJS_pathtodata='https://cdn.emulatorjs.org/'+EJS_PINNED_VERSION+'/data/';
     const fallback=document.createElement('script');
-    fallback.src=window.EJS_pathtodata+'loader.js?v=20261022-tv-stability-v25';
+    fallback.src=window.EJS_pathtodata+'loader.js';
     fallback.async=true;
     fallback.crossOrigin='anonymous';
     fallback.onerror=()=>fail('Não foi possível carregar o EmulatorJS (local nem CDN).');

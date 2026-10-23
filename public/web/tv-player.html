@@ -1,0 +1,27 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Master Games Arcade · TV</title></head><body>Carregando jogo…<script>
+(async()=>{try{
+const response=await fetch('/web/player.html?v=tv-wifi-20261021',{cache:'no-cache'});if(!response.ok)throw new Error('Player indisponível: '+response.status);let html=await response.text();
+const replacements=[
+["  <title>Master Games Arcade - Player</title>","  <title>Master Games Arcade - Player</title><script>document.documentElement.classList.add('tv-loading');<\/script>"],
+["   </style>","    html.tv-loading #loading-art{background-image:none!important} body.mga-tv-mode #loading-art{background-image:none!important;background-color:#000;transition:none} body.mga-tv-mode #game canvas,body.mga-tv-mode #game video{filter:none!important} body.mga-tv-mode #status{text-shadow:none}\n   </style>"],
+["<script>\n(async()=>{","<script src=\"/web/rom-validation.js?v=20261021\"><\/script><script src=\"/web/tv-download-adapter.js?v=20261021\"><\/script>\n<script>\n(async()=>{"],
+["  const q=new URLSearchParams(location.search);","  const q=new URLSearchParams(location.search);\n  document.body.classList.add('mga-tv-mode');"],
+["  const biosUrl=q.get('bios')||'';","  const biosUrl=q.get('biosName')==='neogeo.zip'?'/api/rom/1Q9VEyWxUpRkIdUFLWz-xFzKUhz10Rc98/neogeo.zip':q.get('bios')||'';"],
+["  if(isTouchDevice){visual.scanlines=false;visual.vignette=false;}","  visual.scanlines=false;visual.vignette=false;visual.brightness=1;visual.contrast=1;visual.saturation=1;"],
+["  let pixelEnhancement=!isTouchDevice;","  let pixelEnhancement=false;"],
+["  difficulty=await chooseDifficulty();","  difficulty=readDifficulty();"],
+["  if(window.EJS_biosUrl){\n    log('BIOS configurado", "  if(false&&window.EJS_biosUrl){\n    log('BIOS configurado"],
+["  window.EJS_DEBUG_XX=true;","  window.EJS_DEBUG_XX=true;window.EJS_CacheLimit=0;"],
+["    const h=new Uint8Array(await blob.slice(0,4).arrayBuffer());\n    return h[0]===0x50&&h[1]===0x4b&&(h[2]===3||h[2]===5||h[2]===7);","    return window.MGA_validateZip(blob);"],
+["    const expectZip=/\\.zip(\\?|#|$)/i.test(abs);","    const expectZip=/\\.zip(\\?|#|$)/i.test(abs);status.textContent='BAIXANDO '+label+'...';"],
+["lowBandwidth?45000:25000","lowBandwidth?90000:45000"],
+["        if(!res.ok)throw new Error('HTTP '+res.status);","        if(!res.ok){const err=new Error('HTTP '+res.status);err.permanent=[400,401,403,404,410].includes(res.status);throw err;}"],
+["      }catch(e){\n        clearTimeout(stall);","      }catch(e){\n        clearTimeout(stall);\n        if(e?.permanent)throw e;"],
+["    if(biosUrl)await secureDownload(biosUrl,'BIOS '+(biosName||''));","    window.MGA_verifiedDownloads=new Map();\n    if(biosUrl){const blob=await secureDownload(biosUrl,'BIOS '+(biosName||''));window.MGA_verifiedDownloads.set(new URL(window.EJS_biosUrl,location.origin).href,blob);}"],
+["    try{\n      window.EJS_gameUrl=new File([romBlob],(decodeURIComponent(new URL(romUrl).pathname.split('/').pop()||'')||romBase+'.zip'),{type:'application/zip'});\n    }catch{window.EJS_gameUrl=romUrl;}","    window.MGA_verifiedDownloads.set(romUrl,romBlob);"],
+["      fail('Arcade não carregou em 30s.","      fail('O emulador não respondeu dentro do tempo de carregamento."],
+["  },30000);\n\n  setTimeout(()=>{","  },180000);\n\n  setTimeout(()=>{"],
+["  },45000);","  },240000);"]];
+for(const [before,after]of replacements){if(!html.includes(before))throw new Error('Player mudou; atualize a compatibilidade TV.');html=html.replace(before,after);}document.open();document.write(html);document.close();
+}catch(error){document.body.textContent='Não foi possível abrir o jogo: '+error.message;parent.postMessage({type:'mga-emulator-error',message:error.message},location.origin);}})();
+</script></body></html>

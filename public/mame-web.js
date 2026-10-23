@@ -230,27 +230,12 @@
     iframe.style.cssText =
       "position:absolute;inset:0;width:100%;height:100%;border:0;background:#000;display:block;";
 
-    const sendCloudAccessToken = () => {
-      const accessToken = window.MGA_CLOUD_ACCESS_TOKEN;
-      iframe.contentWindow?.postMessage({
-        type: "mga-set-cloud-access-token",
-        accessToken: typeof accessToken === "string" ? accessToken : "",
-      }, location.origin);
-    };
-    const onRemoteInput = (event) => {
-      const payload = event.detail;
-      if (!payload || !iframe.contentWindow) return;
-      iframe.contentWindow.postMessage({ type: "mga-remote-input", ...payload }, location.origin);
-    };
-    window.addEventListener("mga-cloud-access-token-updated", sendCloudAccessToken);
-    window.addEventListener("mga-remote-input", onRemoteInput);
-
     const playerUrl = new URL("/web/player.html", location.origin);
     playerUrl.searchParams.set("rom", romUrl);
     playerUrl.searchParams.set("name", cleanRomName(romName));
     // O player é alterado junto com o bridge; versionar a URL evita que o
     // navegador reutilize uma versão antiga que ainda exibia o menu RetroArch.
-    playerUrl.searchParams.set("v", "20261008-mobile-art-contain-v15");
+    playerUrl.searchParams.set("v", "20261020-tv-secure-download-v5");
     if (biosUrl) playerUrl.searchParams.set("bios", biosUrl);
     if (biosName) playerUrl.searchParams.set("biosName", biosName);
 
@@ -262,8 +247,6 @@
       closed = true;
       closeInProgress = false;
       window.removeEventListener("message", onMessage);
-      window.removeEventListener("mga-cloud-access-token-updated", sendCloudAccessToken);
-      window.removeEventListener("mga-remote-input", onRemoteInput);
       iframe.src = "about:blank";
       iframe.remove();
       overlay.remove();
@@ -285,7 +268,7 @@
           message.textContent = "O salvamento demorou. Tente novamente ou saia sem salvar.";
           closeInProgress = false;
         }
-      }, 35000);
+      }, 10000);
     };
 
     const closePlayer = () => {
@@ -304,15 +287,11 @@
         event.source !== iframe.contentWindow
       ) return;
 
-      if (event.data?.type === "mga-request-cloud-access-token") {
-        sendCloudAccessToken();
-        return;
-      }
-
       if (event.data?.type === "mga-emulator-started") {
         message.remove();
-        window.dispatchEvent(new Event("mga-player-ready"));
-        // Durante a partida, mantenha apenas uma saída discreta acessível.
+        // Durante a partida, mantenha apenas uma saída discreta acessível;
+        // o botão Saves e o restante da barra não cobrem mais a tela.
+        btnSaves.style.display = "none";
         bar.style.background = "transparent";
         bar.style.pointerEvents = "none";
         close.style.pointerEvents = "auto";
@@ -326,12 +305,7 @@
         closePlayer();
       }
 
-      if (event.data?.type === "mga-emulator-checkpoint-saved") {
-        window.dispatchEvent(new Event("mga-save-complete"));
-      }
-
       if (event.data?.type === "mga-emulator-save-complete") {
-        window.dispatchEvent(new Event("mga-save-complete"));
         finishClose();
       }
 
@@ -390,7 +364,6 @@
     window.addEventListener("message", onMessage);
 
     iframe.onload = () => {
-      sendCloudAccessToken();
       // O player.html já exibe o estado de carregamento e o próprio botão
       // Start Game. Não mantenha a mensagem do launcher sobre o iframe,
       // pois ela pode esconder o botão que o usuário precisa clicar.
@@ -405,17 +378,24 @@
 
   const enterMobileLandscape = (target) => {
     if (!matchMedia("(pointer: coarse)").matches) return;
-    // Não chamar requestFullscreen automaticamente: Chrome/Safari exibem um
-    // aviso nativo claro sobre “sair da tela cheia”, que a página não consegue
-    // esconder via CSS. O player continua ocupando a viewport e tenta apenas
-    // orientar a tela, sem criar esse aviso.
-    try { screen.orientation?.lock?.("landscape").catch(() => {}); } catch {}
+    const lock = () => {
+      try { screen.orientation?.lock?.("landscape").catch(() => {}); } catch {}
+    };
+    try {
+      const element = target || document.documentElement;
+      const req = element.requestFullscreen || element.webkitRequestFullscreen;
+      if (!document.fullscreenElement && req) {
+        const result = req.call(element, { navigationUI: "hide" });
+        if (result?.then) result.then(lock).catch(() => {});
+      } else {
+        lock();
+      }
+    } catch {}
   };
 
   function showWebPlayer(romName) {
     return new Promise((resolve, reject) => {
       document.getElementById("mga-web-player")?.remove();
-      window.dispatchEvent(new Event("mga-player-loading"));
 
       const overlay = document.createElement("div");
       overlay.id = "mga-web-player";
@@ -432,6 +412,19 @@
 
       const navActions = document.createElement("div");
       navActions.style.cssText = "display:flex;align-items:center;gap:8px;";
+
+      const btnSaves = document.createElement("button");
+      btnSaves.type = "button";
+      btnSaves.textContent = "💾 Saves";
+      btnSaves.title = "Gerenciar Partidas Salvas";
+      btnSaves.setAttribute("aria-label", "Partidas Salvas");
+      btnSaves.style.cssText =
+        "pointer-events:auto;height:34px;padding:0 12px;display:flex;align-items:center;justify-content:center;background:#0d001e;border:1px solid #00e5ff;box-shadow:0 0 8px #00e5ff55;color:#00e5ff;cursor:pointer;font-size:11px;font-weight:bold;font-family:monospace;border-radius:4px;";
+      btnSaves.onclick = () => {
+        const iframe = overlay.querySelector("iframe");
+        iframe?.contentWindow?.postMessage({ type: "mga-open-saves" }, "*");
+      };
+      navActions.appendChild(btnSaves);
 
       const close = document.createElement("button");
       close.type = "button";
@@ -452,7 +445,9 @@
 
       overlay.append(area, message, bar);
       document.body.appendChild(overlay);
-      // O player usa a viewport inteira sem acionar o aviso nativo de fullscreen.
+      // O clique do card ainda está no mesmo gesto do usuário: solicitar
+      // fullscreen no overlay (e não antes de criá-lo) aumenta a compatibilidade
+      // com Chrome/Safari mobile e permite o lock horizontal.
       enterMobileLandscape(overlay);
       overlay.addEventListener("pointerdown", () => enterMobileLandscape(overlay), { once: true, passive: true });
 
