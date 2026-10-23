@@ -21,7 +21,9 @@ const replacements=[
 ["    try{\n      window.EJS_gameUrl=new File([romBlob],(decodeURIComponent(new URL(romUrl).pathname.split('/').pop()||'')||romBase+'.zip'),{type:'application/zip'});\n    }catch{window.EJS_gameUrl=romUrl;}","    window.MGA_verifiedDownloads.set(romUrl,romBlob);"],
 ["      fail('Arcade não carregou em 30s.","      fail('O emulador não respondeu dentro do tempo de carregamento."],
 ["  },30000);\n\n  setTimeout(()=>{","  },180000);\n\n  setTimeout(()=>{"],
-["  },45000);","  },240000);"]];
+["  },45000);","  },240000);"],
+["mgaSaveTimer=setInterval(()=>{if(!document.hidden)saveProgress(true)},isTouchDevice?30000:120000);","/* TV: sem autosave pesado em segundo plano */\n    mgaSaveTimer=null;"],
+["if(!isTouchDevice)setInterval(()=>{","if(!isTouchDevice&&!isTvMode)setInterval(()=>{"]];
 for(const [before,after]of replacements){if(!html.includes(before))throw new Error('Player mudou; atualize a compatibilidade TV.');html=html.replace(before,after);}document.open();document.write(html);document.close();
 }catch(error){document.body.textContent='Não foi possível abrir o jogo: '+error.message;parent.postMessage({type:'mga-emulator-error',message:error.message},location.origin);}})();
 </script></body></html>
