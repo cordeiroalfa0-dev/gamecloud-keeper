@@ -1,6 +1,7 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Master Games Arcade · TV</title></head><body>Carregando jogo…<script>
 (async()=>{try{
-const response=await fetch('/web/player.html?v=tv-wifi-20261021',{cache:'no-cache'});if(!response.ok)throw new Error('Player indisponível: '+response.status);let html=await response.text();
+// A URL versionada permite cache agressivo: aumente o token quando player.html mudar.
+const response=await fetch('/web/player.html?v=tv-wifi-20261023-7e19cff',{cache:'force-cache'});if(!response.ok)throw new Error('Player indisponível: '+response.status);let html=await response.text();
 const replacements=[
 ["  <title>Master Games Arcade - Player</title>","  <title>Master Games Arcade - Player</title><script>document.documentElement.classList.add('tv-loading');<\/script>"],
 ["   </style>","    html.tv-loading #loading-art{background-image:none!important} body.mga-tv-mode #loading-art{background-image:none!important;background-color:#000;transition:none} body.mga-tv-mode #game canvas,body.mga-tv-mode #game video{filter:none!important} body.mga-tv-mode #status{text-shadow:none}\n   </style>"],
