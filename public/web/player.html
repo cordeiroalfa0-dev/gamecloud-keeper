@@ -1625,6 +1625,7 @@
     }
   };
   const pendingRemoteInputs=[];
+  let remoteInputFlushTimer=0;
   const applyRemoteInput=(data)=>{
     const remotePlayer=Number(data?.player);
     const remoteInput=Number(data?.input);
@@ -1635,6 +1636,7 @@
     if(typeof manager?.simulateInput!=='function'){
       if(pendingRemoteInputs.length>=128)pendingRemoteInputs.shift();
       pendingRemoteInputs.push({player:remotePlayer,input:remoteInput,pressed});
+      flushRemoteInputs();
       return;
     }
     try{
@@ -1645,7 +1647,16 @@
     }
   };
   const flushRemoteInputs=()=>{
-    if(!pendingRemoteInputs.length||typeof window.EJS_emulator?.gameManager?.simulateInput!=='function')return;
+    if(!pendingRemoteInputs.length)return;
+    if(typeof window.EJS_emulator?.gameManager?.simulateInput!=='function'){
+      if(!remoteInputFlushTimer){
+        remoteInputFlushTimer=window.setTimeout(()=>{
+          remoteInputFlushTimer=0;
+          flushRemoteInputs();
+        },50);
+      }
+      return;
+    }
     const queued=pendingRemoteInputs.splice(0);
     queued.forEach(applyRemoteInput);
   };
