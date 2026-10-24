@@ -1624,22 +1624,35 @@
       parent.postMessage({type:'mga-emulator-save-failed',message:'Falha ao salvar antes de sair.'},location.origin);
     }
   };
+  const pendingRemoteInputs=[];
+  const applyRemoteInput=(data)=>{
+    const remotePlayer=Number(data?.player);
+    const remoteInput=Number(data?.input);
+    const pressed=data?.pressed?1:0;
+    if(!Number.isInteger(remotePlayer)||remotePlayer<1||remotePlayer>2||
+       !Number.isInteger(remoteInput)||remoteInput<0||remoteInput>9)return;
+    const manager=window.EJS_emulator?.gameManager;
+    if(typeof manager?.simulateInput!=='function'){
+      if(pendingRemoteInputs.length>=128)pendingRemoteInputs.shift();
+      pendingRemoteInputs.push({player:remotePlayer,input:remoteInput,pressed});
+      return;
+    }
+    try{
+      // O controle remoto usa jogadores 1/2; o EmulatorJS usa índices 0/1.
+      manager.simulateInput(remotePlayer-1,remoteInput,pressed);
+    }catch(error){
+      log('Controle remoto: '+(error?.message||error));
+    }
+  };
+  const flushRemoteInputs=()=>{
+    if(!pendingRemoteInputs.length||typeof window.EJS_emulator?.gameManager?.simulateInput!=='function')return;
+    const queued=pendingRemoteInputs.splice(0);
+    queued.forEach(applyRemoteInput);
+  };
   window.addEventListener('message',e=>{
     if(e.source!==window.parent||e.origin!==location.origin)return;
     if(e.data?.type==='mga-remote-input'){
-      const remotePlayer=Number(e.data.player);
-      const remoteInput=Number(e.data.input);
-      const pressed=e.data.pressed?1:0;
-      const manager=window.EJS_emulator?.gameManager;
-      if(!Number.isInteger(remotePlayer)||remotePlayer<1||remotePlayer>2||
-         !Number.isInteger(remoteInput)||remoteInput<0||remoteInput>9||
-         typeof manager?.simulateInput!=='function')return;
-      try{
-        // O controle remoto usa jogadores 1/2; o EmulatorJS usa índices 0/1.
-        manager.simulateInput(remotePlayer-1,remoteInput,pressed);
-      }catch(error){
-        log('Controle remoto: '+(error?.message||error));
-      }
+      applyRemoteInput(e.data);
       return;
     }
     if(e.data?.type==='mga-cloud-access-token'&&typeof e.data.token==='string'){
@@ -1859,6 +1872,7 @@
     if(started)return;
     started=true;
     try{window.EJS_emulator?.gameManager?.setKeyboardEnabled?.(keyboardEnabled)}catch{}
+    flushRemoteInputs();
     attempting=false;
     if(retryTimer)clearTimeout(retryTimer);
     if(startWatchdog)clearTimeout(startWatchdog);
