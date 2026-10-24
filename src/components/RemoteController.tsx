@@ -176,7 +176,6 @@ export function RemoteController() {
   const [installed, setInstalled] = useState(false);
   const [installInfoOpen, setInstallInfoOpen] = useState(false);
   const [libraryMode, setLibraryMode] = useState(true);
-  const [tvMode, setTvMode] = useState(false);
   const frameRef = useRef<HTMLElement | null>(null);
   const [circuitLayout, setCircuitLayout] = useState<CircuitLayout>({
     width: 0,
@@ -185,7 +184,6 @@ export function RemoteController() {
   });
 
   useEffect(() => {
-    setTvMode(new URLSearchParams(window.location.search).get("tv") === "1");
     // REGRA DE OURO: o link do QR code nunca deve ficar exposto na experiência
     // do controle remoto. Os parâmetros já foram capturados em memória acima;
     // removê-los do histórico também evita que apareçam ao compartilhar a tela.
@@ -222,7 +220,6 @@ export function RemoteController() {
     };
     window.addEventListener("beforeinstallprompt", onInstallAvailable);
     window.addEventListener("appinstalled", onInstalled, { once: true });
-    if ("serviceWorker" in navigator) void navigator.serviceWorker.register("/sw.js");
     return () => {
       window.removeEventListener("beforeinstallprompt", onInstallAvailable);
       window.removeEventListener("appinstalled", onInstalled);
@@ -570,7 +567,7 @@ export function RemoteController() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {tvMode && !libraryMode && (
+          {!libraryMode && (
             <button
               type="button"
               onClick={() => sendCommand("return-home")}
@@ -633,7 +630,7 @@ export function RemoteController() {
           </svg>
         )}
         <div
-          className={`relative z-10 grid w-full max-w-3xl gap-2 px-2 ${libraryMode ? "mx-auto max-w-xs grid-cols-1" : tvMode ? "grid-cols-3" : "grid-cols-4"}`}
+          className={`relative z-10 grid w-full max-w-3xl gap-2 px-2 ${libraryMode ? "mx-auto max-w-xs grid-cols-1" : "grid-cols-4"}`}
         >
           {!libraryMode && (
             <button
@@ -644,7 +641,7 @@ export function RemoteController() {
               PAUSAR
             </button>
           )}
-          {!libraryMode && !tvMode && (
+          {!libraryMode && (
             <button
               type="button"
               onClick={() => sendCommand("save-and-exit")}
@@ -653,12 +650,11 @@ export function RemoteController() {
               BIBLIOTECA
             </button>
           )}
-          {(!libraryMode || !tvMode) &&
-            control(
-              libraryMode ? "ABA +" : "CRÉDITO",
-              REMOTE_INPUT.CREDIT,
-              "h-8 border-amber-300/80 bg-amber-400/20 text-xs text-amber-100",
-            )}
+          {control(
+            libraryMode ? "ABA +" : "CRÉDITO",
+            REMOTE_INPUT.CREDIT,
+            "h-8 border-amber-300/80 bg-amber-400/20 text-xs text-amber-100",
+          )}
           {!libraryMode &&
             control(
               "START",
@@ -714,7 +710,7 @@ export function RemoteController() {
               )
             )}
             <span />
-            {tvMode && libraryMode ? (
+            {libraryMode ? (
               <span />
             ) : (
               control(

@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BiosFileRouteImport } from './routes/$biosFile'
 import { Route as ControllerRouteImport } from './routes/controller'
-import { Route as TvRouteImport } from './routes/tv'
 import { Route as AssetsSplatRouteImport } from './routes/assets/$'
 import { Route as FontsSplatRouteImport } from './routes/fonts/$'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
@@ -34,11 +33,6 @@ const BiosFileRoute = BiosFileRouteImport.update({
 const ControllerRoute = ControllerRouteImport.update({
   id: '/controller',
   path: '/controller',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TvRoute = TvRouteImport.update({
-  id: '/tv',
-  path: '/tv',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssetsSplatRoute = AssetsSplatRouteImport.update({
@@ -81,7 +75,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$biosFile': typeof BiosFileRoute
   '/controller': typeof ControllerRoute
-  '/tv': typeof TvRoute
   '/assets/$': typeof AssetsSplatRoute
   '/fonts/$': typeof FontsSplatRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -94,7 +87,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$biosFile': typeof BiosFileRoute
   '/controller': typeof ControllerRoute
-  '/tv': typeof TvRoute
   '/assets/$': typeof AssetsSplatRoute
   '/fonts/$': typeof FontsSplatRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -108,7 +100,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$biosFile': typeof BiosFileRoute
   '/controller': typeof ControllerRoute
-  '/tv': typeof TvRoute
   '/assets/$': typeof AssetsSplatRoute
   '/fonts/$': typeof FontsSplatRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -123,7 +114,6 @@ export interface FileRouteTypes {
     | '/'
     | '/$biosFile'
     | '/controller'
-    | '/tv'
     | '/assets/$'
     | '/fonts/$'
     | '/api/auth/logout'
@@ -136,7 +126,6 @@ export interface FileRouteTypes {
     | '/'
     | '/$biosFile'
     | '/controller'
-    | '/tv'
     | '/assets/$'
     | '/fonts/$'
     | '/api/auth/logout'
@@ -149,7 +138,6 @@ export interface FileRouteTypes {
     | '/'
     | '/$biosFile'
     | '/controller'
-    | '/tv'
     | '/assets/$'
     | '/fonts/$'
     | '/api/auth/logout'
@@ -163,7 +151,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BiosFileRoute: typeof BiosFileRoute
   ControllerRoute: typeof ControllerRoute
-  TvRoute: typeof TvRoute
   AssetsSplatRoute: typeof AssetsSplatRoute
   FontsSplatRoute: typeof FontsSplatRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
@@ -194,13 +181,6 @@ declare module '@tanstack/react-router' {
       path: '/controller'
       fullPath: '/controller'
       preLoaderRoute: typeof ControllerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tv': {
-      id: '/tv'
-      path: '/tv'
-      fullPath: '/tv'
-      preLoaderRoute: typeof TvRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assets/$': {
@@ -259,7 +239,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BiosFileRoute: BiosFileRoute,
   ControllerRoute: ControllerRoute,
-  TvRoute: TvRoute,
   AssetsSplatRoute: AssetsSplatRoute,
   FontsSplatRoute: FontsSplatRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,

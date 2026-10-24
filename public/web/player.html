@@ -2210,23 +2210,11 @@
   new MutationObserver(scheduleHideEmulatorUi).observe(document.getElementById('game'),{childList:true,subtree:true});
 
   // ---------------------------------------------------------------
-  // MODO TV + DOWNLOAD SEGURO DAS ROMs
-  // TVs (Tizen, webOS, Android TV, Fire TV, Chromecast) costumam ter Wi-Fi
-  // fraco e pouca memória. Baixamos BIOS e ROM antes do EmulatorJS, um de
-  // cada vez, com retentativas, verificação de integridade (ZIP + tamanho) e
-  // cache local. O emulador só é carregado depois que os arquivos estão OK,
-  // então o relógio de 30s não estoura durante downloads lentos.
-  const isTvMode=q.get('tv')==='1'||/SmartTV|SMART-TV|Tizen|Web0S|webOS|NetCast|BRAVIA|Android TV|GoogleTV|AFT[A-Z]|CrKey|HbbTV|Roku|Viera|AQUOS/i.test(navigator.userAgent);
+  // DOWNLOAD SEGURO DAS ROMs
+  // Baixa BIOS e ROM com retentativas, validação básica e cache local para
+  // tornar a abertura do jogo mais resiliente em web e celular.
   const conn=navigator.connection||{};
-  const lowBandwidth=isTvMode||conn.saveData||/(^|-)2g|3g/.test(conn.effectiveType||'');
-  if(isTvMode){
-    document.body.classList.add('mga-tv-mode');
-    // Modo leve: sem shader SABR, scanlines ou vinheta (pesam em GPU de TV).
-    pixelEnhancement=false;
-    ['video-scanlines','video-vignette'].forEach(c=>document.body.classList.remove(c));
-    window.EJS_threads=false;
-    log('Modo TV ativo: carregamento leve, shader e efeitos desligados.');
-  }
+  const lowBandwidth=conn.saveData||/(^|-)2g|3g/.test(conn.effectiveType||'');
   const ROM_CACHE='mga-roms-v1';
   const fmtMB=n=>(n/1048576).toFixed(1)+' MB';
   const isZip=async blob=>{

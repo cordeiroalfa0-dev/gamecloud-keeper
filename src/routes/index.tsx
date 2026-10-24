@@ -64,8 +64,6 @@ function Index() {
   const isController =
     typeof window !== "undefined" &&
     new URLSearchParams(window.location.search).get("controller") === "1";
-  const isTv =
-    typeof window !== "undefined" && new URLSearchParams(window.location.search).get("tv") === "1";
   const [authState, setAuthState] = useState<AuthState>("checking");
   const [user, setUser] = useState<MgaUser | null>(null);
   const [cloudAccessToken, setCloudAccessToken] = useState<string | null>(null);
@@ -73,9 +71,7 @@ function Index() {
   const [oauthReturnPending, setOAuthReturnPending] = useState(() => {
     if (typeof window === "undefined") return false;
     const params = new URLSearchParams(window.location.search);
-    const fragment = new URLSearchParams(
-      window.location.hash.replace(/^#/, "").replace(/^\?/, ""),
-    );
+    const fragment = new URLSearchParams(window.location.hash.replace(/^#/, "").replace(/^\?/, ""));
     return (
       params.has("code") ||
       params.has("access_token") ||
@@ -91,20 +87,18 @@ function Index() {
   // Rede de segurança: nunca deixa a tela presa em "Carregando...".
   useEffect(() => {
     if (isController) return;
-    if (isTv) {
-      setReady(true);
-      return;
-    }
     if (new URLSearchParams(window.location.search).get("launcher") !== "1") return;
     const t = setTimeout(() => setReady(true), 1500);
     return () => clearTimeout(t);
-  }, [isController, isTv]);
+  }, [isController]);
 
   useEffect(() => {
     // A intro é a porta de entrada; o launcher só abre depois de pressionar Start.
-    if (isController || isTv) return;
+    if (isController) return;
     const params = new URLSearchParams(window.location.search);
-    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, "").replace(/^\?/, ""));
+    const hashParams = new URLSearchParams(
+      window.location.hash.replace(/^#/, "").replace(/^\?/, ""),
+    );
     const authCode = params.get("code");
     const accessToken = hashParams.get("access_token") ?? params.get("access_token");
     const refreshToken = hashParams.get("refresh_token") ?? params.get("refresh_token");
@@ -115,14 +109,14 @@ function Index() {
       hashParams.get("error");
     const isOAuthReturn = Boolean(
       authCode ||
-        accessToken ||
-        refreshToken ||
-        oauthError ||
-        params.has("code") ||
-        params.has("error") ||
-        params.has("error_description") ||
-        hashParams.has("error") ||
-        hashParams.has("error_description"),
+      accessToken ||
+      refreshToken ||
+      oauthError ||
+      params.has("code") ||
+      params.has("error") ||
+      params.has("error_description") ||
+      hashParams.has("error") ||
+      hashParams.has("error_description"),
     );
     if (params.get("launcher") !== "1" && !isOAuthReturn) {
       window.location.replace("/intro.html");
@@ -235,7 +229,9 @@ function Index() {
       } catch (error) {
         console.warn("Não foi possível concluir a sessão do login Google.");
         if (isOAuthReturn) {
-          alert("O Google retornou ao app, mas não foi possível concluir o login. Tente novamente.");
+          alert(
+            "O Google retornou ao app, mas não foi possível concluir o login. Tente novamente.",
+          );
         }
         setGuest();
       } finally {
@@ -247,21 +243,7 @@ function Index() {
       cancelled = true;
       sub?.subscription.unsubscribe();
     };
-  }, [isController, isTv]);
-
-  useEffect(() => {
-    // O player da TV carrega vários assets estáticos do EmulatorJS. Registrar
-    // o service worker no launcher permite reutilizar esses arquivos na próxima
-    // partida, sem cachear ROMs ou saves potencialmente grandes.
-    if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
-    const params = new URLSearchParams(window.location.search);
-    const isLauncher = params.get("launcher") === "1";
-    if (!isController && !isTv && !isLauncher) return;
-    void navigator.serviceWorker.register("/sw.js").catch(() => {
-      // Navegadores de TV podem bloquear service workers; o player continua
-      // funcionando normalmente sem o cache opcional.
-    });
-  }, [isController, isTv]);
+  }, [isController]);
 
   if (isController) return <RemoteController />;
 
@@ -275,7 +257,6 @@ function Index() {
 
   return (
     <Launcher
-      tvMode={isTv}
       user={user}
       cloudAccessToken={cloudAccessToken}
       onLogout={() => {
@@ -288,12 +269,10 @@ function Index() {
 }
 
 function Launcher({
-  tvMode,
   user,
   cloudAccessToken,
   onLogout,
 }: {
-  tvMode: boolean;
   user: MgaUser | null;
   cloudAccessToken: string | null;
   onLogout: () => void;
@@ -380,11 +359,5 @@ function Launcher({
   // Ela só usa o bridge local (public/mame-web.js) para abrir o jogo e
   // ler/gravar favoritos e recentes; não depende mais do bundle remoto
   // hospedado no repositório master-games-arcade-system.
-  return (
-    <GameLibrary
-      accountSlot={tvMode ? null : accountBadge}
-      cloudAccessToken={cloudAccessToken}
-      tvMode={tvMode}
-    />
-  );
+  return <GameLibrary accountSlot={accountBadge} cloudAccessToken={cloudAccessToken} />;
 }

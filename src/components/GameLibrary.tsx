@@ -43,16 +43,6 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 const BACKGROUND_IMAGES = ["/assets/intro-esteyori-poster.jpg"];
-const TV_LIBRARY_STORAGE_PREFIX = "mga-tv-library-v1";
-
-const readTvPreference = (key: string, fallback: string) => {
-  if (typeof window === "undefined") return fallback;
-  try {
-    return window.localStorage.getItem(`${TV_LIBRARY_STORAGE_PREFIX}:${key}`) ?? fallback;
-  } catch {
-    return fallback;
-  }
-};
 
 const fileBase = (name: string) => name.toLowerCase().replace(/\.(zip|7z|chd)$/i, "");
 
@@ -136,7 +126,7 @@ const prettyFallback = (name: string) =>
 async function waitForBridge(): Promise<void> {
   await new Promise<void>((resolve) => {
     const script = document.createElement("script");
-    script.src = "/web/mame-web.js?v=20261021-tv-core-cache-v22";
+    script.src = "/web/mame-web.js?v=20261024-web-cleanup-v1";
     script.onload = () => resolve();
     script.onerror = () => resolve();
     document.head.appendChild(script);
@@ -146,11 +136,9 @@ async function waitForBridge(): Promise<void> {
 export function GameLibrary({
   accountSlot,
   cloudAccessToken,
-  tvMode = false,
 }: {
   accountSlot?: React.ReactNode;
   cloudAccessToken?: string | null;
-  tvMode?: boolean;
 }) {
   const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
@@ -170,432 +158,16 @@ export function GameLibrary({
 
   const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isWindowOpen, setIsWindowOpen] = useState(() =>
-    tvMode ? readTvPreference("open", "1") !== "0" : true,
-  );
-  const [isWindowExpanded, setIsWindowExpanded] = useState(tvMode);
+  const [isWindowOpen, setIsWindowOpen] = useState(true);
+  const [isWindowExpanded, setIsWindowExpanded] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedIndexRef = useRef(0);
   const libraryContentRef = useRef<HTMLDivElement>(null);
   const resumeButtonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (!tvMode) return;
-    try {
-      window.localStorage.setItem(`${TV_LIBRARY_STORAGE_PREFIX}:open`, isWindowOpen ? "1" : "0");
-    } catch {
-      // A TV browser pode bloquear o armazenamento local.
-    }
-  }, [isWindowOpen, tvMode]);
-
-  useEffect(() => {
-    if (!tvMode || !isWindowOpen) return;
-    setTab("all");
-    setQuery("");
-    selectedIndexRef.current = 0;
-    setSelectedIndex(0);
-    libraryContentRef.current?.scrollTo({ top: 0, behavior: "auto" });
-  }, [isWindowOpen, tvMode]);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    (window as Window & { MGA_CLOUD_ACCESS_TOKEN?: string }).MGA_CLOUD_ACCESS_TOKEN =
-      cloudAccessToken || "";
-    window.dispatchEvent(new Event("mga-cloud-access-token-updated"));
-  }, [cloudAccessToken]);
-
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      if (document.body.classList.contains("mga-game-active")) return;
-      setBackgroundIndex((current) => (current + 1) % BACKGROUND_IMAGES.length);
-    }, 10_000);
-
-    return () => window.clearInterval(intervalId);
-  }, []);
-
-  useEffect(() => {
-    // Move somente o fundo, em poucos pixels, para dar profundidade sem
-    // deslocar a biblioteca nem provocar re-renderizações durante o mousemove.
-    const root = document.documentElement;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let frame = 0;
-    let x = 0;
-    let y = 0;
-    const render = () => {
-      frame = 0;
-      root.style.setProperty("--mga-parallax-x", `${x}px`);
-      root.style.setProperty("--mga-parallax-y", `${y}px`);
-    };
-    const onPointerMove = (event: PointerEvent) => {
-      if (document.body.classList.contains("mga-game-active")) return;
-      if (reducedMotion.matches || event.pointerType === "touch") return;
-      x = Math.max(-12, Math.min(12, (event.clientX / window.innerWidth - 0.5) * -24));
-      y = Math.max(-8, Math.min(8, (event.clientY / window.innerHeight - 0.5) * -16));
-      if (!frame) frame = window.requestAnimationFrame(render);
-    };
-    const reset = () => {
-      if (document.body.classList.contains("mga-game-active")) return;
-      x = 0;
-      y = 0;
-      if (!frame) frame = window.requestAnimationFrame(render);
-    };
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
-    window.addEventListener("blur", reset, { passive: true });
-    return () => {
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("blur", reset);
-      if (frame) window.cancelAnimationFrame(frame);
-      root.style.removeProperty("--mga-parallax-x");
-      root.style.removeProperty("--mga-parallax-y");
-    };
-  }, []);
-
-  useEffect(() => {
-    const syncFullscreenState = () => setIsFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener("fullscreenchange", syncFullscreenState);
-    return () => document.removeEventListener("fullscreenchange", syncFullscreenState);
-  }, []);
-
-  const toggleFullscreen = async () => {
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-      } else {
-        await document.documentElement.requestFullscreen();
-      }
-    } catch {
-      // O navegador pode bloquear fullscreen em contextos sem suporte ou permissão.
-    }
-  };
-
-  const loadLibrary = async () => {
-    setPhase("loading");
-    setErrorMessage("");
-    try {
-      await waitForBridge();
-      const [romsRes, namesRes, favRes, recentRes, mediaRes] = await Promise.all([
-        fetch("/api/roms"),
-        fetch("/api/gamenames"),
-        fetch("/api/games/favorites"),
-        fetch("/api/games/recent"),
-        fetch("/assets/media-manifest.json").catch(() => null),
-      ]);
-
-      if (!romsRes.ok) throw new Error("Catálogo de ROMs indisponível");
-      const romsData = await romsRes.json();
-      const namesData = namesRes.ok ? await namesRes.json() : { names: {} };
-      const favData = favRes.ok ? await favRes.json() : { games: [] };
-      const recentData = recentRes.ok ? await recentRes.json() : { games: [] };
-      const mediaData = mediaRes && mediaRes.ok ? await mediaRes.json() : {};
-      const latestCheckpoint = await findLatestLocalCheckpoint();
-      const availableRoms: string[] = Array.isArray(romsData.roms) ? romsData.roms : [];
-      const recentGames: string[] = Array.isArray(recentData.games) ? recentData.games : [];
-      const checkpointRom = latestCheckpoint
-        ? availableRoms.find((rom) => fileBase(rom) === latestCheckpoint.rom)
-        : undefined;
-      const resumeRom = checkpointRom || recentGames[0] || null;
-
-      if (!mountedRef.current) return;
-      setRoms(availableRoms);
-      setNames(namesData.names || {});
-      setFavorites(Array.isArray(favData.games) ? favData.games : []);
-      setRecent(recentGames);
-      setResumeGame(
-        resumeRom
-          ? {
-              rom: resumeRom,
-              savedAt: checkpointRom ? latestCheckpoint?.savedAt || null : null,
-            }
-          : null,
-      );
-      setMedia(mediaData || {});
-      setPhase("ready");
-    } catch (err) {
-      if (!mountedRef.current) return;
-      setErrorMessage(err instanceof Error ? err.message : "Falha ao carregar a biblioteca.");
-      setPhase("error");
-    }
-  };
-
-  useEffect(() => {
-    loadLibrary();
-  }, []);
-
-  useEffect(() => {
-    const refreshResumeGame = async () => {
-      const latestCheckpoint = await findLatestLocalCheckpoint();
-      const checkpointRom = latestCheckpoint
-        ? roms.find((rom) => fileBase(rom) === latestCheckpoint.rom)
-        : undefined;
-      const resumeRom = checkpointRom || recent[0] || null;
-      setResumeGame(
-        resumeRom
-          ? {
-              rom: resumeRom,
-              savedAt: checkpointRom ? latestCheckpoint?.savedAt || null : null,
-            }
-          : null,
-      );
-    };
-    const handleSaveComplete = () => void refreshResumeGame();
-    window.addEventListener("mga-save-complete", handleSaveComplete);
-    return () => window.removeEventListener("mga-save-complete", handleSaveComplete);
-  }, [roms, recent]);
-
-  const titleFor = (rom: string) => names[fileBase(rom)] || prettyFallback(rom);
-
-  const snapFor = (rom: string) => {
-    const entry = media[fileBase(rom)];
-    return entry?.has_snap ? entry.snap_url : undefined;
-  };
-
-  const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
-
-  const visibleRoms = useMemo(() => {
-    let list = roms;
-    if (!tvMode && tab === "favorites") list = roms.filter((rom) => favoriteSet.has(rom));
-    if (!tvMode && tab === "recent") {
-      const order = new Map(recent.map((rom, index) => [rom, index]));
-      list = roms.filter((rom) => order.has(rom)).sort((a, b) => order.get(a)! - order.get(b)!);
-    }
-
-    const q = query.trim().toLowerCase();
-    if (!q) return list;
-    return list.filter(
-      (rom) => titleFor(rom).toLowerCase().includes(q) || fileBase(rom).includes(q),
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roms, tvMode, tab, favoriteSet, recent, query, names]);
-
-  useEffect(() => {
-    selectedIndexRef.current = 0;
-    setSelectedIndex(0);
-    libraryContentRef.current?.scrollTo({ top: 0, behavior: "auto" });
-  }, [query, tab]);
-
-  useEffect(() => {
-    const next = Math.min(selectedIndexRef.current, Math.max(0, visibleRoms.length - 1));
-    selectedIndexRef.current = next;
-    setSelectedIndex(next);
-  }, [visibleRoms.length]);
-
-  const toggleFavorite = async (rom: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      const res = await fetch("/api/games/favorites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: rom }),
-      });
-      const data = await res.json();
-      if (Array.isArray(data.games)) setFavorites(data.games);
-    } catch {
-      // Sem bridge disponível: ignora silenciosamente, o toggle é cosmético.
-    }
-  };
-
-  const enterMobileLandscape = () => {
-    if (!window.matchMedia("(pointer: coarse)").matches) return;
-
-    const root = document.documentElement as HTMLElement & {
-      webkitRequestFullscreen?: () => Promise<void> | void;
-    };
-    const requestFullscreen =
-      root.requestFullscreen?.bind(root) ?? root.webkitRequestFullscreen?.bind(root);
-    const orientation = screen.orientation as typeof screen.orientation & {
-      lock?: (value: string) => Promise<void>;
-    };
-    const lockLandscape = () => {
-      try {
-        const lock = orientation?.lock;
-        if (lock) void lock.call(orientation, "landscape").catch(() => {});
-      } catch {
-        // Alguns navegadores não permitem bloquear a orientação; o giro manual continua válido.
-      }
-    };
-
-    if (document.fullscreenElement) {
-      lockLandscape();
-      return;
-    }
-
-    try {
-      const result = requestFullscreen?.();
-      // Tenta no mesmo gesto e novamente após a tela cheia; navegadores variam
-      // quanto ao momento em que liberam screen.orientation.lock().
-      lockLandscape();
-      if (result && typeof (result as Promise<void>).then === "function") {
-        void Promise.resolve(result).then(lockLandscape).catch(lockLandscape);
-      }
-    } catch {
-      lockLandscape();
-    }
-  };
-
-  const playGame = async (rom: string): Promise<boolean> => {
-    if (launching) return false;
-    // Deve ocorrer no toque original, antes do fetch que abre o player.
-    enterMobileLandscape();
-    setLaunchError("");
-    setLaunching(rom);
-    try {
-      const res = await fetch("/api/launch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ romName: rom }),
-      });
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error || "Não foi possível abrir o jogo.");
-      setRecent((prev) => [rom, ...prev.filter((item) => item !== rom)].slice(0, 100));
-      window.dispatchEvent(
-        new CustomEvent("mga-remote-game-launch-result", { detail: { ok: true } }),
-      );
-      return true;
-    } catch (err) {
-      if (!(
-        err instanceof Error &&
-        (err.name === "AbortError" || err.message === "Abertura cancelada.")
-      )) {
-        setLaunchError(err instanceof Error ? err.message : "Não foi possível abrir o jogo.");
-      }
-      window.dispatchEvent(
-        new CustomEvent("mga-remote-game-launch-result", { detail: { ok: false } }),
-      );
-      return false;
-    } finally {
-      if (mountedRef.current) setLaunching(null);
-    }
-  };
-  useEffect(() => {
-    const handleRemoteLaunch = (event: Event) => {
-      const rom = (event as CustomEvent<{ rom?: unknown }>).detail?.rom;
-      if (typeof rom !== "string" || !roms.includes(rom)) return;
-      void playGame(rom);
-    };
-    window.addEventListener("mga-remote-launch-game", handleRemoteLaunch);
-    return () => window.removeEventListener("mga-remote-launch-game", handleRemoteLaunch);
-    // playGame usa o estado atual de lançamento; o listener é recriado junto com ele.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roms, launching]);
-
-  useEffect(() => {
-    const cycleTab = (direction: 1 | -1) => {
-      setTab((current) => {
-        const index = TABS.findIndex((item) => item.id === current);
-        const nextIndex = (index + direction + TABS.length) % TABS.length;
-        return TABS[nextIndex]?.id ?? "all";
-      });
-    };
-    const handleLibraryCommand = (event: Event) => {
-      const command = (event as CustomEvent<{ command?: string }>).detail?.command;
-      if (!command) return;
-      if (command === "library-toggle") {
-        setIsWindowOpen((open) => !open);
-        return;
-      }
-      if (command === "library-home") {
-        setIsWindowOpen(true);
-        setTab("all");
-        setQuery("");
-        selectedIndexRef.current = 0;
-        setSelectedIndex(0);
-        window.requestAnimationFrame(() => {
-          libraryContentRef.current?.scrollTo({ top: 0, behavior: "auto" });
-        });
-        return;
-      }
-      if (command === "library-tab-next" || command === "library-tab-prev") {
-        if (!tvMode) cycleTab(command === "library-tab-next" ? 1 : -1);
-        return;
-      }
-      const hasResume = Boolean(resumeGame && !query.trim());
-      if (!isWindowOpen || (visibleRoms.length === 0 && !hasResume)) return;
-
-      const cards = Array.from(
-        libraryContentRef.current?.querySelectorAll<HTMLElement>("[data-library-card]") || [],
-      );
-      if (!cards.length) {
-        if (hasResume) {
-          selectedIndexRef.current = -1;
-          setSelectedIndex(-1);
-          if (command === "library-enter" && resumeGame) void playGame(resumeGame.rom);
-        }
-        return;
-      }
-      if (command === "library-enter" && selectedIndexRef.current === -1 && resumeGame) {
-        void playGame(resumeGame.rom);
-        return;
-      }
-      if (selectedIndexRef.current === -1) {
-        if (command === "library-down" || command === "library-right") {
-          selectedIndexRef.current = 0;
-          setSelectedIndex(0);
-          cards[0]?.scrollIntoView({ block: "nearest", inline: "nearest" });
-        }
-        return;
-      }
-      const current = Math.min(selectedIndexRef.current, Math.max(0, cards.length - 1));
-      if (command === "library-enter") {
-        const rom = visibleRoms[current];
-        if (rom) void playGame(rom);
-        return;
-      }
-
-      const firstCard = cards[0];
-      if (!firstCard) return;
-      const firstTop = firstCard.getBoundingClientRect().top;
-      const columns = Math.max(
-        1,
-        cards.findIndex((card) => Math.abs(card.getBoundingClientRect().top - firstTop) > 4),
-      );
-      let next = current;
-      if (command === "library-left") next = Math.max(0, current - 1);
-      if (command === "library-right") next = Math.min(cards.length - 1, current + 1);
-      if (command === "library-up") {
-        next = current === 0 && hasResume ? -1 : Math.max(0, current - columns);
-      }
-      if (command === "library-down") next = Math.min(cards.length - 1, current + columns);
-      selectedIndexRef.current = next;
-      setSelectedIndex(next);
-      if (next === -1) resumeButtonRef.current?.scrollIntoView({ block: "nearest" });
-      else cards[next]?.scrollIntoView({ block: "nearest", inline: "nearest" });
-    };
-    window.addEventListener("mga-remote-library-command", handleLibraryCommand);
-    return () => window.removeEventListener("mga-remote-library-command", handleLibraryCommand);
-    // playGame and the visible list are intentionally read from this render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWindowOpen, selectedIndex, visibleRoms, resumeGame, query, launching, tvMode]);
-
-  useEffect(() => {
-    if (!tvMode) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      const commandByKey: Record<string, string> = {
-        ArrowUp: "library-up",
-        ArrowDown: "library-down",
-        ArrowLeft: "library-left",
-        ArrowRight: "library-right",
-        Enter: "library-enter",
-      };
-      const command = commandByKey[event.key];
-      if (!command) return;
-      event.preventDefault();
-      window.dispatchEvent(new CustomEvent("mga-remote-library-command", { detail: { command } }));
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [tvMode]);
-
   return (
-    <div
-      className={`${tvMode ? "mga-tv-shell" : ""} relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]`}
-    >
+    <div className={`relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]`}>
       <div className="mga-game-background pointer-events-none fixed inset-0 z-0 bg-[#050009]">
         {BACKGROUND_IMAGES.map((image, index) => (
           <img
@@ -617,12 +189,12 @@ export function GameLibrary({
       </div>
 
       <header
-        className={`${tvMode ? "mga-tv-topbar" : ""} relative z-10 sticky top-0 border-b border-cyan-500/20 bg-[#050009]/90 px-4 py-3 backdrop-blur sm:px-8`}
+        className={`relative z-10 sticky top-0 border-b border-cyan-500/20 bg-[#050009]/90 px-4 py-3 backdrop-blur sm:px-8`}
       >
         <div
-          className={`${tvMode ? "mga-tv-topbar-inner" : ""} mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}
+          className={`mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}
         >
-          <div className={`${tvMode ? "mga-tv-brand" : ""} flex items-center gap-3`}>
+          <div className={`flex items-center gap-3`}>
             <img
               src="/kali-dragon.png"
               alt="Logo do dragão"
@@ -641,10 +213,8 @@ export function GameLibrary({
             </div>
           </div>
 
-          <div
-            className={`${tvMode ? "mga-tv-actions" : ""} flex flex-col gap-2 sm:flex-row sm:items-center`}
-          >
-            <div className={`${tvMode ? "mga-tv-search" : ""} relative`}>
+          <div className={`flex flex-col gap-2 sm:flex-row sm:items-center`}>
+            <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cyan-500/60" />
               <input
                 type="search"
@@ -655,8 +225,8 @@ export function GameLibrary({
               />
             </div>
 
-            <div className={`${tvMode ? "mga-tv-tabs" : ""} flex gap-1.5`}>
-              {TABS.filter((item) => !tvMode || item.id === "all").map((item) => (
+            <div className={`flex gap-1.5`}>
+              {TABS.map((item) => (
                 <button
                   key={item.id}
                   type="button"
@@ -674,8 +244,8 @@ export function GameLibrary({
               ))}
             </div>
 
-            <div className={tvMode ? "mga-tv-remote-control" : undefined}>
-              <RemoteControlHub autoOpen={tvMode} />
+            <div>
+              <RemoteControlHub />
             </div>
 
             <button
@@ -683,7 +253,7 @@ export function GameLibrary({
               onClick={toggleFullscreen}
               aria-label={isFullscreen ? "Sair da tela cheia" : "Entrar em tela cheia"}
               title={isFullscreen ? "Sair da tela cheia" : "Entrar em tela cheia"}
-              className={`${tvMode ? "mga-tv-secondary-button" : ""} flex items-center justify-center gap-1.5 rounded-full border border-cyan-500/30 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-400/10`}
+              className={`flex items-center justify-center gap-1.5 rounded-full border border-cyan-500/30 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-400/10`}
             >
               {isFullscreen ? (
                 <Minimize2 className="h-3.5 w-3.5" />
@@ -697,32 +267,22 @@ export function GameLibrary({
               onClick={() => setIsAboutOpen(true)}
               aria-label="Sobre o sistema"
               title="Sobre o sistema"
-              className={`${tvMode ? "mga-tv-secondary-button" : ""} flex items-center justify-center gap-1.5 rounded-full border border-pink-400/30 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-pink-200 transition-colors hover:border-pink-300 hover:bg-pink-400/10`}
+              className={`flex items-center justify-center gap-1.5 rounded-full border border-pink-400/30 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-pink-200 transition-colors hover:border-pink-300 hover:bg-pink-400/10`}
             >
               <Info className="h-3.5 w-3.5" /> Sobre
             </button>
-            <div className={tvMode ? "mga-tv-account-slot" : undefined}>{accountSlot}</div>
+            <div className="">{accountSlot}</div>
           </div>
         </div>
       </header>
 
-      {tvMode && (
-        <div className="mga-tv-status relative z-10 border-b border-pink-400/30 bg-pink-400/10 px-4 py-2 text-center font-mono text-xs text-pink-100 sm:px-8">
-          MODO TV · use o celular como controle · DEV EMERSON 2026
-        </div>
-      )}
-
       {isWindowOpen ? (
         <section
           aria-label="Janela da biblioteca de jogos"
-          className={`${tvMode ? "mga-tv-library-window" : ""} fixed z-30 flex min-w-0 flex-col overflow-hidden rounded-2xl border border-cyan-500/35 bg-[#050009]/90 shadow-[0_0_36px_rgba(0,229,255,.22)] backdrop-blur-xl transition-[width] duration-300 ${
-            tvMode
-              ? "inset-x-4 top-20 max-h-[calc(100dvh-6rem)] w-[calc(100vw-2rem)] sm:inset-x-8 sm:right-auto sm:top-20 sm:max-h-[calc(100dvh-6rem)] sm:w-[calc(100vw-4rem)]"
-              : "inset-x-2 top-[16rem] max-h-[calc(100dvh-17rem)] w-[calc(100vw-1rem)] sm:inset-x-auto sm:right-3 sm:top-24 sm:max-h-[calc(100dvh-6rem)] sm:w-[min(92vw,420px)]"
-          } ${isWindowExpanded && !tvMode ? "sm:w-[min(96vw,1200px)]" : ""}`}
+          className={`fixed inset-x-2 top-[16rem] z-30 flex max-h-[calc(100dvh-17rem)] w-[calc(100vw-1rem)] min-w-0 flex-col overflow-hidden rounded-2xl border border-cyan-500/35 bg-[#050009]/90 shadow-[0_0_36px_rgba(0,229,255,.22)] backdrop-blur-xl transition-[width] duration-300 sm:inset-x-auto sm:right-3 sm:top-24 sm:max-h-[calc(100dvh-6rem)] sm:w-[min(92vw,420px)] ${isWindowExpanded ? "sm:w-[min(96vw,1200px)]" : ""}`}
         >
           <div
-            className={`${tvMode ? "mga-tv-library-header" : ""} flex shrink-0 items-center justify-between gap-3 border-b border-cyan-500/20 bg-black/35 px-3 py-2.5`}
+            className={`flex shrink-0 items-center justify-between gap-3 border-b border-cyan-500/20 bg-black/35 px-3 py-2.5`}
           >
             <div className="min-w-0">
               <h2 className="font-mono text-xs font-bold tracking-[0.16em] text-cyan-300">
@@ -762,7 +322,7 @@ export function GameLibrary({
 
           <div
             ref={libraryContentRef}
-            className={`${tvMode ? "mga-tv-library-body" : ""} game-library-scroll min-h-0 flex-1 touch-pan-y overscroll-contain overflow-y-auto p-3 sm:p-4`}
+            className={`game-library-scroll min-h-0 flex-1 touch-pan-y overscroll-contain overflow-y-auto p-3 sm:p-4`}
           >
             {phase === "ready" && resumeGame && !query.trim() && (
               <button
@@ -820,7 +380,7 @@ export function GameLibrary({
 
             {phase === "ready" && visibleRoms.length > 0 && (
               <div
-                className={`${tvMode ? "mga-tv-grid" : ""} grid w-full min-w-0 grid-cols-2 gap-3 ${isWindowExpanded ? "sm:grid-cols-3 xl:grid-cols-4" : ""}`}
+                className={`grid w-full min-w-0 grid-cols-2 gap-3 ${isWindowExpanded ? "sm:grid-cols-3 xl:grid-cols-4" : ""}`}
               >
                 {visibleRoms.map((rom, index) => (
                   <GameCard

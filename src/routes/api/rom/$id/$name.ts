@@ -52,7 +52,7 @@ async function proxyDrive(request: Request, id: string, name: string) {
     out.set("Content-Disposition", `inline; filename="${name.replace(/["\\\r\n]/g, "_")}"`);
     // ROMs são artefatos imutáveis identificados pelo ID do catálogo. Permitir
     // cache no navegador/CDN evita repetir a ida lenta ao Google Drive ao
-    // reabrir um jogo na TV ou após uma reconexão do player.
+    // reabrir um jogo após uma reconexão do player.
     out.set("Cache-Control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400");
     out.set("Accept-Ranges", upstream.headers.get("accept-ranges") || "bytes");
     const len = upstream.headers.get("content-length");

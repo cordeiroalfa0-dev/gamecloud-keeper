@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { supabase } from "@/integrations/supabase/client";
-import { ConnectToTv } from "@/components/ConnectToTv";
 
 type RemotePayload = { room: string; player: number; input: number; pressed: boolean };
 type RemoteCommand = {
@@ -148,16 +147,15 @@ const relayCommandToGame = (command: Partial<RemoteCommand>) => {
   );
 };
 
-const controllerUrl = (room: string, player: number, tvMode: boolean) => {
+const controllerUrl = (room: string, player: number) => {
   const origin = typeof window === "undefined" ? PUBLIC_APP_ORIGIN : window.location.origin;
   const url = new URL("/controller", origin);
   const params = new URLSearchParams({ controller: "1", room, player: String(player) });
-  if (tvMode) params.set("tv", "1");
   url.search = params.toString();
   return url.toString();
 };
 
-export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
+export function RemoteControlHub() {
   const [open, setOpen] = useState(false);
   const [room, setRoom] = useState("");
   const [roomLoaded, setRoomLoaded] = useState(false);
@@ -167,7 +165,12 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" || e.key === "Backspace" || e.key === "GoBack" || e.key === "XF86Back") {
+      if (
+        e.key === "Escape" ||
+        e.key === "Backspace" ||
+        e.key === "GoBack" ||
+        e.key === "XF86Back"
+      ) {
         e.preventDefault();
         setOpen(false);
       }
@@ -310,10 +313,10 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
 
   const links = useMemo(
     () => ({
-      p1: room ? controllerUrl(room, 1, autoOpen) : "",
-      p2: room ? controllerUrl(room, 2, autoOpen) : "",
+      p1: room ? controllerUrl(room, 1) : "",
+      p2: room ? controllerUrl(room, 2) : "",
     }),
-    [autoOpen, room],
+    [room],
   );
   const create = (showDialog = true) => {
     const savedRoom = readStoredRoom();
@@ -332,13 +335,6 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
     setRoomLoaded(true);
   }, []);
 
-  useEffect(() => {
-    if (!autoOpen || !roomLoaded) return;
-    const handheldViewport = window.matchMedia("(pointer: coarse) and (max-width: 1024px)").matches;
-    const showDialog = !handheldViewport;
-    if (room) setOpen(showDialog);
-    else create(showDialog);
-  }, [autoOpen, roomLoaded, room]);
   const copy = async (value: string, label: string) => {
     try {
       await navigator.clipboard.writeText(value);
@@ -361,21 +357,15 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
       </button>
       {open && typeof document !== "undefined"
         ? createPortal(
-            <div
-              className={`${autoOpen ? "mga-tv-control-overlay" : ""} pointer-events-auto fixed inset-0 z-[9999] grid place-items-center overflow-y-auto bg-black/90 p-4 backdrop-blur-sm`}
-            >
-              <section
-                className={`${autoOpen ? "mga-tv-control-dialog" : ""} my-auto max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-pink-400/40 bg-[#080012] p-5 text-white shadow-[0_0_40px_rgba(255,43,109,.25)]`}
-              >
+            <div className="pointer-events-auto fixed inset-0 z-[9999] grid place-items-center overflow-y-auto bg-black/90 p-4 backdrop-blur-sm">
+              <section className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-pink-400/40 bg-[#080012] p-5 text-white shadow-[0_0_40px_rgba(255,43,109,.25)]">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2 className="font-mono text-lg font-bold text-pink-200">
                       CONTROLES POR CELULAR
                     </h2>
                     <p className="mt-1 font-mono text-xs text-zinc-400">
-                      {autoOpen
-                        ? "O jogo roda nesta TV. Leia um QR Code com o celular para controlá-lo."
-                        : "Abra um link em cada celular para usar os controles nesta tela."}
+                      Abra um link em cada celular para usar os controles nesta tela.
                     </p>
                   </div>
                   <button
@@ -386,9 +376,7 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
                     ✕
                   </button>
                 </div>
-                <div
-                  className={`${autoOpen ? "mga-tv-control-players" : ""} mt-5 grid grid-cols-2 gap-3`}
-                >
+                <div className="mt-5 grid grid-cols-2 gap-3">
                   <div className="rounded-xl border border-cyan-400/40 bg-cyan-400/10 p-3 text-center font-mono text-xs">
                     <b className="text-cyan-200">JOGADOR 1</b>
                     <img
@@ -428,21 +416,14 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
                     </button>
                   </div>
                 </div>
-                <div className={`${autoOpen ? "mga-tv-control-setup" : ""} mt-4`}>
-                  <ConnectToTv />
-                </div>
-                <div
-                  className={`${autoOpen ? "mga-tv-control-room" : ""} mt-4 rounded-xl border border-white/10 bg-black/30 p-3 text-center font-mono text-xs`}
-                >
+                <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-3 text-center font-mono text-xs">
                   <div className="text-zinc-400">Código da sala</div>
                   <strong className="text-3xl tracking-[.3em] text-white">{room}</strong>
                   <div className="mt-2 text-[10px] text-zinc-500">
                     Envie o link correspondente para cada celular.
                   </div>
                 </div>
-                <div
-                  className={`${autoOpen ? "mga-tv-control-help" : ""} mt-4 grid grid-cols-2 gap-2`}
-                >
+                <div className="mt-4 grid grid-cols-2 gap-2">
                   <div className="rounded-lg border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-center font-mono text-[10px] text-amber-100">
                     <b className="block text-amber-200">COMANDOS NO CELULAR</b>
                     <span>Direcional navega, JANELA abre/fecha e ENTER escolhe</span>
@@ -459,7 +440,7 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
                     storeRoom("");
                     setPlayers({});
                   }}
-                  className={`${autoOpen ? "mga-tv-control-close" : ""} mt-4 w-full rounded-lg border border-white/15 px-3 py-2 font-mono text-xs text-zinc-300 hover:border-pink-300/50`}
+                  className="mt-4 w-full rounded-lg border border-white/15 px-3 py-2 font-mono text-xs text-zinc-300 hover:border-pink-300/50"
                 >
                   Encerrar controles
                 </button>
