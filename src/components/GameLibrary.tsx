@@ -166,6 +166,221 @@ export function GameLibrary({
   const libraryContentRef = useRef<HTMLDivElement>(null);
   const resumeButtonRef = useRef<HTMLButtonElement>(null);
 
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    (window as Window & { MGA_CLOUD_ACCESS_TOKEN?: string }).MGA_CLOUD_ACCESS_TOKEN =
+      cloudAccessToken || "";
+    window.dispatchEvent(new Event("mga-cloud-access-token-updated"));
+  }, [cloudAccessToken]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      if (document.body.classList.contains("mga-game-active")) return;
+      setBackgroundIndex((current) => (current + 1) % BACKGROUND_IMAGES.length);
+    }, 10_000);
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let frame = 0;
+    let x = 0;
+    let y = 0;
+    const render = () => {
+      frame = 0;
+      root.style.setProperty("--mga-parallax-x", `${x}px`);
+      root.style.setProperty("--mga-parallax-y", `${y}px`);
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (document.body.classList.contains("mga-game-active")) return;
+      if (reducedMotion.matches || event.pointerType === "touch") return;
+      x = Math.max(-12, Math.min(12, (event.clientX / window.innerWidth - 0.5) * -24));
+      y = Math.max(-8, Math.min(8, (event.clientY / window.innerHeight - 0.5) * -16));
+      if (!frame) frame = window.requestAnimationFrame(render);
+    };
+    const reset = () => {
+      x = 0;
+      y = 0;
+      if (!frame) frame = window.requestAnimationFrame(render);
+    };
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("blur", reset, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("blur", reset);
+      if (frame) window.cancelAnimationFrame(frame);
+      root.style.removeProperty("--mga-parallax-x");
+      root.style.removeProperty("--mga-parallax-y");
+    };
+  }, []);
+
+  useEffect(() => {
+    const syncFullscreenState = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    return () => document.removeEventListener("fullscreenchange", syncFullscreenState);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch {
+      // Alguns navegadores bloqueiam fullscreen no preview ou em iframes.
+    }
+  };
+
+  const loadLibrary = async () => {
+    setPhase("loading");
+    setErrorMessage("");
+    try {
+      await waitForBridge();
+      const [romsRes, namesRes, favRes, recentRes, mediaRes] = await Promise.all([
+        fetch("/api/roms"),
+        fetch("/api/gamenames"),
+        fetch("/api/games/favorites"),
+        fetch("/api/games/recent"),
+        fetch("/assets/media-manifest.json").catch(() => null),
+      ]);
+      if (!romsRes.ok) throw new Error("Catálogo de ROMs indisponível");
+      const romsData = await romsRes.json();
+      const namesData = namesRes.ok ? await namesRes.json() : { names: {} };
+      const favData = favRes.ok ? await favRes.json() : { games: [] };
+      const recentData = recentRes.ok ? await recentRes.json() : { games: [] };
+      const mediaData = mediaRes && mediaRes.ok ? await mediaRes.json() : {};
+      const latestCheckpoint = await findLatestLocalCheckpoint();
+      const availableRoms: string[] = Array.isArray(romsData.roms) ? romsData.roms : [];
+      const recentGames: string[] = Array.isArray(recentData.games) ? recentData.games : [];
+      const checkpointRom = latestCheckpoint
+        ? availableRoms.find((rom) => fileBase(rom) === latestCheckpoint.rom)
+        : undefined;
+      const resumeRom = checkpointRom || recentGames[0] || null;
+      if (!mountedRef.current) return;
+      setRoms(availableRoms);
+      setNames(namesData.names || {});
+      setFavorites(Array.isArray(favData.games) ? favData.games : []);
+      setRecent(recentGames);
+      setResumeGame(
+        resumeRom
+          ? { rom: resumeRom, savedAt: checkpointRom ? latestCheckpoint?.savedAt || null : null }
+          : null,
+      );
+      setMedia(mediaData || {});
+      setPhase("ready");
+    } catch (error) {
+      if (!mountedRef.current) return;
+      setErrorMessage(error instanceof Error ? error.message : "Falha ao carregar a biblioteca.");
+      setPhase("error");
+    }
+  };
+
+  useEffect(() => {
+    void loadLibrary();
+  }, []);
+
+  useEffect(() => {
+    const refreshResumeGame = async () => {
+      const latestCheckpoint = await findLatestLocalCheckpoint();
+      const checkpointRom = latestCheckpoint
+        ? roms.find((rom) => fileBase(rom) === latestCheckpoint.rom)
+        : undefined;
+      const resumeRom = checkpointRom || recent[0] || null;
+      setResumeGame(
+        resumeRom
+          ? { rom: resumeRom, savedAt: checkpointRom ? latestCheckpoint?.savedAt || null : null }
+          : null,
+      );
+    };
+    const handleSaveComplete = () => void refreshResumeGame();
+    window.addEventListener("mga-save-complete", handleSaveComplete);
+    return () => window.removeEventListener("mga-save-complete", handleSaveComplete);
+  }, [roms, recent]);
+
+  const titleFor = (rom: string) => names[fileBase(rom)] || prettyFallback(rom);
+  const snapFor = (rom: string) => {
+    const entry = media[fileBase(rom)];
+    return entry?.has_snap ? entry.snap_url : undefined;
+  };
+  const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
+  const visibleRoms = useMemo(() => {
+    let list = roms;
+    if (tab === "favorites") list = roms.filter((rom) => favoriteSet.has(rom));
+    if (tab === "recent") {
+      const order = new Map(recent.map((rom, index) => [rom, index]));
+      list = roms.filter((rom) => order.has(rom)).sort((a, b) => order.get(a)! - order.get(b)!);
+    }
+    const q = query.trim().toLowerCase();
+    return q
+      ? list.filter((rom) => titleFor(rom).toLowerCase().includes(q) || fileBase(rom).includes(q))
+      : list;
+  }, [roms, tab, favoriteSet, recent, query, names]);
+
+  useEffect(() => {
+    selectedIndexRef.current = 0;
+    setSelectedIndex(0);
+    libraryContentRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }, [query, tab]);
+
+  useEffect(() => {
+    const next = Math.min(selectedIndexRef.current, Math.max(0, visibleRoms.length - 1));
+    selectedIndexRef.current = next;
+    setSelectedIndex(next);
+  }, [visibleRoms.length]);
+
+  const toggleFavorite = async (rom: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    try {
+      const response = await fetch("/api/games/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: rom }),
+      });
+      const data = await response.json();
+      if (Array.isArray(data.games)) setFavorites(data.games);
+    } catch {
+      // O bridge local pode não estar disponível em uma prévia sem assets.
+    }
+  };
+
+  const playGame = async (rom: string): Promise<boolean> => {
+    if (launching) return false;
+    setLaunchError("");
+    setLaunching(rom);
+    try {
+      const response = await fetch("/api/launch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ romName: rom }),
+      });
+      const data = await response.json();
+      if (!data.ok) throw new Error(data.error || "Não foi possível abrir o jogo.");
+      setRecent((previous) => [rom, ...previous.filter((item) => item !== rom)].slice(0, 100));
+      window.dispatchEvent(new CustomEvent("mga-remote-game-launch-result", { detail: { ok: true } }));
+      return true;
+    } catch (error) {
+      setLaunchError(error instanceof Error ? error.message : "Não foi possível abrir o jogo.");
+      window.dispatchEvent(new CustomEvent("mga-remote-game-launch-result", { detail: { ok: false } }));
+      return false;
+    } finally {
+      if (mountedRef.current) setLaunching(null);
+    }
+  };
+
+  useEffect(() => {
+    const handleRemoteLaunch = (event: Event) => {
+      const rom = (event as CustomEvent<{ rom?: unknown }>).detail?.rom;
+      if (typeof rom === "string" && roms.includes(rom)) void playGame(rom);
+    };
+    window.addEventListener("mga-remote-launch-game", handleRemoteLaunch);
+    return () => window.removeEventListener("mga-remote-launch-game", handleRemoteLaunch);
+  }, [roms, launching]);
+
   return (
     <div className={`relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]`}>
       <div className="mga-game-background pointer-events-none fixed inset-0 z-0 bg-[#050009]">
