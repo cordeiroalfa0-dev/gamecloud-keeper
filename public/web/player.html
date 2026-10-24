@@ -1626,6 +1626,22 @@
   };
   window.addEventListener('message',e=>{
     if(e.source!==window.parent||e.origin!==location.origin)return;
+    if(e.data?.type==='mga-remote-input'){
+      const remotePlayer=Number(e.data.player);
+      const remoteInput=Number(e.data.input);
+      const pressed=e.data.pressed?1:0;
+      const manager=window.EJS_emulator?.gameManager;
+      if(!Number.isInteger(remotePlayer)||remotePlayer<1||remotePlayer>2||
+         !Number.isInteger(remoteInput)||remoteInput<0||remoteInput>9||
+         typeof manager?.simulateInput!=='function')return;
+      try{
+        // O controle remoto usa jogadores 1/2; o EmulatorJS usa índices 0/1.
+        manager.simulateInput(remotePlayer-1,remoteInput,pressed);
+      }catch(error){
+        log('Controle remoto: '+(error?.message||error));
+      }
+      return;
+    }
     if(e.data?.type==='mga-cloud-access-token'&&typeof e.data.token==='string'){
       cloudAccessToken=e.data.token;
       return;
