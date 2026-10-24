@@ -278,6 +278,8 @@ function Launcher({
   onLogout: () => void;
 }) {
   const [loginPending, setLoginPending] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailPending, setEmailPending] = useState(false);
 
   const signInWithGoogle = async (selectAccount = false) => {
     if (loginPending) return;
@@ -298,6 +300,33 @@ function Launcher({
       const message = error instanceof Error ? error.message : String(error);
       alert(`Falha ao iniciar o login Google: ${message}`);
       setLoginPending(false);
+    }
+  };
+
+  const signInWithEmail = async () => {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !normalizedEmail.includes("@")) {
+      alert("Digite um endereço de e-mail válido.");
+      return;
+    }
+    if (emailPending) return;
+    setEmailPending(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: normalizedEmail,
+        options: {
+          // Não há allowlist de domínio: qualquer e-mail válido pode solicitar acesso.
+          shouldCreateUser: true,
+          emailRedirectTo: `${window.location.origin}/?launcher=1`,
+        },
+      });
+      if (error) throw error;
+      alert("Enviamos um link de acesso para seu e-mail. Abra o link para entrar.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      alert(`Não foi possível enviar o link de acesso: ${message}`);
+    } finally {
+      setEmailPending(false);
     }
   };
 
@@ -331,23 +360,45 @@ function Launcher({
       </button>
     </div>
   ) : (
-    <div className="flex items-center gap-2 rounded-full border border-cyan-500/30 bg-black/50 px-2 py-1 font-mono text-[11px] text-cyan-300">
+    <div className="flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-cyan-500/30 bg-black/50 px-2 py-1 font-mono text-[11px] text-cyan-300">
       <span>Modo convidado · saves locais</span>
+      <div className="flex flex-wrap items-center justify-end gap-1">
+        <input
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") void signInWithEmail();
+          }}
+          placeholder="qualquer@email.com"
+          aria-label="Seu endereço de e-mail"
+          className="w-44 rounded border border-cyan-500/40 bg-black/70 px-2 py-1 text-cyan-100 outline-none placeholder:text-zinc-600 focus:border-cyan-300"
+        />
+        <button
+          type="button"
+          onClick={() => void signInWithEmail()}
+          disabled={emailPending}
+          aria-live="polite"
+          className="rounded border border-cyan-500/50 px-1.5 py-1 text-cyan-300 hover:bg-cyan-400/10 disabled:opacity-60"
+        >
+          {emailPending ? "Enviando…" : "Entrar com e-mail"}
+        </button>
+      </div>
       <button
         type="button"
         onClick={() => void signInWithGoogle()}
         disabled={loginPending}
         aria-live="polite"
-        className="rounded border border-cyan-500/50 px-1.5 py-0.5 text-cyan-300 hover:bg-cyan-400/10"
+        className="rounded border border-cyan-500/50 px-1.5 py-1 text-cyan-300 hover:bg-cyan-400/10"
       >
-        {loginPending ? "Abrindo Google…" : "Acessar com Google"}
+        {loginPending ? "Abrindo Google…" : "Google"}
       </button>
       <button
         type="button"
         onClick={() => void signInWithGoogle(true)}
         disabled={loginPending}
         title="Escolher outra conta Google"
-        className="rounded border border-cyan-500/30 px-1.5 py-0.5 text-cyan-400 hover:bg-cyan-400/10"
+        className="rounded border border-cyan-500/30 px-1.5 py-1 text-cyan-400 hover:bg-cyan-400/10"
       >
         Outra conta
       </button>
