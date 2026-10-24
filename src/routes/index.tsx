@@ -365,6 +365,7 @@ function Launcher({
       <div className="flex flex-wrap items-center justify-end gap-1">
         <input
           type="email"
+          name="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           onKeyDown={(event) => {
@@ -372,6 +373,7 @@ function Launcher({
           }}
           placeholder="qualquer@email.com"
           aria-label="Seu endereço de e-mail"
+          autoComplete="email"
           className="w-44 rounded border border-cyan-500/40 bg-black/70 px-2 py-1 text-cyan-100 outline-none placeholder:text-zinc-600 focus:border-cyan-300"
         />
         <button
