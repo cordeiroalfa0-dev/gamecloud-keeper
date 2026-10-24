@@ -9,7 +9,14 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   vite: {
     server: {
-      allowedHosts: [".manus.computer"],
+      // O mesmo repositório é executado no Preview do Manus e no Preview do Lovable.
+      // Sem os domínios Lovable, o proxy do editor recebe bloqueio de host do Vite.
+      allowedHosts: [
+        ".manus.computer",
+        ".lovable.dev",
+        ".lovable.app",
+        ".lovableproject.com",
+      ],
     },
   },
   tanstackStart: {
