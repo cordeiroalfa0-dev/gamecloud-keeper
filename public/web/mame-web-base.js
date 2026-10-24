@@ -253,6 +253,7 @@
       if (closed) return;
       closed = true;
       closeInProgress = false;
+      window.dispatchEvent(new CustomEvent("mga-remote-game-launch-result", { detail: { ok: false } }));
       dismissExitDialog();
       window.removeEventListener("message", onMessage);
       iframe.src = "about:blank";
@@ -344,6 +345,20 @@
         message.remove();
       }
 
+      if (event.data?.type === "mga-player-ready") {
+        // O iframe já instalou o listener de postMessage; a partir daqui o
+        // hub pode encaminhar as teclas recebidas pelo QR Code.
+        window.dispatchEvent(new Event("mga-player-ready"));
+        window.dispatchEvent(new Event("mga-player-bridge-ready"));
+        const cloudAccessToken = window.MGA_CLOUD_ACCESS_TOKEN || "";
+        if (cloudAccessToken) {
+          iframe.contentWindow?.postMessage(
+            { type: "mga-cloud-access-token", token: cloudAccessToken },
+            location.origin,
+          );
+        }
+      }
+
       if (event.data?.type === "mga-emulator-exit") {
         finishClose();
       }
@@ -411,6 +426,10 @@
     window.addEventListener("message", onMessage);
 
     iframe.onload = () => {
+      // Fallback para navegadores móveis que perdem a primeira mensagem do
+      // player durante a inicialização. O listener de postMessage do player
+      // já está instalado quando o documento chega ao evento load.
+      window.dispatchEvent(new Event("mga-player-bridge-ready"));
       // O player.html já exibe o estado de carregamento e o próprio botão
       // Start Game. Não mantenha a mensagem do launcher sobre o iframe,
       // pois ela pode esconder o botão que o usuário precisa clicar.
@@ -442,6 +461,7 @@
 
   function showWebPlayer(romName) {
     return new Promise((resolve, reject) => {
+      window.dispatchEvent(new Event("mga-player-loading"));
       document.getElementById("mga-web-player")?.remove();
 
       const overlay = document.createElement("div");
@@ -563,6 +583,8 @@
           );
           resolve();
         } catch (error) {
+          window.dispatchEvent(new Event("mga-player-faulted"));
+          window.dispatchEvent(new CustomEvent("mga-remote-game-launch-result", { detail: { ok: false } }));
           message.textContent =
             error?.message || "Falha ao iniciar a ROM.";
           reject(error);

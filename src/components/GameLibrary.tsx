@@ -126,7 +126,7 @@ const prettyFallback = (name: string) =>
 async function waitForBridge(): Promise<void> {
   await new Promise<void>((resolve) => {
     const script = document.createElement("script");
-    script.src = "/web/mame-web.js?v=20261024-web-cleanup-v1";
+    script.src = "/web/mame-web.js?v=20261024-remote-bridge-v3";
     script.onload = () => resolve();
     script.onerror = () => resolve();
     document.head.appendChild(script);
@@ -361,11 +361,15 @@ export function GameLibrary({
       const data = await response.json();
       if (!data.ok) throw new Error(data.error || "Não foi possível abrir o jogo.");
       setRecent((previous) => [rom, ...previous.filter((item) => item !== rom)].slice(0, 100));
-      window.dispatchEvent(new CustomEvent("mga-remote-game-launch-result", { detail: { ok: true } }));
+      window.dispatchEvent(
+        new CustomEvent("mga-remote-game-launch-result", { detail: { ok: true } }),
+      );
       return true;
     } catch (error) {
       setLaunchError(error instanceof Error ? error.message : "Não foi possível abrir o jogo.");
-      window.dispatchEvent(new CustomEvent("mga-remote-game-launch-result", { detail: { ok: false } }));
+      window.dispatchEvent(
+        new CustomEvent("mga-remote-game-launch-result", { detail: { ok: false } }),
+      );
       return false;
     } finally {
       if (mountedRef.current) setLaunching(null);
