@@ -297,6 +297,16 @@
         close.style.pointerEvents = "auto";
       }
 
+      if (event.data?.type === "mga-player-ready") {
+        const cloudAccessToken = window.MGA_CLOUD_ACCESS_TOKEN || "";
+        if (cloudAccessToken) {
+          iframe.contentWindow?.postMessage(
+            { type: "mga-cloud-access-token", token: cloudAccessToken },
+            location.origin,
+          );
+        }
+      }
+
       if (event.data?.type === "mga-emulator-exit") {
         finishClose();
       }
@@ -364,6 +374,13 @@
     window.addEventListener("message", onMessage);
 
     iframe.onload = () => {
+      const cloudAccessToken = window.MGA_CLOUD_ACCESS_TOKEN || "";
+      if (cloudAccessToken) {
+        iframe.contentWindow?.postMessage(
+          { type: "mga-cloud-access-token", token: cloudAccessToken },
+          location.origin,
+        );
+      }
       // O player.html já exibe o estado de carregamento e o próprio botão
       // Start Game. Não mantenha a mensagem do launcher sobre o iframe,
       // pois ela pode esconder o botão que o usuário precisa clicar.

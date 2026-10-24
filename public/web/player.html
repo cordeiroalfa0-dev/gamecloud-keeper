@@ -1303,6 +1303,8 @@
     }catch{return null}
   };
   const cloudUrl=`/api/saves/?rom=${encodeURIComponent(romBase)}&core=${encodeURIComponent(core)}`;
+  let cloudAccessToken='';
+  const cloudHeaders=()=>cloudAccessToken?{Authorization:`Bearer ${cloudAccessToken}`}:{};
   let cloudAvailable=null;
   const syncCloudSave=async record=>{
     let cloudTimeout;
@@ -1312,7 +1314,7 @@
       const controller=new AbortController();
       cloudTimeout=setTimeout(()=>controller.abort(),8000);
       const response=await fetch('/api/saves/',{
-        method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},
+        method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json',...cloudHeaders()},
         signal:controller.signal,
         body:JSON.stringify({rom:romBase,core,stateB64:bytesToBase64(bytes),preview:record.preview||'',savedAt:record.savedAt,dateStr:record.dateStr})
       });
@@ -1328,7 +1330,7 @@
   };
   const readCloudSave=async()=>{
     try{
-      const response=await fetch(cloudUrl,{credentials:'same-origin'});
+      const response=await fetch(cloudUrl,{credentials:'same-origin',headers:cloudHeaders()});
       if(response.status===401){cloudAvailable=false;return null}
       if(!response.ok){cloudAvailable=false;return null}
       const data=await response.json();
@@ -1624,8 +1626,13 @@
   };
   window.addEventListener('message',e=>{
     if(e.source!==window.parent||e.origin!==location.origin)return;
+    if(e.data?.type==='mga-cloud-access-token'&&typeof e.data.token==='string'){
+      cloudAccessToken=e.data.token;
+      return;
+    }
     if(e.data?.type==='mga-request-save-exit')saveAndExit();
   });
+  try{parent.postMessage({type:'mga-player-ready'},location.origin)}catch{}
 
   const renderSlotsList=async()=>{
     const container=document.getElementById('mga-slots-list');

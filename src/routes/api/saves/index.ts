@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { isSameOriginRequest } from "../../../lib/auth";
+import { isSameOriginRequest, readSession } from "../../../lib/auth";
 
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -25,7 +25,7 @@ async function admin() {
 
 async function readSaveSession(request: Request) {
   const token = request.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
-  if (!token) return null;
+  if (!token) return readSession(request);
 
   try {
     const db = await admin();
@@ -293,7 +293,8 @@ function safe(handler: (ctx: { request: Request }) => Promise<Response>) {
     try {
       return await handler(ctx);
     } catch (error) {
-      if (ctx.request.signal?.aborted) return json({ ok: false, error: "Envio interrompido." }, 499);
+      if (ctx.request.signal?.aborted)
+        return json({ ok: false, error: "Envio interrompido." }, 499);
       console.error("Falha em /api/saves:", error);
       const message = error instanceof Error ? error.message : String(error);
       return json({ ok: false, error: message }, 503);

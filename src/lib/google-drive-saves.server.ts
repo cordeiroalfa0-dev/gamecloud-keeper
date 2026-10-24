@@ -9,33 +9,70 @@ type CloudSave = {
 type DriveFile = { id: string; name?: string };
 type DriveSavesMode = "disabled" | "configured" | "misconfigured";
 
-const GATEWAY = "https://connector-gateway.lovable.dev/google_drive";
-const DRIVE_API = `${GATEWAY}/drive/v3`;
-const DRIVE_UPLOAD_API = `${GATEWAY}/upload/drive/v3`;
+const DRIVE_API = "https://www.googleapis.com/drive/v3";
+const DRIVE_UPLOAD_API = "https://www.googleapis.com/upload/drive/v3";
+const OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SAVE_FOLDER_NAME = "Master Games Arcade Saves";
 const APP_PROPERTY_KEY = "mga_save_key";
 const MAX_UPLOAD_BYTES = 10_000_000;
 
-// Google Drive via conector do Lovable: o gateway cuida do OAuth.
+let cachedAccessToken: { value: string; expiresAt: number } | null = null;
+
 function configuredCredentials() {
   return {
-    lovableKey: process.env["LOVABLE_API_KEY"],
-    connectionKey: process.env["GOOGLE_DRIVE_API_KEY"],
+    clientId: process.env["GOOGLE_DRIVE_CLIENT_ID"],
+    clientSecret: process.env["GOOGLE_DRIVE_CLIENT_SECRET"],
+    refreshToken: process.env["GOOGLE_DRIVE_REFRESH_TOKEN"],
   };
 }
 
 export function getGoogleDriveSavesMode(): DriveSavesMode {
   const credentials = configuredCredentials();
-  if (!credentials.connectionKey) return "disabled";
-  return credentials.lovableKey ? "configured" : "misconfigured";
+  const present = Object.values(credentials).filter(Boolean).length;
+  if (present === 0) return "disabled";
+  return present === 3 ? "configured" : "misconfigured";
+}
+
+async function getAccessToken(): Promise<string> {
+  const now = Date.now();
+  if (cachedAccessToken && cachedAccessToken.expiresAt > now + 60_000) {
+    return cachedAccessToken.value;
+  }
+
+  const { clientId, clientSecret, refreshToken } = configuredCredentials();
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error("A configuração OAuth do Google Drive está incompleta.");
+  }
+
+  const response = await fetch(OAUTH_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+      grant_type: "refresh_token",
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    console.error(`Google OAuth token refresh failed [${response.status}]: ${body}`);
+    throw new Error(`Google OAuth token refresh failed (${response.status}).`);
+  }
+
+  const token = (await response.json()) as { access_token?: string; expires_in?: number };
+  if (!token.access_token) throw new Error("Google OAuth did not return an access token.");
+  cachedAccessToken = {
+    value: token.access_token,
+    expiresAt: now + Math.max(60, Number(token.expires_in) || 3600) * 1000,
+  };
+  return token.access_token;
 }
 
 async function driveRequest(url: string, init: RequestInit = {}): Promise<Response> {
-  const { lovableKey, connectionKey } = configuredCredentials();
-  if (!lovableKey || !connectionKey) throw new Error("Conector do Google Drive não configurado.");
   const headers = new Headers(init.headers);
-  headers.set("Authorization", `Bearer ${lovableKey}`);
-  headers.set("X-Connection-Api-Key", connectionKey);
+  headers.set("Authorization", `Bearer ${await getAccessToken()}`);
   return fetch(url, { ...init, headers });
 }
 
