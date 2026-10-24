@@ -165,6 +165,18 @@ export function RemoteControlHub({ autoOpen = false }: { autoOpen?: boolean }) {
   const [copied, setCopied] = useState("");
 
   useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Backspace" || e.key === "GoBack" || e.key === "XF86Back") {
+        e.preventDefault();
+        setOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open]);
+
+  useEffect(() => {
     if (!room) return;
     const channel = supabase.channel(`mga-remote-${room}`, {
       config: { private: false, broadcast: { ack: false } },

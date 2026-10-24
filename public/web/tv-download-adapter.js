@@ -101,3 +101,38 @@
   `;
   document.head.appendChild(css);
 })();
+
+// Ponte de entrada para controle remoto por celular (postMessage) e controle remoto de TV
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('message', event => {
+    if (event.data?.type === 'mga-remote-input') {
+      const playerIndex = Number(event.data.player) === 2 ? 1 : 0;
+      const input = Number(event.data.input);
+      const value = event.data.pressed ? 1 : 0;
+      try {
+        window.EJS_emulator?.gameManager?.simulateInput(playerIndex, input, value);
+      } catch {}
+    }
+  });
+
+  // Suporte a teclas numéricas comuns em controles de Smart TV (5 = Ficha, 1 = Start)
+  window.addEventListener('keydown', event => {
+    const manager = window.EJS_emulator?.gameManager;
+    if (!manager) return;
+    if (event.code === 'Digit5' || event.code === 'Numpad5' || event.key === '5') {
+      try { manager.simulateInput(0, 2, 1); } catch {}
+    } else if (event.code === 'Digit1' || event.code === 'Numpad1' || event.key === '1') {
+      try { manager.simulateInput(0, 3, 1); } catch {}
+    }
+  }, true);
+
+  window.addEventListener('keyup', event => {
+    const manager = window.EJS_emulator?.gameManager;
+    if (!manager) return;
+    if (event.code === 'Digit5' || event.code === 'Numpad5' || event.key === '5') {
+      try { manager.simulateInput(0, 2, 0); } catch {}
+    } else if (event.code === 'Digit1' || event.code === 'Numpad1' || event.key === '1') {
+      try { manager.simulateInput(0, 3, 0); } catch {}
+    }
+  }, true);
+}
