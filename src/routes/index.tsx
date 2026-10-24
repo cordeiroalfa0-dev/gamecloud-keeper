@@ -277,59 +277,6 @@ function Launcher({
   cloudAccessToken: string | null;
   onLogout: () => void;
 }) {
-  const [loginPending, setLoginPending] = useState(false);
-  const [email, setEmail] = useState("");
-  const [emailPending, setEmailPending] = useState(false);
-
-  const signInWithGoogle = async (selectAccount = false) => {
-    if (loginPending) return;
-    setLoginPending(true);
-    try {
-      const { lovable } = await import("@/integrations/lovable");
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/?launcher=1`,
-        ...(selectAccount ? { extraParams: { prompt: "select_account" } } : {}),
-      });
-      if (result.error) {
-        alert(`Não foi possível entrar com o Google: ${result.error.message}`);
-        setLoginPending(false);
-        return;
-      }
-      if (!result.redirected) setLoginPending(false);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      alert(`Falha ao iniciar o login Google: ${message}`);
-      setLoginPending(false);
-    }
-  };
-
-  const signInWithEmail = async () => {
-    const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedEmail || !normalizedEmail.includes("@")) {
-      alert("Digite um endereço de e-mail válido.");
-      return;
-    }
-    if (emailPending) return;
-    setEmailPending(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: normalizedEmail,
-        options: {
-          // Não há allowlist de domínio: qualquer e-mail válido pode solicitar acesso.
-          shouldCreateUser: true,
-          emailRedirectTo: `${window.location.origin}/?launcher=1`,
-        },
-      });
-      if (error) throw error;
-      alert("Enviamos um link de acesso para seu e-mail. Abra o link para entrar.");
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      alert(`Não foi possível enviar o link de acesso: ${message}`);
-    } finally {
-      setEmailPending(false);
-    }
-  };
-
   const logout = async () => {
     try {
       await supabase.auth.signOut();
@@ -360,51 +307,9 @@ function Launcher({
       </button>
     </div>
   ) : (
-    <div className="flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-cyan-500/30 bg-black/50 px-2 py-1 font-mono text-[11px] text-cyan-300">
-      <span>Modo convidado · saves locais</span>
-      <div className="flex flex-wrap items-center justify-end gap-1">
-        <input
-          type="email"
-          name="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") void signInWithEmail();
-          }}
-          placeholder="qualquer@email.com"
-          aria-label="Seu endereço de e-mail"
-          autoComplete="email"
-          className="w-44 rounded border border-cyan-500/40 bg-black/70 px-2 py-1 text-cyan-100 outline-none placeholder:text-zinc-600 focus:border-cyan-300"
-        />
-        <button
-          type="button"
-          onClick={() => void signInWithEmail()}
-          disabled={emailPending}
-          aria-live="polite"
-          className="rounded border border-cyan-500/50 px-1.5 py-1 text-cyan-300 hover:bg-cyan-400/10 disabled:opacity-60"
-        >
-          {emailPending ? "Enviando…" : "Entrar com e-mail"}
-        </button>
-      </div>
-      <button
-        type="button"
-        onClick={() => void signInWithGoogle()}
-        disabled={loginPending}
-        aria-live="polite"
-        className="rounded border border-cyan-500/50 px-1.5 py-1 text-cyan-300 hover:bg-cyan-400/10"
-      >
-        {loginPending ? "Abrindo Google…" : "Google"}
-      </button>
-      <button
-        type="button"
-        onClick={() => void signInWithGoogle(true)}
-        disabled={loginPending}
-        title="Escolher outra conta Google"
-        className="rounded border border-cyan-500/30 px-1.5 py-1 text-cyan-400 hover:bg-cyan-400/10"
-      >
-        Outra conta
-      </button>
-    </div>
+    <span className="rounded-2xl border border-cyan-500/30 bg-black/50 px-2 py-1 font-mono text-[11px] text-cyan-300">
+      Modo convidado · acesso livre · saves locais
+    </span>
   );
 
   // A biblioteca de jogos (cards, busca, favoritos, recentes) roda
