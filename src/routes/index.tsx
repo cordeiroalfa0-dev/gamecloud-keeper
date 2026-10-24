@@ -277,6 +277,19 @@ function Launcher({
   cloudAccessToken: string | null;
   onLogout: () => void;
 }) {
+  const [guestEmail, setGuestEmail] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return window.localStorage.getItem("mga-guest-email") ?? "";
+  });
+  const [emailDraft, setEmailDraft] = useState(guestEmail);
+
+  const enterWithEmail = () => {
+    const normalizedEmail = emailDraft.trim().toLowerCase();
+    if (!normalizedEmail) return;
+    window.localStorage.setItem("mga-guest-email", normalizedEmail);
+    setGuestEmail(normalizedEmail);
+  };
+
   const logout = async () => {
     try {
       await supabase.auth.signOut();
@@ -307,9 +320,35 @@ function Launcher({
       </button>
     </div>
   ) : (
-    <span className="rounded-2xl border border-cyan-500/30 bg-black/50 px-2 py-1 font-mono text-[11px] text-cyan-300">
-      Modo convidado · acesso livre · saves locais
-    </span>
+    <div className="flex flex-wrap items-center justify-end gap-1 rounded-2xl border border-cyan-500/30 bg-black/50 px-2 py-1 font-mono text-[11px] text-cyan-300">
+      {guestEmail ? (
+        <span className="max-w-[180px] truncate" title={guestEmail}>
+          {guestEmail}
+        </span>
+      ) : (
+        <span>Entre com qualquer e-mail</span>
+      )}
+      <input
+        type="email"
+        name="email"
+        value={emailDraft}
+        onChange={(event) => setEmailDraft(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") enterWithEmail();
+        }}
+        placeholder="seu@email.com"
+        aria-label="Seu e-mail"
+        autoComplete="email"
+        className="w-40 rounded border border-cyan-500/40 bg-black/70 px-2 py-1 text-cyan-100 outline-none placeholder:text-zinc-600 focus:border-cyan-300"
+      />
+      <button
+        type="button"
+        onClick={enterWithEmail}
+        className="rounded border border-cyan-500/50 px-1.5 py-1 text-cyan-300 hover:bg-cyan-400/10"
+      >
+        Entrar
+      </button>
+    </div>
   );
 
   // A biblioteca de jogos (cards, busca, favoritos, recentes) roda
