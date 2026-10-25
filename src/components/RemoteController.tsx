@@ -562,8 +562,8 @@ export function RemoteController() {
                 ? "sem conexão · reabra o QR"
                 : "conectando…"}
           </div>
-          <div className="mt-1 text-[9px] font-bold tracking-[.16em] text-orange-200/80 [@media(max-height:500px)]:hidden">
-            DEV EMERSON 2026
+          <div className="mt-1 text-[9px] font-bold tracking-[.12em] text-emerald-200/85">
+            CONTROLE WEB · APP OPCIONAL
           </div>
         </div>
         <div className="flex items-center gap-2">
