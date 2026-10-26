@@ -81,7 +81,9 @@ const relayInputToGame = (input: Partial<RemotePayload>) => {
   // O emulador roda em um iframe e não recebe eventos disparados na janela
   // do launcher. O postMessage é o canal usado pelo player.html para injetar
   // a entrada no GameManager do EmulatorJS.
-  frame?.contentWindow?.postMessage(message, window.location.origin);
+  // O preview da Lovable pode atravessar um proxy com outra origem no iframe.
+  // O player valida event.source === window.parent antes de aceitar a mensagem.
+  frame?.contentWindow?.postMessage(message, "*");
 
   // Mantém o evento para integrações locais que ainda consumam esse contrato.
   window.dispatchEvent(new CustomEvent("mga-remote-input", { detail: input }));
@@ -120,10 +122,7 @@ const relayCommandToGame = (command: Partial<RemoteCommand>) => {
       window.dispatchEvent(new Event("mga-remote-close-player"));
       return;
     }
-    frame.contentWindow.postMessage(
-      { type: "mga-remote-command", command: "save-and-exit" },
-      window.location.origin,
-    );
+    frame.contentWindow.postMessage({ type: "mga-remote-command", command: "save-and-exit" }, "*");
     return;
   }
   if (
@@ -141,10 +140,7 @@ const relayCommandToGame = (command: Partial<RemoteCommand>) => {
     queuedFullscreenToggle = true;
     return;
   }
-  frame?.contentWindow?.postMessage(
-    { type: "mga-remote-command", command: command.command },
-    window.location.origin,
-  );
+  frame?.contentWindow?.postMessage({ type: "mga-remote-command", command: command.command }, "*");
 };
 
 const controllerUrl = (room: string, player: number) => {

@@ -271,7 +271,7 @@
       closeInProgress = true;
       message.textContent = "SALVANDO A PARTIDA...";
       message.style.display = "grid";
-      iframe.contentWindow.postMessage({ type: "mga-request-save-exit" }, location.origin);
+      iframe.contentWindow.postMessage({ type: "mga-request-save-exit" }, "*");
       window.setTimeout(() => {
         if (closeInProgress && !closed) {
           message.textContent = "O salvamento demorou. Tente novamente ou saia sem salvar.";
@@ -336,10 +336,9 @@
     };
 
     const onMessage = (event) => {
-      if (
-        event.origin !== location.origin ||
-        event.source !== iframe.contentWindow
-      ) return;
+      // A origem pode ser reescrita pelo proxy do preview; a janela fonte é
+      // a verificação forte, pois só o iframe criado acima pode falar aqui.
+      if (event.source !== iframe.contentWindow) return;
 
       if (event.data?.type === "mga-emulator-started") {
         message.remove();
@@ -354,7 +353,7 @@
         if (cloudAccessToken) {
           iframe.contentWindow?.postMessage(
             { type: "mga-cloud-access-token", token: cloudAccessToken },
-            location.origin,
+            "*",
           );
         }
       }

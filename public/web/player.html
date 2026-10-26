@@ -773,7 +773,7 @@
     debug.style.display='block';
     manual.style.display='none';
     log('ERRO: '+x);
-    try{parent.postMessage({type:'mga-emulator-error',message:x},location.origin)}catch{}
+    try{parent.postMessage({type:'mga-emulator-error',message:x},'*')}catch{}
   };
 
   if(!rom){
@@ -977,7 +977,7 @@
     if(e.key==='F10'){e.preventDefault();visual.vignette=!visual.vignette;applyVisual();log('Vinheta: '+(visual.vignette?'ligada':'desligada'));}
     if(e.key==='?'||e.key==='h'){e.preventDefault();visualHelp();}
     if(e.key==='Escape'&&!e.target.matches('input,textarea,button')){
-      try{parent.postMessage({type:'mga-emulator-exit-requested'},location.origin)}catch{}
+      try{parent.postMessage({type:'mga-emulator-exit-requested'},'*')}catch{}
     }
   });
 
@@ -986,7 +986,7 @@
   const btnClose=document.getElementById('btn-close');
   const btnFullscreen=document.getElementById('btn-fullscreen');
   btnClose.addEventListener('click',()=>{
-    try{parent.postMessage({type:'mga-emulator-exit-requested'},location.origin)}catch{}
+    try{parent.postMessage({type:'mga-emulator-exit-requested'},'*')}catch{}
   });
   btnFullscreen.addEventListener('click',goFullscreen);
 
@@ -1618,10 +1618,10 @@
       parent.postMessage({
         type:ok?'mga-emulator-save-complete':'mga-emulator-save-failed',
         message:ok?'Partida salva com sucesso.':'Não foi possível salvar a partida.'
-      },location.origin);
+      },'*');
     }catch(e){
       log('Progresso: falha ao salvar antes de sair '+(e?.message||e));
-      parent.postMessage({type:'mga-emulator-save-failed',message:'Falha ao salvar antes de sair.'},location.origin);
+      parent.postMessage({type:'mga-emulator-save-failed',message:'Falha ao salvar antes de sair.'},'*');
     }
   };
   const pendingRemoteInputs=[];
@@ -1661,7 +1661,9 @@
     queued.forEach(applyRemoteInput);
   };
   window.addEventListener('message',e=>{
-    if(e.source!==window.parent||e.origin!==location.origin)return;
+    // Em previews/proxies a origem pode não ser textualemente igual, mas a
+    // janela fonte continua sendo exclusivamente o launcher pai.
+    if(e.source!==window.parent)return;
     if(e.data?.type==='mga-remote-input'){
       applyRemoteInput(e.data);
       return;
@@ -1672,7 +1674,7 @@
     }
     if(e.data?.type==='mga-request-save-exit')saveAndExit();
   });
-  try{parent.postMessage({type:'mga-player-ready'},location.origin)}catch{}
+  try{parent.postMessage({type:'mga-player-ready'},'*')}catch{}
 
   const renderSlotsList=async()=>{
     const container=document.getElementById('mga-slots-list');
@@ -2014,7 +2016,7 @@
       log('Diagnóstico FS: '+(e?.message||e));
     }
 
-    try{parent.postMessage({type:'mga-emulator-started'},location.origin)}catch{}
+    try{parent.postMessage({type:'mga-emulator-started'},'*')}catch{}
   };
 
   // Teclado universal por posição física (KeyboardEvent.code), independente
