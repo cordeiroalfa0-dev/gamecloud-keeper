@@ -1674,6 +1674,7 @@
     }
     if(e.data?.type==='mga-request-save-exit')saveAndExit();
   });
+  try{parent.postMessage({type:'mga-player-bridge-ready'},'*')}catch{}
   try{parent.postMessage({type:'mga-player-ready'},'*')}catch{}
 
   const renderSlotsList=async()=>{

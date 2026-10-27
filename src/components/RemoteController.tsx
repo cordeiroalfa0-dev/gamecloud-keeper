@@ -220,6 +220,7 @@ export function RemoteController() {
     };
     window.addEventListener("beforeinstallprompt", onInstallAvailable);
     window.addEventListener("appinstalled", onInstalled, { once: true });
+    if ("serviceWorker" in navigator) void navigator.serviceWorker.register("/sw.js");
     return () => {
       window.removeEventListener("beforeinstallprompt", onInstallAvailable);
       window.removeEventListener("appinstalled", onInstalled);
@@ -420,7 +421,7 @@ export function RemoteController() {
   }, [room, player, libraryMode]);
 
   const send = (input: number, pressed: boolean) => {
-    if (!room || !channelRef.current || !connected) return;
+    if (!room || !channelRef.current) return;
     if (pressed) navigator.vibrate?.(8);
     if (pressed) activeInputs.current.add(input);
     else activeInputs.current.delete(input);
@@ -428,7 +429,7 @@ export function RemoteController() {
     void channelRef.current.send({ type: "broadcast", event: "input", payload });
   };
   const sendCommand = (command: RemoteCommand) => {
-    if (!room || !channelRef.current || !connected) return;
+    if (!room || !channelRef.current) return;
     navigator.vibrate?.(20);
     void channelRef.current.send({
       type: "broadcast",
@@ -524,21 +525,6 @@ export function RemoteController() {
         void requestWakeLock();
       }}
     >
-      <div
-        className="remote-landscape-guard fixed inset-0 z-[1000] place-items-center bg-[#050a12]/95 p-6 text-center backdrop-blur-xl"
-        role="status"
-        aria-live="polite"
-      >
-        <section className="w-full max-w-sm rounded-3xl border border-cyan-300/35 bg-[#0b141c] p-7 text-slate-100 shadow-[0_0_55px_rgba(34,211,238,.2)]">
-          <div aria-hidden="true" className="mb-3 text-5xl text-cyan-200">
-            ↻
-          </div>
-          <h1 className="font-mono text-xl font-black tracking-wide">PAISAGEM OBRIGATÓRIA</h1>
-          <p className="mt-3 text-sm leading-relaxed text-slate-300">
-            Gire o celular para a horizontal para continuar.
-          </p>
-        </section>
-      </div>
       <div className="pointer-events-none absolute inset-2 rounded-[2rem] border border-white/10 shadow-[inset_0_0_50px_rgba(255,255,255,.035)]" />
       <header className="relative mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between gap-3 rounded-2xl border border-slate-300/20 bg-slate-200/[.07] px-4 py-3 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_10px_25px_rgba(2,6,23,.22)] [@media(max-height:500px)]:gap-2 [@media(max-height:500px)]:px-2 [@media(max-height:500px)]:py-1">
         <div>

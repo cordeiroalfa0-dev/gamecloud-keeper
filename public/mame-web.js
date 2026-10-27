@@ -235,7 +235,7 @@
     playerUrl.searchParams.set("name", cleanRomName(romName));
     // O player é alterado junto com o bridge; versionar a URL evita que o
     // navegador reutilize uma versão antiga que ainda exibia o menu RetroArch.
-    playerUrl.searchParams.set("v", "20261024-web-cleanup-v1");
+    playerUrl.searchParams.set("v", "20261027-qr-controller-bridge-v2");
     if (biosUrl) playerUrl.searchParams.set("bios", biosUrl);
     if (biosName) playerUrl.searchParams.set("biosName", biosName);
 
@@ -287,8 +287,13 @@
         event.source !== iframe.contentWindow
       ) return;
 
+      if (event.data?.type === "mga-player-bridge-ready") {
+        window.dispatchEvent(new Event("mga-player-bridge-ready"));
+      }
+
       if (event.data?.type === "mga-emulator-started") {
         message.remove();
+        window.dispatchEvent(new Event("mga-player-ready"));
         // Durante a partida, mantenha apenas uma saída discreta acessível;
         // o botão Saves e o restante da barra não cobrem mais a tela.
         btnSaves.style.display = "none";
@@ -395,19 +400,9 @@
 
   const enterMobileLandscape = (target) => {
     if (!matchMedia("(pointer: coarse)").matches) return;
-    const lock = () => {
-      try { screen.orientation?.lock?.("landscape").catch(() => {}); } catch {}
-    };
-    try {
-      const element = target || document.documentElement;
-      const req = element.requestFullscreen || element.webkitRequestFullscreen;
-      if (!document.fullscreenElement && req) {
-        const result = req.call(element, { navigationUI: "hide" });
-        if (result?.then) result.then(lock).catch(() => {});
-      } else {
-        lock();
-      }
-    } catch {}
+    // Apenas tenta orientar a tela. Fullscreen deve ser iniciado por clique
+    // explícito do usuário para não exibir o aviso nativo do navegador.
+    try { screen.orientation?.lock?.("landscape").catch(() => {}); } catch {}
   };
 
   function showWebPlayer(romName) {

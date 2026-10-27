@@ -144,8 +144,7 @@ const relayCommandToGame = (command: Partial<RemoteCommand>) => {
 };
 
 const controllerUrl = (room: string, player: number) => {
-  const origin = typeof window === "undefined" ? PUBLIC_APP_ORIGIN : window.location.origin;
-  const url = new URL("/controller", origin);
+  const url = new URL("/controller", PUBLIC_APP_ORIGIN);
   const params = new URLSearchParams({ controller: "1", room, player: String(player) });
   url.search = params.toString();
   return url.toString();
