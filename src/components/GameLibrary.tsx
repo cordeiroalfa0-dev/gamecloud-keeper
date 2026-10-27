@@ -385,6 +385,78 @@ export function GameLibrary({
     return () => window.removeEventListener("mga-remote-launch-game", handleRemoteLaunch);
   }, [roms, launching]);
 
+  useEffect(() => {
+    const cycleTab = (direction: 1 | -1) => {
+      setTab((current) => {
+        const index = TABS.findIndex((item) => item.id === current);
+        const nextIndex = (index + direction + TABS.length) % TABS.length;
+        return TABS[nextIndex]?.id ?? "all";
+      });
+    };
+    const handleLibraryCommand = (event: Event) => {
+      const command = (event as CustomEvent<{ command?: string }>).detail?.command;
+      if (!command) return;
+      if (command === "library-toggle") {
+        setIsWindowOpen((open) => !open);
+        return;
+      }
+      if (command === "library-tab-next" || command === "library-tab-prev") {
+        cycleTab(command === "library-tab-next" ? 1 : -1);
+        return;
+      }
+      const hasResume = Boolean(resumeGame && !query.trim());
+      if (!isWindowOpen || (visibleRoms.length === 0 && !hasResume)) return;
+      const cards = Array.from(
+        libraryContentRef.current?.querySelectorAll<HTMLElement>("[data-library-card]") || [],
+      );
+      if (!cards.length) {
+        if (hasResume) {
+          setSelectedIndex(-1);
+          if (command === "library-enter" && resumeGame) void playGame(resumeGame.rom);
+        }
+        return;
+      }
+      if (command === "library-enter" && selectedIndex === -1 && resumeGame) {
+        void playGame(resumeGame.rom);
+        return;
+      }
+      if (selectedIndex === -1) {
+        if (command === "library-down" || command === "library-right") {
+          setSelectedIndex(0);
+          cards[0]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+        }
+        return;
+      }
+      const current = Math.min(selectedIndex, Math.max(0, cards.length - 1));
+      if (command === "library-enter") {
+        const rom = visibleRoms[current];
+        if (rom) void playGame(rom);
+        return;
+      }
+      const firstCard = cards[0];
+      if (!firstCard) return;
+      const firstTop = firstCard.getBoundingClientRect().top;
+      const firstRowEnd = cards.findIndex(
+        (card) => Math.abs(card.getBoundingClientRect().top - firstTop) > 4,
+      );
+      const columns = Math.max(1, firstRowEnd === -1 ? cards.length : firstRowEnd);
+      let next = current;
+      if (command === "library-left") next = Math.max(0, current - 1);
+      if (command === "library-right") next = Math.min(cards.length - 1, current + 1);
+      if (command === "library-up") {
+        next = current === 0 && hasResume ? -1 : Math.max(0, current - columns);
+      }
+      if (command === "library-down") next = Math.min(cards.length - 1, current + columns);
+      setSelectedIndex(next);
+      if (next === -1) resumeButtonRef.current?.scrollIntoView({ block: "nearest" });
+      else cards[next]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    };
+    window.addEventListener("mga-remote-library-command", handleLibraryCommand);
+    return () => window.removeEventListener("mga-remote-library-command", handleLibraryCommand);
+    // O listener precisa acompanhar a seleção e a lista atuais.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWindowOpen, selectedIndex, visibleRoms, resumeGame, query, launching]);
+
   return (
     <div className={`relative min-h-screen overflow-hidden bg-[#050009] text-[#eafffe]`}>
       <div className="mga-game-background pointer-events-none fixed inset-0 z-0 bg-[#050009]">
