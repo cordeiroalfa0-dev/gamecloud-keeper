@@ -126,7 +126,7 @@ const prettyFallback = (name: string) =>
 async function waitForBridge(): Promise<void> {
   await new Promise<void>((resolve) => {
     const script = document.createElement("script");
-    script.src = "/web/mame-web.js?v=20261024-remote-input-v4";
+    script.src = "/web/mame-web.js?v=20261027-qr-controller-bridge-v2";
     script.onload = () => resolve();
     script.onerror = () => resolve();
     document.head.appendChild(script);
