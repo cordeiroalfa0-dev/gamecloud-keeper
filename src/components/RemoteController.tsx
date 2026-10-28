@@ -808,6 +808,12 @@ export function RemoteController() {
                 ⬇ INSTALAR APP WEB NO CELULAR
               </button>
             )}
+            <a
+              href={`/controller?controller=1&room=${encodeURIComponent(room)}&player=${player}`}
+              className="mt-3 flex w-full items-center justify-center rounded-2xl border border-violet-200/50 bg-violet-300/10 px-5 py-3 font-mono text-xs font-black tracking-wide text-violet-100 transition hover:bg-violet-300/20 [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:py-2"
+            >
+              ↗ ABRIR LINK DO APP WEB
+            </a>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/25 px-4 py-3 font-mono text-xs [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:px-3 [@media(max-height:500px)]:py-1.5">
               <strong className={player === 1 ? "text-cyan-200" : "text-orange-200"}>
                 JOGADOR {player}
@@ -846,7 +852,10 @@ export function RemoteController() {
             )}
             <button
               type="button"
-              onClick={() => setInstallInfoOpen(false)}
+              onClick={() => {
+                setInstallInfoOpen(false);
+                setShowInstallLanding(false);
+              }}
               className="mt-3 w-full rounded-xl border border-white/15 px-4 py-3 font-mono text-xs font-bold text-slate-300 transition hover:bg-white/5"
             >
               CONTINUAR NO NAVEGADOR
