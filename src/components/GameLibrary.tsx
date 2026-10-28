@@ -126,7 +126,7 @@ const prettyFallback = (name: string) =>
 async function waitForBridge(): Promise<void> {
   await new Promise<void>((resolve) => {
     const script = document.createElement("script");
-    script.src = "/web/mame-web.js?v=20261027-qr-controller-bridge-v2";
+    script.src = "/web/mame-web.js?v=20261024-remote-input-v4";
     script.onload = () => resolve();
     script.onerror = () => resolve();
     document.head.appendChild(script);
@@ -393,11 +393,21 @@ export function GameLibrary({
         return TABS[nextIndex]?.id ?? "all";
       });
     };
+
     const handleLibraryCommand = (event: Event) => {
       const command = (event as CustomEvent<{ command?: string }>).detail?.command;
       if (!command) return;
       if (command === "library-toggle") {
         setIsWindowOpen((open) => !open);
+        return;
+      }
+      if (command === "library-home") {
+        setIsWindowOpen(true);
+        setTab("all");
+        setQuery("");
+        selectedIndexRef.current = 0;
+        setSelectedIndex(0);
+        window.requestAnimationFrame(() => libraryContentRef.current?.scrollTo({ top: 0 }));
         return;
       }
       if (command === "library-tab-next" || command === "library-tab-prev") {
@@ -411,23 +421,25 @@ export function GameLibrary({
       );
       if (!cards.length) {
         if (hasResume) {
+          selectedIndexRef.current = -1;
           setSelectedIndex(-1);
           if (command === "library-enter" && resumeGame) void playGame(resumeGame.rom);
         }
         return;
       }
-      if (command === "library-enter" && selectedIndex === -1 && resumeGame) {
+      if (command === "library-enter" && selectedIndexRef.current === -1 && resumeGame) {
         void playGame(resumeGame.rom);
         return;
       }
-      if (selectedIndex === -1) {
+      if (selectedIndexRef.current === -1) {
         if (command === "library-down" || command === "library-right") {
+          selectedIndexRef.current = 0;
           setSelectedIndex(0);
           cards[0]?.scrollIntoView({ block: "nearest", inline: "nearest" });
         }
         return;
       }
-      const current = Math.min(selectedIndex, Math.max(0, cards.length - 1));
+      const current = Math.min(selectedIndexRef.current, Math.max(0, cards.length - 1));
       if (command === "library-enter") {
         const rom = visibleRoms[current];
         if (rom) void playGame(rom);
@@ -436,10 +448,10 @@ export function GameLibrary({
       const firstCard = cards[0];
       if (!firstCard) return;
       const firstTop = firstCard.getBoundingClientRect().top;
-      const firstRowEnd = cards.findIndex(
+      const detectedColumns = cards.findIndex(
         (card) => Math.abs(card.getBoundingClientRect().top - firstTop) > 4,
       );
-      const columns = Math.max(1, firstRowEnd === -1 ? cards.length : firstRowEnd);
+      const columns = Math.max(1, detectedColumns === -1 ? cards.length : detectedColumns);
       let next = current;
       if (command === "library-left") next = Math.max(0, current - 1);
       if (command === "library-right") next = Math.min(cards.length - 1, current + 1);
@@ -447,14 +459,14 @@ export function GameLibrary({
         next = current === 0 && hasResume ? -1 : Math.max(0, current - columns);
       }
       if (command === "library-down") next = Math.min(cards.length - 1, current + columns);
+      selectedIndexRef.current = next;
       setSelectedIndex(next);
       if (next === -1) resumeButtonRef.current?.scrollIntoView({ block: "nearest" });
       else cards[next]?.scrollIntoView({ block: "nearest", inline: "nearest" });
     };
+
     window.addEventListener("mga-remote-library-command", handleLibraryCommand);
     return () => window.removeEventListener("mga-remote-library-command", handleLibraryCommand);
-    // O listener precisa acompanhar a seleção e a lista atuais.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isWindowOpen, selectedIndex, visibleRoms, resumeGame, query, launching]);
 
   return (

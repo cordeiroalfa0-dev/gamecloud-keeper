@@ -175,6 +175,7 @@ export function RemoteController() {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [installInfoOpen, setInstallInfoOpen] = useState(false);
+  const [showInstallLanding, setShowInstallLanding] = useState(false);
   const [libraryMode, setLibraryMode] = useState(true);
   const frameRef = useRef<HTMLElement | null>(null);
   const [circuitLayout, setCircuitLayout] = useState<CircuitLayout>({
@@ -204,6 +205,7 @@ export function RemoteController() {
     }
     const appInstalled = standalone || installedBefore;
     setInstalled(appInstalled);
+    setShowInstallLanding(!appInstalled);
 
     const onInstallAvailable = (event: Event) => {
       event.preventDefault();
@@ -216,7 +218,8 @@ export function RemoteController() {
         // O armazenamento pode estar bloqueado no modo privado.
       }
       setInstalled(true);
-      setInstallInfoOpen(true);
+      setShowInstallLanding(false);
+      setInstallInfoOpen(false);
     };
     window.addEventListener("beforeinstallprompt", onInstallAvailable);
     window.addEventListener("appinstalled", onInstalled, { once: true });
@@ -279,7 +282,8 @@ export function RemoteController() {
         // O armazenamento pode estar bloqueado no modo privado.
       }
       setInstalled(true);
-      setInstallInfoOpen(true);
+      setShowInstallLanding(false);
+      setInstallInfoOpen(false);
     }
   };
 
@@ -334,7 +338,7 @@ export function RemoteController() {
       return;
     }
     const channel = supabase.channel(`mga-remote-${room}`, {
-      config: { private: false, broadcast: { ack: false } },
+      config: { private: false, broadcast: { ack: true } },
     });
     channelRef.current = channel;
     let readyTimer: number | undefined;
@@ -426,16 +430,38 @@ export function RemoteController() {
     if (pressed) activeInputs.current.add(input);
     else activeInputs.current.delete(input);
     const payload: RemotePayload = { room, player, input, pressed };
-    void channelRef.current.send({ type: "broadcast", event: "input", payload });
+    void channelRef.current
+      .send({ type: "broadcast", event: "input", payload })
+      .then((status) => {
+        if (status !== "ok") {
+          setConnectionError(true);
+          setConnected(false);
+        }
+      })
+      .catch(() => {
+        setConnectionError(true);
+        setConnected(false);
+      });
   };
   const sendCommand = (command: RemoteCommand) => {
     if (!room || !channelRef.current) return;
     navigator.vibrate?.(20);
-    void channelRef.current.send({
-      type: "broadcast",
-      event: "command",
-      payload: { room, command },
-    });
+    void channelRef.current
+      .send({
+        type: "broadcast",
+        event: "command",
+        payload: { room, command },
+      })
+      .then((status) => {
+        if (status !== "ok") {
+          setConnectionError(true);
+          setConnected(false);
+        }
+      })
+      .catch(() => {
+        setConnectionError(true);
+        setConnected(false);
+      });
   };
   const libraryCommandByInput: Record<number, RemoteCommand> = {
     4: "library-up",
@@ -484,7 +510,12 @@ export function RemoteController() {
       title={libraryMode ? libraryCommandLabelByInput[input] || label : label}
       onPointerDown={(event) => {
         event.preventDefault();
-        event.currentTarget.setPointerCapture(event.pointerId);
+        try {
+          event.currentTarget.setPointerCapture(event.pointerId);
+        } catch {
+          // Alguns navegadores móveis recusam pointer capture após rotação;
+          // isso não pode impedir o envio do comando ao host.
+        }
         const releaseTimer = inputReleaseTimers.current.get(input);
         if (releaseTimer !== undefined) window.clearTimeout(releaseTimer);
         inputReleaseTimers.current.delete(input);
@@ -721,69 +752,90 @@ export function RemoteController() {
           </div>
         </div>
       </section>
-      {installInfoOpen && (
-        <div className="fixed inset-0 z-[120] grid place-items-center bg-[#050a12]/90 p-4 backdrop-blur-md">
+      {(installInfoOpen || showInstallLanding) && (
+        <div className="fixed inset-0 z-[120] grid place-items-center bg-[#050a12]/95 p-4 backdrop-blur-md">
           <section
             role="dialog"
             aria-modal="true"
             aria-labelledby="remote-install-title"
-            className="relative max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-3xl border border-cyan-300/35 bg-[#0b141c] p-5 text-slate-100 shadow-[0_0_55px_rgba(34,211,238,.18)] sm:p-7"
+            className="relative max-h-[94dvh] w-full max-w-lg overflow-y-auto rounded-[2rem] border border-cyan-200/35 bg-[linear-gradient(145deg,#10252d,#09131b_60%,#180f18)] p-5 text-slate-100 shadow-[0_0_80px_rgba(34,211,238,.22)] sm:p-7 [@media(max-height:500px)]:rounded-2xl [@media(max-height:500px)]:p-3"
           >
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-300 via-violet-400 to-orange-300" />
+            <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-cyan-300 via-violet-400 to-orange-300" />
             <button
               type="button"
-              onClick={() => setInstallInfoOpen(false)}
+              onClick={() => {
+                setInstallInfoOpen(false);
+                setShowInstallLanding(false);
+              }}
               className="absolute right-4 top-4 rounded-full border border-white/15 px-3 py-1 text-lg text-slate-300 hover:bg-white/10"
               aria-label="Fechar instalação"
             >
               ×
             </button>
-            <div className="flex items-center gap-4 pr-10">
-              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-cyan-300/35 bg-cyan-300/10 p-2 shadow-[0_0_24px_rgba(34,211,238,.15)]">
+            <div className="flex items-center gap-4 pr-10 [@media(max-height:500px)]:gap-2">
+              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-cyan-300/35 bg-cyan-300/10 p-2 shadow-[0_0_24px_rgba(34,211,238,.15)] [@media(max-height:500px)]:h-10 [@media(max-height:500px)]:w-10 [@media(max-height:500px)]:rounded-xl [@media(max-height:500px)]:p-1">
                 <img src="/kali-dragon.png" alt="" className="h-full w-full object-contain" />
               </div>
               <div>
                 <p className="font-mono text-[10px] font-bold tracking-[.22em] text-cyan-200">
-                  APLICATIVO DO CONTROLE
+                  APP WEB DO CONTROLE
                 </p>
-                <h2 id="remote-install-title" className="mt-1 text-2xl font-black text-white">
-                  MGA Controle
+                <h2 id="remote-install-title" className="mt-1 text-2xl font-black text-white [@media(max-height:500px)]:text-lg">
+                  Instale o MGA Controle
                 </h2>
               </div>
             </div>
             <img
               src="/assets/remote-controller-fight.jpg"
-              alt="Controle remoto de arcade no celular"
-              className="mt-5 h-36 w-full rounded-2xl border border-white/10 object-cover object-center"
+              alt="Chun-Li e Ken em uma luta de arcade"
+              className="mt-5 h-48 w-full rounded-2xl border border-white/15 object-cover object-center shadow-[0_12px_30px_rgba(0,0,0,.35)] sm:h-56 [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:h-16"
             />
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/25 px-4 py-3 font-mono text-xs">
+            <div className="mt-4 rounded-2xl border border-cyan-200/20 bg-cyan-200/[.06] p-4 [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:p-2">
+              <p className="font-mono text-[11px] font-black tracking-[.18em] text-cyan-200">
+                CONTROLE WEB · SEM APK
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-slate-200 [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-xs">
+                Instale este app web no celular para abrir o controle como um aplicativo, em tela cheia
+                e sem precisar procurar o link novamente.
+              </p>
+            </div>
+            {showInstallLanding && installPrompt && (
+              <button
+                type="button"
+                onClick={() => void installRemoteApp()}
+                className="mt-3 w-full rounded-2xl border border-cyan-200/80 bg-gradient-to-b from-cyan-300/30 to-cyan-700/20 px-5 py-4 font-mono text-sm font-black tracking-wide text-cyan-50 shadow-[0_0_24px_rgba(34,211,238,.16)] transition hover:brightness-110 [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:py-2"
+              >
+                ⬇ INSTALAR APP WEB NO CELULAR
+              </button>
+            )}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/25 px-4 py-3 font-mono text-xs [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:px-3 [@media(max-height:500px)]:py-1.5">
               <strong className={player === 1 ? "text-cyan-200" : "text-orange-200"}>
                 JOGADOR {player}
               </strong>
               <span className="text-slate-400">SALA {room}</span>
             </div>
-            <p className="mt-4 text-sm leading-relaxed text-slate-300">
-              O controle funciona nesta página do navegador. Se quiser, você também pode instalar o
-              atalho <b className="text-cyan-100">MGA Controle</b> para abrir esta sala como Jogador{" "}
-              {player}.
+            <p className="mt-4 text-sm leading-relaxed text-slate-300 [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-xs">
+              Esta é a versão web do sistema. A instalação adiciona um atalho do{" "}
+              <b className="text-cyan-100">MGA Controle</b> à tela inicial e mantém a sala do Jogador{" "}
+              {player} pronta para usar.
             </p>
-            {installPrompt ? (
+            {!showInstallLanding && installPrompt ? (
               <button
                 type="button"
                 onClick={() => void installRemoteApp()}
                 className="mt-5 w-full rounded-2xl border border-cyan-200/80 bg-gradient-to-b from-cyan-300/30 to-cyan-700/20 px-5 py-4 font-mono text-sm font-black tracking-wide text-cyan-50 shadow-[0_0_24px_rgba(34,211,238,.16)] transition hover:brightness-110"
               >
-                ⬇ INSTALAR APP DO CONTROLE
+                ⬇ INSTALAR APP WEB NO CELULAR
               </button>
             ) : installed ? (
               <div className="mt-5 rounded-2xl border border-emerald-200/25 bg-emerald-200/5 p-4 text-sm leading-relaxed text-emerald-100">
-                <p className="font-bold">MGA Controle está instalado neste aparelho.</p>
-                <p className="mt-2 text-emerald-100/80">A instalação é opcional para jogar.</p>
+                <p className="font-bold">MGA Controle instalado neste aparelho.</p>
+                <p className="mt-2 text-emerald-100/80">Abra o ícone na tela inicial para voltar a esta experiência.</p>
               </div>
             ) : (
               <div className="mt-5 rounded-2xl border border-amber-200/25 bg-amber-200/5 p-4 text-sm leading-relaxed text-slate-200">
-                <p className="font-bold text-amber-100">Instalação opcional</p>
-                <p className="mt-2">Você já pode usar os controles nesta página.</p>
+                <p className="font-bold text-amber-100">Instalação pelo menu do navegador</p>
+                <p className="mt-2">O navegador ainda não liberou o botão automático, mas a instalação web continua disponível:</p>
                 <p className="mt-2">
                   <b>Android / Chrome:</b> menu ⋮ → “Instalar app” ou “Adicionar à tela inicial”.
                 </p>

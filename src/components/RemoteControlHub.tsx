@@ -177,7 +177,7 @@ export function RemoteControlHub() {
   useEffect(() => {
     if (!room) return;
     const channel = supabase.channel(`mga-remote-${room}`, {
-      config: { private: false, broadcast: { ack: false } },
+      config: { private: false, broadcast: { ack: true } },
     });
     let timer: number | undefined;
     let staleTimer: number | undefined;
