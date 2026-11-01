@@ -258,9 +258,10 @@ export function RemoteController() {
         const romsData = romsResponse.ok ? await romsResponse.json() : { roms: [] };
         const namesData = namesResponse.ok ? await namesResponse.json() : { names: {} };
         const names = (namesData.names || {}) as Record<string, string>;
-        const games = (Array.isArray(romsData.roms) ? romsData.roms : [])
-          .filter((rom: unknown): rom is string => typeof rom === "string")
-          .map((rom) => ({
+        const romList: unknown[] = Array.isArray(romsData.roms) ? romsData.roms : [];
+        const games = romList
+          .filter((rom): rom is string => typeof rom === "string")
+          .map((rom: string) => ({
             rom,
             title:
               names[rom.replace(/\.(zip|7z|chd)$/i, "").toLowerCase()] ||
