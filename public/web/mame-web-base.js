@@ -221,7 +221,8 @@
     message,
     overlay,
     biosUrl = "",
-    biosName = ""
+    biosName = "",
+    skipDifficulty = false
   ) {
     const iframe = document.createElement("iframe");
     iframe.title = `Master Games Arcade - ${cleanRomName(romName)}`;
@@ -235,9 +236,10 @@
     playerUrl.searchParams.set("name", cleanRomName(romName));
     // O player é alterado junto com o bridge; versionar a URL evita que o
     // navegador reutilize uma versão antiga que ainda exibia o menu RetroArch.
-    playerUrl.searchParams.set("v", "20261024-remote-input-v16");
+    playerUrl.searchParams.set("v", "20261101-mobile-launch-v1");
     if (biosUrl) playerUrl.searchParams.set("bios", biosUrl);
     if (biosName) playerUrl.searchParams.set("biosName", biosName);
+    if (skipDifficulty) playerUrl.searchParams.set("skipDifficulty", "1");
 
     let closed = false;
     let closeInProgress = false;
@@ -458,7 +460,7 @@
     } catch {}
   };
 
-  function showWebPlayer(romName) {
+  function showWebPlayer(romName, { skipDifficulty = false } = {}) {
     return new Promise((resolve, reject) => {
       window.dispatchEvent(new Event("mga-player-loading"));
       document.getElementById("mga-web-player")?.remove();
@@ -578,7 +580,8 @@
             message,
             overlay,
             biosUrl,
-            biosName
+            biosName,
+            skipDifficulty
           );
           resolve();
         } catch (error) {
@@ -797,7 +800,7 @@
       const romName = body.romName || "ROM";
 
       try {
-        await showWebPlayer(romName);
+        await showWebPlayer(romName, { skipDifficulty: body.skipDifficulty === true });
         return jsonResponse({ ok: true, web: true, romName });
       } catch (error) {
         return jsonResponse(

@@ -561,3 +561,17 @@
     letter-spacing: 0.03em;
   }
 }
+
+.controller-control-row {
+  align-items: flex-end;
+  padding-right: clamp(2px, 1vw, 10px);
+  padding-bottom: max(2px, env(safe-area-inset-bottom));
+  padding-left: clamp(2px, 1vw, 10px);
+}
+
+.controller-pad-grid,
+.controller-action-grid {
+  width: min(18rem, 46vw, 58vh, calc(100dvh - 156px));
+  flex: 0 0 auto;
+  transform: none;
+}

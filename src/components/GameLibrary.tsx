@@ -126,7 +126,7 @@ const prettyFallback = (name: string) =>
 async function waitForBridge(): Promise<void> {
   await new Promise<void>((resolve) => {
     const script = document.createElement("script");
-    script.src = "/web/mame-web.js?v=20261024-remote-input-v4";
+    script.src = "/web/mame-web.js?v=20261101-mobile-launch-v1";
     script.onload = () => resolve();
     script.onerror = () => resolve();
     document.head.appendChild(script);
@@ -348,7 +348,7 @@ export function GameLibrary({
     }
   };
 
-  const playGame = async (rom: string): Promise<boolean> => {
+  const playGame = async (rom: string, skipDifficulty = false): Promise<boolean> => {
     if (launching) return false;
     setLaunchError("");
     setLaunching(rom);
@@ -356,7 +356,7 @@ export function GameLibrary({
       const response = await fetch("/api/launch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ romName: rom }),
+        body: JSON.stringify({ romName: rom, skipDifficulty }),
       });
       const data = await response.json();
       if (!data.ok) throw new Error(data.error || "Não foi possível abrir o jogo.");
@@ -379,7 +379,7 @@ export function GameLibrary({
   useEffect(() => {
     const handleRemoteLaunch = (event: Event) => {
       const rom = (event as CustomEvent<{ rom?: unknown }>).detail?.rom;
-      if (typeof rom === "string" && roms.includes(rom)) void playGame(rom);
+      if (typeof rom === "string" && roms.includes(rom)) void playGame(rom, true);
     };
     window.addEventListener("mga-remote-launch-game", handleRemoteLaunch);
     return () => window.removeEventListener("mga-remote-launch-game", handleRemoteLaunch);

@@ -765,7 +765,9 @@
       log('Shader indisponível; mantendo filtro seguro de vídeo: '+(e?.message||e));
     }
   };
-  difficulty=await chooseDifficulty();
+  const skipDifficulty=q.get('skipDifficulty')==='1';
+  difficulty=skipDifficulty?readDifficulty():await chooseDifficulty();
+  if(skipDifficulty)log('Iniciado pelo controle: usando a dificuldade salva sem abrir a configuração.');
 
   const fail=x=>{
     status.textContent=x;

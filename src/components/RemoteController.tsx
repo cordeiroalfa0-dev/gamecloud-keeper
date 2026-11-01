@@ -246,7 +246,7 @@ export function RemoteController() {
       try {
         await new Promise<void>((resolve) => {
           const script = document.createElement("script");
-          script.src = "/web/mame-web.js?v=20261101-mobile-library-v1";
+          script.src = "/web/mame-web.js?v=20261101-mobile-launch-v1";
           script.onload = () => resolve();
           script.onerror = () => resolve();
           document.head.appendChild(script);
@@ -708,17 +708,6 @@ export function RemoteController() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {!libraryMode && (
-            <button
-              type="button"
-              onClick={openMobileLibrary}
-              className="rounded-xl border border-cyan-300/50 bg-cyan-300/10 px-3 py-2 text-[10px] font-bold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
-              aria-label="Salvar e voltar à biblioteca"
-              title="Salvar e voltar à biblioteca"
-            >
-              ← BIBLIOTECA
-            </button>
-          )}
           <strong
             className={`rounded-lg border px-2 py-1 text-[10px] font-bold shadow-[inset_0_1px_0_rgba(255,255,255,.2),0_3px_8px_rgba(2,6,23,.3)] ${player === 1 ? "border-cyan-300/60 bg-cyan-300/10 text-cyan-100" : "border-orange-300/70 bg-orange-300/10 text-orange-100"}`}
             aria-label={`Jogador ${player}`}
@@ -730,7 +719,7 @@ export function RemoteController() {
       </header>
       <section
         ref={frameRef}
-        className={`relative isolate mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:py-0 ${libraryMode ? "justify-start" : "justify-between"}`}
+        className={`relative isolate mx-auto flex w-full ${libraryMode ? "max-w-3xl" : "max-w-none"} min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:py-0 ${libraryMode ? "justify-start" : "justify-between"}`}
         style={{
           backgroundImage: `linear-gradient(145deg, rgba(255,255,255,.11), transparent 24%, transparent 76%, rgba(255,255,255,.035)), radial-gradient(ellipse at 50% 52%, rgba(34,211,238,.15), transparent 62%), url("/assets/remote-controller-pcb.webp")`,
           backgroundSize: "100% 100%, cover, cover",
@@ -861,9 +850,9 @@ export function RemoteController() {
             )}
         </div>
         <div
-          className={`relative z-10 flex min-h-0 flex-1 items-center justify-between gap-2 -mx-1 px-0 ${libraryMode ? "hidden" : ""}`}
+          className={`controller-control-row relative z-10 flex min-h-0 flex-1 justify-between gap-2 -mx-1 px-0 ${libraryMode ? "hidden" : ""}`}
         >
-          <div className="relative grid aspect-square w-[min(13rem,38%)] translate-y-6 grid-cols-3 grid-rows-3 gap-2 [@media(max-height:500px)]:w-[min(13rem,40vh,38%)] [@media(max-height:500px)]:translate-y-0">
+          <div className="controller-pad-grid relative grid aspect-square grid-cols-3 grid-rows-3 gap-2">
             <span />
             <span>
               {control(
@@ -873,21 +862,15 @@ export function RemoteController() {
               )}
             </span>
             <span />
-            <span className="translate-y-5">
+            <span>
               {control(
                 "◀",
                 6,
                 "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
               )}
             </span>
-            <span className="translate-y-5">
-              {control(
-                "▼",
-                5,
-                "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
-              )}
-            </span>
-            <span className="translate-y-5">
+            <span />
+            <span>
               {control(
                 "▶",
                 7,
@@ -895,10 +878,16 @@ export function RemoteController() {
               )}
             </span>
             <span />
-            <span />
+            <span>
+              {control(
+                "▼",
+                5,
+                "h-full w-full border-slate-300/45 bg-gradient-to-b from-slate-400/35 to-slate-700/35 text-3xl text-slate-100",
+              )}
+            </span>
             <span />
           </div>
-          <div className="relative grid aspect-square w-[min(11.5rem,34%)] translate-y-14 grid-cols-3 grid-rows-3 gap-3 [@media(max-height:500px)]:w-[min(11.5rem,40vh,34%)] [@media(max-height:500px)]:translate-y-0 [@media(max-height:500px)]:gap-1">
+          <div className="controller-action-grid relative grid aspect-square grid-cols-3 grid-rows-3 gap-3">
             <span />
             {libraryMode ? (
               <span />
@@ -919,18 +908,18 @@ export function RemoteController() {
                 "h-full w-full border-amber-200/70 bg-gradient-to-b from-amber-300/35 to-amber-700/25 text-2xl text-amber-50",
               )
             )}
-            {control(
-              "A",
-              8,
-              `h-full w-full ${player === 1 ? "border-cyan-200/80 bg-gradient-to-b from-cyan-300/35 to-cyan-700/25 text-cyan-50" : "border-orange-200/80 bg-gradient-to-b from-orange-300/35 to-orange-700/25 text-orange-50"} text-2xl`,
-            )}
+            <span />
             {control(
               "B",
               0,
               "h-full w-full border-sky-200/65 bg-gradient-to-b from-sky-300/30 to-sky-700/25 text-2xl text-sky-50",
             )}
             <span />
-            <span />
+            {control(
+              "A",
+              8,
+              `h-full w-full ${player === 1 ? "border-cyan-200/80 bg-gradient-to-b from-cyan-300/35 to-cyan-700/25 text-cyan-50" : "border-orange-200/80 bg-gradient-to-b from-orange-300/35 to-orange-700/25 text-orange-50"} text-2xl`,
+            )}
             <span />
           </div>
         </div>
