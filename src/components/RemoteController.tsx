@@ -391,6 +391,17 @@ export function RemoteController() {
     }
   };
 
+  const enterLandscapeMode = async () => {
+    try {
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch {
+      // Alguns navegadores não permitem tela cheia nesta página.
+    }
+    await requestLandscape();
+  };
+
   useEffect(() => {
     void requestLandscape();
     void requestWakeLock();
@@ -537,6 +548,10 @@ export function RemoteController() {
         setConnected(false);
       });
   };
+  const openMobileLibrary = () => {
+    setLibraryMode(true);
+    sendCommand("return-home");
+  };
   const libraryCommandByInput: Record<number, RemoteCommand> = {
     4: "library-up",
     6: "library-left",
@@ -640,10 +655,31 @@ export function RemoteController() {
       className="mga-reference-controller notranslate relative flex h-[100dvh] min-h-0 flex-col select-none overflow-hidden bg-[radial-gradient(circle_at_15%_10%,rgba(113,140,153,.32),transparent_26%),radial-gradient(circle_at_90%_90%,rgba(194,113,58,.14),transparent_28%),linear-gradient(135deg,#1c2930,#0e151b_55%,#111b21)] p-2 text-slate-100 [@media(max-height:500px)]:p-1"
       onContextMenu={(event) => event.preventDefault()}
       onPointerDown={() => {
-        void requestLandscape();
+        void enterLandscapeMode();
         void requestWakeLock();
       }}
     >
+      <div className="remote-landscape-guard fixed inset-0 z-[200] place-items-center bg-[#08141c] p-6 text-center">
+        <section className="w-full max-w-sm rounded-3xl border border-cyan-200/25 bg-slate-900/90 p-6 shadow-2xl">
+          <div aria-hidden="true" className="text-5xl text-cyan-200">
+            ↻
+          </div>
+          <h1 className="mt-3 font-mono text-xl font-black tracking-wide text-white">
+            Gire o celular na horizontal
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-slate-300">
+            O controle e a biblioteca do celular funcionam em paisagem. Toque abaixo para tentar
+            ativar a tela cheia e a rotação automática.
+          </p>
+          <button
+            type="button"
+            onClick={() => void enterLandscapeMode()}
+            className="mt-5 w-full rounded-xl border border-cyan-200/70 bg-cyan-300/15 px-4 py-3 font-mono text-sm font-black text-cyan-100"
+          >
+            TENTAR MODO HORIZONTAL
+          </button>
+        </section>
+      </div>
       <div className="pointer-events-none absolute inset-2 rounded-[2rem] border border-white/10 shadow-[inset_0_0_50px_rgba(255,255,255,.035)]" />
       <header className="relative mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between gap-3 rounded-2xl border border-slate-300/20 bg-slate-200/[.07] px-4 py-3 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_10px_25px_rgba(2,6,23,.22)] [@media(max-height:500px)]:gap-2 [@media(max-height:500px)]:px-2 [@media(max-height:500px)]:py-1">
         <div>
@@ -675,7 +711,7 @@ export function RemoteController() {
           {!libraryMode && (
             <button
               type="button"
-              onClick={() => sendCommand("return-home")}
+              onClick={openMobileLibrary}
               className="rounded-xl border border-cyan-300/50 bg-cyan-300/10 px-3 py-2 text-[10px] font-bold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_3px_8px_rgba(2,6,23,.3)]"
               aria-label="Salvar e voltar à biblioteca"
               title="Salvar e voltar à biblioteca"
@@ -694,7 +730,7 @@ export function RemoteController() {
       </header>
       <section
         ref={frameRef}
-        className="relative isolate mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col justify-between gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:py-0"
+        className={`relative isolate mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:py-0 ${libraryMode ? "justify-start" : "justify-between"}`}
         style={{
           backgroundImage: `linear-gradient(145deg, rgba(255,255,255,.11), transparent 24%, transparent 76%, rgba(255,255,255,.035)), radial-gradient(ellipse at 50% 52%, rgba(34,211,238,.15), transparent 62%), url("/assets/remote-controller-pcb.webp")`,
           backgroundSize: "100% 100%, cover, cover",
@@ -702,7 +738,7 @@ export function RemoteController() {
         }}
       >
         {libraryMode && (
-          <div className="relative z-20 mx-auto flex h-[43%] w-full max-w-3xl min-h-0 flex-col rounded-2xl border border-cyan-300/25 bg-[#06131c]/75 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_8px_18px_rgba(0,0,0,.28)] backdrop-blur-sm">
+          <div className="relative z-20 mx-auto flex h-full w-full max-w-3xl min-h-0 flex-1 flex-col rounded-2xl border border-cyan-300/25 bg-[#06131c]/75 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_8px_18px_rgba(0,0,0,.28)] backdrop-blur-sm">
             <div className="flex shrink-0 items-center gap-2 px-1 pb-2">
               <div className="min-w-0 flex-1">
                 <div className="font-mono text-[10px] font-black tracking-[.18em] text-cyan-200">
@@ -758,7 +794,7 @@ export function RemoteController() {
             </div>
           </div>
         )}
-        {circuitLayout.width > 0 && circuitLayout.pads.length > 0 && (
+        {!libraryMode && circuitLayout.width > 0 && circuitLayout.pads.length > 0 && (
           <svg
             aria-hidden="true"
             className="remote-controller-circuit-overlay"
@@ -792,7 +828,7 @@ export function RemoteController() {
           </svg>
         )}
         <div
-          className={`relative z-10 grid w-full max-w-3xl gap-2 px-2 ${libraryMode ? "mx-auto max-w-xs grid-cols-1" : "grid-cols-4"}`}
+          className={`relative z-10 grid w-full max-w-3xl gap-2 px-2 ${libraryMode ? "hidden" : "grid-cols-4"}`}
         >
           {!libraryMode && (
             <button
@@ -806,7 +842,7 @@ export function RemoteController() {
           {!libraryMode && (
             <button
               type="button"
-              onClick={() => sendCommand("save-and-exit")}
+              onClick={openMobileLibrary}
               className="h-8 rounded-xl border border-emerald-300/70 bg-emerald-400/20 px-2 font-mono text-[10px] font-bold text-emerald-100 active:brightness-125"
             >
               BIBLIOTECA
@@ -824,8 +860,10 @@ export function RemoteController() {
               "h-8 border-green-300/80 bg-green-400/20 text-xs text-green-100",
             )}
         </div>
-        <div className="relative z-10 flex min-h-0 flex-1 items-center justify-between gap-2 -mx-1 px-0">
-          <div className="relative grid aspect-square w-[min(13rem,38%)] translate-y-6 grid-cols-3 grid-rows-3 gap-2">
+        <div
+          className={`relative z-10 flex min-h-0 flex-1 items-center justify-between gap-2 -mx-1 px-0 ${libraryMode ? "hidden" : ""}`}
+        >
+          <div className="relative grid aspect-square w-[min(13rem,38%)] translate-y-6 grid-cols-3 grid-rows-3 gap-2 [@media(max-height:500px)]:w-[min(13rem,40vh,38%)] [@media(max-height:500px)]:translate-y-0">
             <span />
             <span>
               {control(
@@ -860,7 +898,7 @@ export function RemoteController() {
             <span />
             <span />
           </div>
-          <div className="relative grid aspect-square w-[min(11.5rem,34%)] translate-y-14 grid-cols-3 grid-rows-3 gap-3">
+          <div className="relative grid aspect-square w-[min(11.5rem,34%)] translate-y-14 grid-cols-3 grid-rows-3 gap-3 [@media(max-height:500px)]:w-[min(11.5rem,40vh,34%)] [@media(max-height:500px)]:translate-y-0 [@media(max-height:500px)]:gap-1">
             <span />
             {libraryMode ? (
               <span />
