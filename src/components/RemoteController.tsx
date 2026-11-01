@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import "./RemoteController.css";
@@ -26,7 +26,12 @@ type RemoteCommand =
   | "library-launch-result"
   | "library-tab-next"
   | "library-tab-prev";
-type RemoteCommandPayload = { room: string; command: RemoteCommand; ok?: boolean };
+type RemoteCommandPayload = {
+  room: string;
+  command: RemoteCommand;
+  ok?: boolean;
+  romName?: string;
+};
 
 type RemoteSession = { room: string; player: 1 | 2 };
 type InstallPromptEvent = Event & {
@@ -177,6 +182,10 @@ export function RemoteController() {
   const [installInfoOpen, setInstallInfoOpen] = useState(false);
   const [showInstallLanding, setShowInstallLanding] = useState(false);
   const [libraryMode, setLibraryMode] = useState(true);
+  const [libraryGames, setLibraryGames] = useState<Array<{ rom: string; title: string }>>([]);
+  const [libraryLoading, setLibraryLoading] = useState(true);
+  const [libraryQuery, setLibraryQuery] = useState("");
+  const [libraryIndex, setLibraryIndex] = useState(0);
   const frameRef = useRef<HTMLElement | null>(null);
   const [circuitLayout, setCircuitLayout] = useState<CircuitLayout>({
     width: 0,
@@ -230,6 +239,70 @@ export function RemoteController() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    const loadLibrary = async () => {
+      setLibraryLoading(true);
+      try {
+        await new Promise<void>((resolve) => {
+          const script = document.createElement("script");
+          script.src = "/web/mame-web.js?v=20261101-mobile-library-v1";
+          script.onload = () => resolve();
+          script.onerror = () => resolve();
+          document.head.appendChild(script);
+        });
+        const [romsResponse, namesResponse] = await Promise.all([
+          fetch("/api/roms"),
+          fetch("/api/gamenames"),
+        ]);
+        const romsData = romsResponse.ok ? await romsResponse.json() : { roms: [] };
+        const namesData = namesResponse.ok ? await namesResponse.json() : { names: {} };
+        const names = (namesData.names || {}) as Record<string, string>;
+        const games = (Array.isArray(romsData.roms) ? romsData.roms : [])
+          .filter((rom: unknown): rom is string => typeof rom === "string")
+          .map((rom) => ({
+            rom,
+            title:
+              names[rom.replace(/\.(zip|7z|chd)$/i, "").toLowerCase()] ||
+              rom.replace(/\.(zip|7z|chd)$/i, "").replace(/[-_]+/g, " "),
+          }));
+        if (!cancelled) setLibraryGames(games);
+      } catch {
+        if (!cancelled) setLibraryGames([]);
+      } finally {
+        if (!cancelled) setLibraryLoading(false);
+      }
+    };
+    void loadLibrary();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const visibleLibraryGames = useMemo(() => {
+    const query = libraryQuery.trim().toLowerCase();
+    if (!query) return libraryGames;
+    return libraryGames.filter(
+      (game) => game.title.toLowerCase().includes(query) || game.rom.toLowerCase().includes(query),
+    );
+  }, [libraryGames, libraryQuery]);
+  useEffect(() => {
+    setLibraryIndex((current) => Math.min(current, Math.max(0, visibleLibraryGames.length - 1)));
+  }, [visibleLibraryGames.length]);
+  const launchMobileGame = (romName: string) => {
+    if (!romName) return;
+    sendCommand("launch-game", { romName });
+  };
+  const moveLibrarySelection = (direction: "up" | "down" | "left" | "right") => {
+    if (!visibleLibraryGames.length) return;
+    const columns = 2;
+    const current = libraryIndex;
+    let next = current;
+    if (direction === "left") next = Math.max(0, current - 1);
+    if (direction === "right") next = Math.min(visibleLibraryGames.length - 1, current + 1);
+    if (direction === "up") next = Math.max(0, current - columns);
+    if (direction === "down") next = Math.min(visibleLibraryGames.length - 1, current + columns);
+    setLibraryIndex(next);
+  };
   useEffect(() => {
     if (error) return;
     const frame = frameRef.current;
@@ -443,14 +516,14 @@ export function RemoteController() {
         setConnected(false);
       });
   };
-  const sendCommand = (command: RemoteCommand) => {
+  const sendCommand = (command: RemoteCommand, extra: Partial<RemoteCommandPayload> = {}) => {
     if (!room || !channelRef.current) return;
     navigator.vibrate?.(20);
     void channelRef.current
       .send({
         type: "broadcast",
         event: "command",
-        payload: { room, command },
+        payload: { room, command, ...extra },
       })
       .then((status) => {
         if (status !== "ok") {
@@ -520,7 +593,21 @@ export function RemoteController() {
         if (releaseTimer !== undefined) window.clearTimeout(releaseTimer);
         inputReleaseTimers.current.delete(input);
         if (libraryMode && libraryCommandByInput[input]) {
-          sendCommand(libraryCommandByInput[input]);
+          const command = libraryCommandByInput[input];
+          if (
+            command === "library-up" ||
+            command === "library-down" ||
+            command === "library-left" ||
+            command === "library-right"
+          ) {
+            moveLibrarySelection(
+              command.replace("library-", "") as "up" | "down" | "left" | "right",
+            );
+          } else if (command === "library-enter") {
+            const selected = visibleLibraryGames[libraryIndex];
+            if (selected) launchMobileGame(selected.rom);
+          }
+          sendCommand(command);
           return;
         }
         inputPressedAt.current.set(input, Date.now());
@@ -613,6 +700,63 @@ export function RemoteController() {
           backgroundPosition: "center, center, center",
         }}
       >
+        {libraryMode && (
+          <div className="relative z-20 mx-auto flex h-[43%] w-full max-w-3xl min-h-0 flex-col rounded-2xl border border-cyan-300/25 bg-[#06131c]/75 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_8px_18px_rgba(0,0,0,.28)] backdrop-blur-sm">
+            <div className="flex shrink-0 items-center gap-2 px-1 pb-2">
+              <div className="min-w-0 flex-1">
+                <div className="font-mono text-[10px] font-black tracking-[.18em] text-cyan-200">
+                  BIBLIOTECA NO CELULAR
+                </div>
+                <div className="truncate font-mono text-[9px] text-slate-400">
+                  Escolha o jogo para abrir no navegador
+                </div>
+              </div>
+              <span className="rounded-full border border-cyan-300/25 px-2 py-1 font-mono text-[9px] text-cyan-200">
+                {visibleLibraryGames.length}
+              </span>
+            </div>
+            <input
+              value={libraryQuery}
+              onChange={(event) => {
+                setLibraryQuery(event.target.value);
+                setLibraryIndex(0);
+              }}
+              placeholder="Buscar jogo..."
+              className="mb-2 w-full shrink-0 rounded-xl border border-cyan-300/25 bg-black/35 px-3 py-2 font-mono text-[11px] text-cyan-50 outline-none placeholder:text-slate-500 focus:border-cyan-300/70"
+              aria-label="Buscar jogo na biblioteca"
+            />
+            <div className="game-library-scroll min-h-0 flex-1 overflow-y-auto pr-1">
+              {libraryLoading ? (
+                <div className="grid h-full place-items-center font-mono text-[11px] text-cyan-200">
+                  CARREGANDO JOGOS...
+                </div>
+              ) : visibleLibraryGames.length === 0 ? (
+                <div className="grid h-full place-items-center text-center font-mono text-[11px] text-slate-400">
+                  Nenhum jogo encontrado.
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  {visibleLibraryGames.map((game, index) => (
+                    <button
+                      key={game.rom}
+                      type="button"
+                      onClick={() => {
+                        setLibraryIndex(index);
+                        launchMobileGame(game.rom);
+                      }}
+                      className={`min-h-14 rounded-xl border px-2 py-2 text-left font-mono text-[10px] font-bold transition ${index === libraryIndex ? "border-cyan-200 bg-cyan-300/20 text-cyan-50 shadow-[0_0_12px_rgba(34,211,238,.28)]" : "border-white/10 bg-black/20 text-slate-300"}`}
+                    >
+                      <span className="line-clamp-2">{game.title}</span>
+                      <span className="mt-1 block truncate text-[8px] font-normal text-slate-500">
+                        TOCAR PARA ABRIR
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {circuitLayout.width > 0 && circuitLayout.pads.length > 0 && (
           <svg
             aria-hidden="true"
@@ -780,7 +924,10 @@ export function RemoteController() {
                 <p className="font-mono text-[10px] font-bold tracking-[.22em] text-cyan-200">
                   APP WEB DO CONTROLE
                 </p>
-                <h2 id="remote-install-title" className="mt-1 text-2xl font-black text-white [@media(max-height:500px)]:text-lg">
+                <h2
+                  id="remote-install-title"
+                  className="mt-1 text-2xl font-black text-white [@media(max-height:500px)]:text-lg"
+                >
                   Instale o MGA Controle
                 </h2>
               </div>
@@ -795,8 +942,8 @@ export function RemoteController() {
                 CONTROLE WEB · SEM APK
               </p>
               <p className="mt-2 text-sm leading-relaxed text-slate-200 [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-xs">
-                Instale este app web no celular para abrir o controle como um aplicativo, em tela cheia
-                e sem precisar procurar o link novamente.
+                Instale este app web no celular para abrir o controle como um aplicativo, em tela
+                cheia e sem precisar procurar o link novamente.
               </p>
             </div>
             {showInstallLanding && installPrompt && (
@@ -822,8 +969,8 @@ export function RemoteController() {
             </div>
             <p className="mt-4 text-sm leading-relaxed text-slate-300 [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-xs">
               Esta é a versão web do sistema. A instalação adiciona um atalho do{" "}
-              <b className="text-cyan-100">MGA Controle</b> à tela inicial e mantém a sala do Jogador{" "}
-              {player} pronta para usar.
+              <b className="text-cyan-100">MGA Controle</b> à tela inicial e mantém a sala do
+              Jogador {player} pronta para usar.
             </p>
             {!showInstallLanding && installPrompt ? (
               <button
@@ -836,12 +983,17 @@ export function RemoteController() {
             ) : installed ? (
               <div className="mt-5 rounded-2xl border border-emerald-200/25 bg-emerald-200/5 p-4 text-sm leading-relaxed text-emerald-100">
                 <p className="font-bold">MGA Controle instalado neste aparelho.</p>
-                <p className="mt-2 text-emerald-100/80">Abra o ícone na tela inicial para voltar a esta experiência.</p>
+                <p className="mt-2 text-emerald-100/80">
+                  Abra o ícone na tela inicial para voltar a esta experiência.
+                </p>
               </div>
             ) : (
               <div className="mt-5 rounded-2xl border border-amber-200/25 bg-amber-200/5 p-4 text-sm leading-relaxed text-slate-200">
                 <p className="font-bold text-amber-100">Instalação pelo menu do navegador</p>
-                <p className="mt-2">O navegador ainda não liberou o botão automático, mas a instalação web continua disponível:</p>
+                <p className="mt-2">
+                  O navegador ainda não liberou o botão automático, mas a instalação web continua
+                  disponível:
+                </p>
                 <p className="mt-2">
                   <b>Android / Chrome:</b> menu ⋮ → “Instalar app” ou “Adicionar à tela inicial”.
                 </p>
