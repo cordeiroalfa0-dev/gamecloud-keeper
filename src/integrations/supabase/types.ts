@@ -50,6 +50,27 @@ export type Database = {
         }
         Relationships: []
       }
+      tv_presence: {
+        Row: {
+          label: string
+          last_seen: string
+          net_hash: string
+          room: string
+        }
+        Insert: {
+          label?: string
+          last_seen?: string
+          net_hash: string
+          room: string
+        }
+        Update: {
+          label?: string
+          last_seen?: string
+          net_hash?: string
+          room?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
