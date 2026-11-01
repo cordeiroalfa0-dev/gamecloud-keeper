@@ -236,7 +236,7 @@
     playerUrl.searchParams.set("name", cleanRomName(romName));
     // O player é alterado junto com o bridge; versionar a URL evita que o
     // navegador reutilize uma versão antiga que ainda exibia o menu RetroArch.
-    playerUrl.searchParams.set("v", "20261101-mobile-launch-v1");
+    playerUrl.searchParams.set("v", "20261101-remote-pause-exit-v2");
     if (biosUrl) playerUrl.searchParams.set("bios", biosUrl);
     if (biosName) playerUrl.searchParams.set("biosName", biosName);
     if (skipDifficulty) playerUrl.searchParams.set("skipDifficulty", "1");
@@ -344,6 +344,14 @@
 
       if (event.data?.type === "mga-emulator-started") {
         message.remove();
+      }
+
+      if (event.data?.type === "mga-emulator-pause-state") {
+        window.dispatchEvent(
+          new CustomEvent("mga-player-pause-state", {
+            detail: { paused: Boolean(event.data.paused) },
+          }),
+        );
       }
 
       if (event.data?.type === "mga-player-ready") {

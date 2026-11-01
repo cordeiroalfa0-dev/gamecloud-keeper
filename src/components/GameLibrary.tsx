@@ -126,7 +126,7 @@ const prettyFallback = (name: string) =>
 async function waitForBridge(): Promise<void> {
   await new Promise<void>((resolve) => {
     const script = document.createElement("script");
-    script.src = "/web/mame-web.js?v=20261101-mobile-launch-v1";
+    script.src = "/web/mame-web.js?v=20261101-remote-pause-exit-v2";
     script.onload = () => resolve();
     script.onerror = () => resolve();
     document.head.appendChild(script);
@@ -484,11 +484,10 @@ export function GameLibrary({
                 "translate3d(var(--mga-parallax-x, 0px), var(--mga-parallax-y, 0px), 0) scale(1.02)",
             }}
             className={`mga-hero-image absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-              index === backgroundIndex ? "opacity-60" : "opacity-0"
+              index === backgroundIndex ? "opacity-100" : "opacity-0"
             }`}
           />
         ))}
-        <div className="absolute inset-0 bg-[#050009]/45" />
       </div>
 
       <header
@@ -501,7 +500,7 @@ export function GameLibrary({
             <img
               src="/kali-dragon.png"
               alt="Logo do dragão"
-              className="h-12 w-12 shrink-0 object-contain brightness-0 invert opacity-85 drop-shadow-[0_0_9px_rgba(0,229,255,.65)]"
+              className="h-12 w-12 shrink-0 object-contain brightness-0 invert opacity-85"
             />
             <div>
               <h1 className="font-mono text-lg font-bold tracking-wide text-cyan-400 [text-shadow:0_0_10px_rgba(0,229,255,.5)] sm:text-xl">
@@ -740,7 +739,7 @@ export function GameLibrary({
                   <img
                     src="/kali-dragon.png"
                     alt="Logo do dragão"
-                    className="h-12 w-12 object-contain brightness-0 invert opacity-85 drop-shadow-[0_0_9px_rgba(0,229,255,.65)]"
+                    className="h-12 w-12 object-contain brightness-0 invert opacity-85"
                   />
                   <div>
                     <h2
@@ -769,7 +768,7 @@ export function GameLibrary({
               <img
                 src="/assets/game-loading-art-portrait.png"
                 alt="Arte do Master Games Arcade"
-                className="w-44 shrink-0 self-center rounded-xl border border-cyan-400/30 shadow-[0_0_25px_rgba(0,229,255,.2)] sm:w-52 sm:self-start"
+                className="w-44 shrink-0 self-center rounded-xl border border-cyan-400/30 sm:w-52 sm:self-start"
               />
               <div className="grid flex-1 gap-5 font-mono text-xs leading-relaxed text-zinc-300 sm:grid-cols-2">
                 <article>
@@ -856,7 +855,7 @@ function GameCard({
       }}
       aria-disabled={isLaunching}
       data-library-card="true"
-      className={`group relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg border bg-[#0a0014] text-left outline-none transition-[border-color,box-shadow] hover:border-cyan-400/70 hover:shadow-[0_0_18px_rgba(0,229,255,.25)] focus-visible:border-cyan-400 aria-disabled:pointer-events-none aria-disabled:opacity-60 ${isSelected ? "border-cyan-300 shadow-[0_0_20px_rgba(0,229,255,.45)] ring-2 ring-cyan-300/70" : "border-white/10"}`}
+      className={`group relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg border bg-[#0a0014] text-left outline-none transition-colors hover:border-cyan-400/70 focus-visible:border-cyan-400 aria-disabled:pointer-events-none aria-disabled:opacity-60 ${isSelected ? "border-cyan-300 ring-2 ring-cyan-300/70" : "border-white/10"}`}
     >
       <span className="relative block aspect-[4/3] w-full overflow-hidden bg-linear-to-br from-[#160227] to-[#03000a]">
         {showArt ? (
@@ -873,8 +872,8 @@ function GameCard({
           </span>
         )}
 
-        <span className="absolute inset-0 flex items-center justify-center bg-black/55 opacity-0 transition-opacity group-hover:opacity-100">
-          <Play className="h-8 w-8 fill-cyan-300 text-cyan-300 drop-shadow-[0_0_8px_rgba(0,229,255,.8)]" />
+        <span className="absolute inset-0 flex items-center justify-center bg-transparent opacity-0 transition-opacity group-hover:opacity-100">
+          <Play className="h-8 w-8 fill-cyan-300 text-cyan-300" />
         </span>
 
         <button
@@ -882,7 +881,7 @@ function GameCard({
           onClick={onToggleFavorite}
           aria-label={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
           aria-pressed={isFavorite}
-          className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full bg-black/70 shadow-md backdrop-blur-sm sm:right-1.5 sm:top-1.5 sm:h-8 sm:w-8"
+          className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full border border-white/35 bg-transparent transition-colors hover:bg-cyan-400/20 sm:right-1.5 sm:top-1.5 sm:h-8 sm:w-8"
         >
           <Star
             className={`h-4 w-4 ${isFavorite ? "fill-yellow-400 text-yellow-400" : "text-white/85"}`}
@@ -890,7 +889,7 @@ function GameCard({
         </button>
 
         {isLaunching && (
-          <span className="absolute inset-0 grid place-items-center bg-black/70 font-mono text-[11px] text-cyan-300">
+          <span className="absolute inset-0 grid place-items-center font-mono text-[11px] font-black text-cyan-300 [text-shadow:0_1px_3px_rgba(0,0,0,.9)]">
             Abrindo...
           </span>
         )}

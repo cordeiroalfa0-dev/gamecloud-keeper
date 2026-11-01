@@ -1670,6 +1670,16 @@
       applyRemoteInput(e.data);
       return;
     }
+    if(e.data?.type==='mga-remote-command'){
+      if(e.data.command==='toggle-pause'){
+        toggleGamePause();
+        return;
+      }
+      if(e.data.command==='save-and-exit'){
+        void saveAndExit();
+        return;
+      }
+    }
     if(e.data?.type==='mga-cloud-access-token'&&typeof e.data.token==='string'){
       cloudAccessToken=e.data.token;
       return;
@@ -1849,20 +1859,31 @@
 
   // Pausa rápida para celular (atender ligação / notificações sem perder vida)
   const btnPause = document.getElementById('btn-pause');
+  function reportPauseState(isPaused){
+    const button=document.getElementById('btn-pause');
+    if(button){
+      button.textContent=isPaused?'▶':'⏸';
+      button.title=isPaused?'Retomar Emulação':'Pausar Emulação';
+      button.style.color=isPaused?'#ffbb00':'#00e5ff';
+    }
+    try{parent.postMessage({type:'mga-emulator-pause-state',paused:isPaused},'*')}catch{}
+  }
+  function toggleGamePause(){
+    const emu=window.EJS_emulator;
+    if(!emu||!started)return false;
+    const wasPaused=!!emu.paused;
+    if(typeof emu.togglePlaying==='function')emu.togglePlaying();
+    else if(wasPaused&&typeof emu.play==='function')emu.play(true);
+    else if(!wasPaused&&typeof emu.pause==='function')emu.pause(true);
+    else return false;
+    const isPaused=!!emu.paused;
+    reportPauseState(isPaused);
+    showToast(isPaused?'⏸ Jogo Pausado':'▶ Jogo Retomado');
+    triggerHaptic(20);
+    return true;
+  }
   if (btnPause) {
-    btnPause.addEventListener('click', () => {
-      const emu = window.EJS_emulator;
-      if (!emu || !started) {
-        return;
-      }
-      emu.togglePlaying?.();
-      const isPaused = !!emu.paused;
-      btnPause.textContent = isPaused ? '▶' : '⏸';
-      btnPause.title = isPaused ? 'Retomar Emulação' : 'Pausar Emulação';
-      btnPause.style.color = isPaused ? '#ffbb00' : '#00e5ff';
-      showToast(isPaused ? '⏸ Jogo Pausado' : '▶ Jogo Retomado');
-      triggerHaptic(20);
-    });
+    btnPause.addEventListener('click', toggleGamePause);
   }
 
   // Hooking de toque no Gamepad touch para Haptic Feedback imediato

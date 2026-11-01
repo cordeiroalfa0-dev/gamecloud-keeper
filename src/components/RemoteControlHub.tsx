@@ -8,6 +8,7 @@ type RemoteCommand = {
   room: string;
   command:
     | "toggle-pause"
+    | "pause-state"
     | "save-and-exit"
     | "toggle-game-fullscreen"
     | "launch-game"
@@ -22,6 +23,7 @@ type RemoteCommand = {
     | "library-tab-next"
     | "library-tab-prev";
   ok?: boolean;
+  paused?: boolean;
   romName?: string;
 };
 
@@ -197,6 +199,17 @@ export function RemoteControlHub() {
         payload: { room, command: "library-launch-result", ok },
       });
     };
+    const broadcastPauseState = (paused: boolean) => {
+      void channel.send({
+        type: "broadcast",
+        event: "command",
+        payload: { room, command: "pause-state", paused },
+      });
+    };
+    const onPlayerPauseState = (event: Event) => {
+      const paused = Boolean((event as CustomEvent<{ paused?: unknown }>).detail?.paused);
+      broadcastPauseState(paused);
+    };
     const onPlayerReady = () => {
       gamePlayerReady = true;
       gamePlayerLaunching = false;
@@ -222,6 +235,7 @@ export function RemoteControlHub() {
     window.addEventListener("mga-player-ready", onPlayerReady);
     window.addEventListener("mga-player-faulted", onPlayerFaulted);
     window.addEventListener("mga-player-bridge-ready", onPlayerBridgeReady);
+    window.addEventListener("mga-player-pause-state", onPlayerPauseState);
     const onLaunchResult = (event: Event) => {
       const ok = Boolean((event as CustomEvent<{ ok?: unknown }>).detail?.ok);
       broadcastLaunchResult(ok);
@@ -301,6 +315,7 @@ export function RemoteControlHub() {
       window.removeEventListener("mga-player-ready", onPlayerReady);
       window.removeEventListener("mga-player-faulted", onPlayerFaulted);
       window.removeEventListener("mga-player-bridge-ready", onPlayerBridgeReady);
+      window.removeEventListener("mga-player-pause-state", onPlayerPauseState);
       window.removeEventListener("mga-remote-game-launch-result", onLaunchResult);
       void supabase.removeChannel(channel);
     };

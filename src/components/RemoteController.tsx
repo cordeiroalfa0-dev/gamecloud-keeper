@@ -13,6 +13,7 @@ const buttonClass = [
 type RemotePayload = { room: string; player: number; input: number; pressed: boolean };
 type RemoteCommand =
   | "toggle-pause"
+  | "pause-state"
   | "save-and-exit"
   | "toggle-game-fullscreen"
   | "launch-game"
@@ -30,6 +31,7 @@ type RemoteCommandPayload = {
   room: string;
   command: RemoteCommand;
   ok?: boolean;
+  paused?: boolean;
   romName?: string;
 };
 
@@ -182,6 +184,7 @@ export function RemoteController() {
   const [installInfoOpen, setInstallInfoOpen] = useState(false);
   const [showInstallLanding, setShowInstallLanding] = useState(false);
   const [libraryMode, setLibraryMode] = useState(true);
+  const [gamePaused, setGamePaused] = useState(false);
   const [libraryGames, setLibraryGames] = useState<Array<{ rom: string; title: string }>>([]);
   const [libraryLoading, setLibraryLoading] = useState(true);
   const [libraryQuery, setLibraryQuery] = useState("");
@@ -447,8 +450,13 @@ export function RemoteController() {
       })
       .on("broadcast", { event: "command" }, ({ payload }) => {
         const command = payload as Partial<RemoteCommandPayload>;
-        if (command.room !== room || command.command !== "library-launch-result") return;
-        setLibraryMode(!command.ok);
+        if (command.room !== room) return;
+        if (command.command === "library-launch-result") {
+          setLibraryMode(!command.ok);
+          if (command.ok) setGamePaused(false);
+          return;
+        }
+        if (command.command === "pause-state") setGamePaused(Boolean(command.paused));
       })
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
@@ -476,6 +484,7 @@ export function RemoteController() {
     const onGameLaunchResult = (event: Event) => {
       const ok = Boolean((event as CustomEvent<{ ok?: unknown }>).detail?.ok);
       setLibraryMode(!ok);
+      if (ok) setGamePaused(false);
     };
     window.addEventListener("mga-remote-game-launch-result", onGameLaunchResult);
     return () => window.removeEventListener("mga-remote-game-launch-result", onGameLaunchResult);
@@ -550,7 +559,17 @@ export function RemoteController() {
   };
   const openMobileLibrary = () => {
     setLibraryMode(true);
+    setGamePaused(false);
+    setLibraryQuery("");
+    setLibraryIndex(0);
     sendCommand("return-home");
+  };
+  const exitMobileGame = () => {
+    setLibraryMode(true);
+    setGamePaused(false);
+    setLibraryQuery("");
+    setLibraryIndex(0);
+    sendCommand("save-and-exit");
   };
   const libraryCommandByInput: Record<number, RemoteCommand> = {
     4: "library-up",
@@ -817,24 +836,39 @@ export function RemoteController() {
           </svg>
         )}
         <div
-          className={`relative z-10 grid w-full max-w-3xl gap-2 px-2 ${libraryMode ? "hidden" : "grid-cols-4"}`}
+          className={`relative z-10 grid w-full max-w-3xl grid-cols-5 gap-2 px-2 ${libraryMode ? "hidden" : ""}`}
         >
           {!libraryMode && (
             <button
               type="button"
+              aria-label={gamePaused ? "Retomar jogo" : "Pausar jogo"}
+              title={gamePaused ? "Retomar jogo" : "Pausar jogo"}
               onClick={() => sendCommand("toggle-pause")}
-              className="h-8 rounded-xl border border-amber-300/70 bg-amber-400/20 px-2 font-mono text-[10px] font-bold text-amber-100 active:brightness-125"
+              className="h-8 min-w-0 rounded-xl border border-amber-300/70 bg-amber-400/20 px-1 font-mono text-[9px] font-bold text-amber-100 active:brightness-125"
             >
-              PAUSAR
+              {gamePaused ? "RETOMAR" : "PAUSAR"}
             </button>
           )}
           {!libraryMode && (
             <button
               type="button"
-              onClick={openMobileLibrary}
-              className="h-8 rounded-xl border border-emerald-300/70 bg-emerald-400/20 px-2 font-mono text-[10px] font-bold text-emerald-100 active:brightness-125"
+              aria-label="Sair do jogo e salvar progresso"
+              title="Sair do jogo e salvar progresso"
+              onClick={exitMobileGame}
+              className="h-8 min-w-0 rounded-xl border border-rose-300/70 bg-rose-400/20 px-1 font-mono text-[8px] font-bold leading-tight text-rose-100 active:brightness-125"
             >
-              BIBLIOTECA
+              SAIR DO JOGO
+            </button>
+          )}
+          {!libraryMode && (
+            <button
+              type="button"
+              aria-label="Voltar às telas da biblioteca"
+              title="Voltar à biblioteca na tela web"
+              onClick={openMobileLibrary}
+              className="h-8 min-w-0 rounded-xl border border-emerald-300/70 bg-emerald-400/20 px-1 font-mono text-[9px] font-bold text-emerald-100 active:brightness-125"
+            >
+              VOLTAR
             </button>
           )}
           {control(
