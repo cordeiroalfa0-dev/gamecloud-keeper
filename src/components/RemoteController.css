@@ -521,36 +521,54 @@
   }
 }
 
-/* Celular em pé: o layout permanece estreito antes da rotação e vira horizontal
-   depois dela. A largura/altura invertidas aqui faziam os botões nascerem
-   comprimidos na largura do celular e ficarem pequenos após o giro. */
-@media (orientation: portrait) {
-  .mga-reference-controller {
-    position: fixed !important;
-    top: 50%;
-    left: 50%;
-    width: 100dvw !important;
-    height: 100dvh !important;
-    min-height: 0 !important;
-    transform: translate(-50%, -50%) rotate(90deg);
-    transform-origin: center;
-  }
+.remote-landscape-warning {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 10px;
+  padding: 28px;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(34, 211, 238, 0.18), transparent 32%),
+    linear-gradient(145deg, #101d25, #050b10 72%);
+  color: #e8fbff;
+  text-align: center;
+  transition:
+    opacity 180ms ease,
+    visibility 180ms ease;
 }
 
-/* O controle remoto é sempre usado deitado. No modo girado, os limites usam
-   vh para dimensionar os botões pela largura visual disponível após a rotação. */
-@media (orientation: portrait) and (max-width: 600px) {
-  .controller-control-row {
-    gap: clamp(10px, 3vh, 22px);
-    padding-right: max(6px, env(safe-area-inset-bottom));
-    padding-left: max(6px, env(safe-area-inset-top));
-  }
+.remote-landscape-warning--hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
 
-  .controller-pad-grid,
-  .controller-action-grid {
-    width: min(18rem, 46vh, calc(100dvh - 132px));
-    gap: clamp(8px, 1.8vh, 14px);
-  }
+.remote-landscape-warning__icon {
+  color: #6ee7f2;
+  font-size: clamp(48px, 15vw, 90px);
+  line-height: 0.8;
+  text-shadow: 0 0 18px rgba(34, 211, 238, 0.5);
+}
+
+.remote-landscape-warning strong {
+  font-size: clamp(18px, 5vw, 28px);
+  letter-spacing: 0.16em;
+}
+
+.remote-landscape-warning span,
+.remote-landscape-warning small {
+  color: rgba(214, 239, 244, 0.78);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.remote-landscape-warning span {
+  font-size: 13px;
+}
+
+.remote-landscape-warning small {
+  font-size: 10px;
 }
 
 @media (max-width: 390px) {

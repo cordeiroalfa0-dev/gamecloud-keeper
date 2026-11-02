@@ -191,6 +191,9 @@ export function RemoteController() {
   const [libraryLoading, setLibraryLoading] = useState(true);
   const [libraryQuery, setLibraryQuery] = useState("");
   const [libraryIndex, setLibraryIndex] = useState(0);
+  const [isLandscape, setIsLandscape] = useState(() =>
+    typeof window === "undefined" ? true : window.innerWidth >= window.innerHeight,
+  );
   const frameRef = useRef<HTMLElement | null>(null);
   const [circuitLayout, setCircuitLayout] = useState<CircuitLayout>({
     width: 0,
@@ -433,11 +436,17 @@ export function RemoteController() {
   useEffect(() => {
     void requestLandscape();
     void requestWakeLock();
+    const updateOrientation = () => setIsLandscape(window.innerWidth >= window.innerHeight);
+    updateOrientation();
+    window.addEventListener("resize", updateOrientation, { passive: true });
+    window.addEventListener("orientationchange", updateOrientation, { passive: true });
     const restoreWakeLock = () => {
       if (document.visibilityState === "visible") void requestWakeLock();
     };
     window.addEventListener("visibilitychange", restoreWakeLock, { passive: true });
     return () => {
+      window.removeEventListener("resize", updateOrientation);
+      window.removeEventListener("orientationchange", updateOrientation);
       window.removeEventListener("visibilitychange", restoreWakeLock);
       const wakeLock = wakeLockRef.current;
       if (wakeLock) void wakeLock.release().catch(() => {});
@@ -704,6 +713,18 @@ export function RemoteController() {
       }}
     >
       <div className="pointer-events-none absolute inset-2 rounded-[2rem] border border-white/10 shadow-[inset_0_0_50px_rgba(255,255,255,.035)]" />
+      <div
+        className={`remote-landscape-warning ${isLandscape ? "remote-landscape-warning--hidden" : ""}`}
+        role="status"
+        aria-live="polite"
+      >
+        <div className="remote-landscape-warning__icon" aria-hidden="true">
+          ↔
+        </div>
+        <strong>VIRE O CELULAR</strong>
+        <span>Este controle funciona somente na horizontal.</span>
+        <small>Gire a tela e os botões grandes aparecerão automaticamente.</small>
+      </div>
       <header className="relative mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between gap-3 rounded-2xl border border-slate-300/20 bg-slate-200/[.07] px-4 py-3 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_10px_25px_rgba(2,6,23,.22)] compact:gap-2 compact:px-2 compact:py-1">
         <div>
           <div className="flex items-center gap-2 text-xs tracking-[.18em] text-slate-100">
