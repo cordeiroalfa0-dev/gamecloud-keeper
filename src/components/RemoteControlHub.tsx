@@ -360,7 +360,7 @@ export function RemoteControlHub() {
       <button
         type="button"
         onClick={() => create(true)}
-        className="flex items-center justify-center gap-1.5 rounded-full border border-pink-400/40 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-pink-200 transition-colors hover:border-pink-300 hover:bg-pink-400/10"
+        className="flex items-center justify-center gap-1.5 rounded-full border border-pink-300/55 bg-[#1a0b16]/95 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-pink-100 shadow-[0_4px_14px_rgba(0,0,0,.75),inset_0_1px_0_rgba(255,255,255,.1)] transition-colors hover:border-pink-200 hover:bg-[#2a1022]"
         title="Abrir QR Code para usar o celular como controle"
       >
         QR CONTROLE

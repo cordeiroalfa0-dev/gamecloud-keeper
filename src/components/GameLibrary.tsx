@@ -533,10 +533,10 @@ export function GameLibrary({
                   key={item.id}
                   type="button"
                   onClick={() => setTab(item.id)}
-                  className={`flex items-center gap-1 rounded-full border px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide transition-colors ${
+                  className={`flex items-center gap-1 rounded-full border px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide shadow-[0_4px_14px_rgba(0,0,0,.75),inset_0_1px_0_rgba(255,255,255,.1)] transition-colors ${
                     tab === item.id
-                      ? "border-cyan-400 bg-cyan-400/15 text-cyan-300"
-                      : "border-white/10 text-zinc-400 hover:border-cyan-500/40 hover:text-cyan-200"
+                      ? "border-cyan-300/80 bg-[#08202b]/95 text-cyan-100"
+                      : "border-white/20 bg-[#07131d]/95 text-zinc-100 hover:border-cyan-400/70 hover:text-cyan-100"
                   }`}
                 >
                   {item.id === "favorites" && <Star className="h-3 w-3" />}
@@ -555,7 +555,7 @@ export function GameLibrary({
               onClick={toggleFullscreen}
               aria-label={isFullscreen ? "Sair da tela cheia" : "Entrar em tela cheia"}
               title={isFullscreen ? "Sair da tela cheia" : "Entrar em tela cheia"}
-              className={`flex items-center justify-center gap-1.5 rounded-full border border-cyan-500/30 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-400/10`}
+              className={`flex items-center justify-center gap-1.5 rounded-full border border-cyan-400/55 bg-[#07131d]/95 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-cyan-100 shadow-[0_4px_14px_rgba(0,0,0,.75),inset_0_1px_0_rgba(255,255,255,.1)] transition-colors hover:border-cyan-300 hover:bg-[#0c2430]`}
             >
               {isFullscreen ? (
                 <Minimize2 className="h-3.5 w-3.5" />
@@ -569,7 +569,7 @@ export function GameLibrary({
               onClick={() => setIsAboutOpen(true)}
               aria-label="Sobre o sistema"
               title="Sobre o sistema"
-              className={`flex items-center justify-center gap-1.5 rounded-full border border-pink-400/30 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-pink-200 transition-colors hover:border-pink-300 hover:bg-pink-400/10`}
+              className={`flex items-center justify-center gap-1.5 rounded-full border border-pink-300/55 bg-[#1a0b16]/95 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wide text-pink-100 shadow-[0_4px_14px_rgba(0,0,0,.75),inset_0_1px_0_rgba(255,255,255,.1)] transition-colors hover:border-pink-200 hover:bg-[#2a1022]`}
             >
               <Info className="h-3.5 w-3.5" /> Sobre
             </button>

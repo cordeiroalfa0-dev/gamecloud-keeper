@@ -301,7 +301,7 @@ function Launcher({
   };
 
   const accountBadge = user ? (
-    <div className="flex items-center gap-2 rounded-full border border-cyan-500/30 bg-black/50 py-1 pl-1 pr-2 font-mono text-[11px] text-cyan-300">
+    <div className="flex items-center gap-2 rounded-full border border-cyan-500/45 bg-black/85 py-1 pl-1 pr-2 font-mono text-[11px] text-cyan-200 shadow-[0_4px_14px_rgba(0,0,0,.75)]">
       {user?.picture && (
         <img
           src={user.picture}
@@ -314,13 +314,13 @@ function Launcher({
       <button
         type="button"
         onClick={logout}
-        className="rounded border border-cyan-500/50 px-1.5 py-0.5 text-cyan-300 hover:bg-cyan-400/10"
+        className="rounded border border-cyan-500/60 bg-black/70 px-1.5 py-0.5 text-cyan-200 shadow-[0_2px_8px_rgba(0,0,0,.7)] hover:bg-cyan-400/15"
       >
         Sair
       </button>
     </div>
   ) : (
-    <div className="flex flex-wrap items-center justify-end gap-1 rounded-2xl border border-cyan-500/30 bg-black/50 px-2 py-1 font-mono text-[11px] text-cyan-300">
+    <div className="flex flex-wrap items-center justify-end gap-1 rounded-2xl border border-cyan-500/45 bg-black/85 px-2 py-1 font-mono text-[11px] text-cyan-200 shadow-[0_4px_14px_rgba(0,0,0,.75)]">
       {guestEmail ? (
         <span className="max-w-[180px] truncate" title={guestEmail}>
           {guestEmail}
@@ -344,7 +344,7 @@ function Launcher({
       <button
         type="button"
         onClick={enterWithEmail}
-        className="rounded border border-cyan-500/50 px-1.5 py-1 text-cyan-300 hover:bg-cyan-400/10"
+        className="rounded border border-cyan-500/60 bg-black/70 px-1.5 py-1 text-cyan-200 shadow-[0_2px_8px_rgba(0,0,0,.7)] hover:bg-cyan-400/15"
       >
         Entrar
       </button>
