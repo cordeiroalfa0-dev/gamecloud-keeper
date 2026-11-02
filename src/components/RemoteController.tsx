@@ -185,7 +185,9 @@ export function RemoteController() {
   const [showInstallLanding, setShowInstallLanding] = useState(false);
   const [libraryMode, setLibraryMode] = useState(true);
   const [gamePaused, setGamePaused] = useState(false);
-  const [libraryGames, setLibraryGames] = useState<Array<{ rom: string; title: string }>>([]);
+  const [libraryGames, setLibraryGames] = useState<
+    Array<{ rom: string; title: string; snapUrl?: string }>
+  >([]);
   const [libraryLoading, setLibraryLoading] = useState(true);
   const [libraryQuery, setLibraryQuery] = useState("");
   const [libraryIndex, setLibraryIndex] = useState(0);
@@ -249,27 +251,37 @@ export function RemoteController() {
       try {
         await new Promise<void>((resolve) => {
           const script = document.createElement("script");
-          script.src = "/web/mame-web.js?v=20261101-mobile-launch-v1";
+          script.src = "/web/mame-web.js?v=20261102-topband-v1";
           script.onload = () => resolve();
           script.onerror = () => resolve();
           document.head.appendChild(script);
         });
-        const [romsResponse, namesResponse] = await Promise.all([
+        const [romsResponse, namesResponse, mediaResponse] = await Promise.all([
           fetch("/api/roms"),
           fetch("/api/gamenames"),
+          fetch("/assets/media-manifest.json").catch(() => null),
         ]);
         const romsData = romsResponse.ok ? await romsResponse.json() : { roms: [] };
         const namesData = namesResponse.ok ? await namesResponse.json() : { names: {} };
+        const mediaData = mediaResponse?.ok ? await mediaResponse.json() : {};
         const names = (namesData.names || {}) as Record<string, string>;
+        const media = (mediaData || {}) as Record<
+          string,
+          { has_snap?: boolean; snap_url?: string }
+        >;
         const romList: unknown[] = Array.isArray(romsData.roms) ? romsData.roms : [];
         const games = romList
           .filter((rom): rom is string => typeof rom === "string")
-          .map((rom: string) => ({
-            rom,
-            title:
-              names[rom.replace(/\.(zip|7z|chd)$/i, "").toLowerCase()] ||
-              rom.replace(/\.(zip|7z|chd)$/i, "").replace(/[-_]+/g, " "),
-          }));
+          .map((rom: string) => {
+            const base = rom.replace(/\.(zip|7z|chd)$/i, "").toLowerCase();
+            const snap = media[base];
+            return {
+              rom,
+              title: names[base] || base.replace(/[-_]+/g, " "),
+              snapUrl:
+                snap?.has_snap && typeof snap.snap_url === "string" ? snap.snap_url : undefined,
+            };
+          });
         if (!cancelled) setLibraryGames(games);
       } catch {
         if (!cancelled) setLibraryGames([]);
@@ -738,60 +750,88 @@ export function RemoteController() {
         }}
       >
         {libraryMode && (
-          <div className="relative z-20 mx-auto flex h-full w-full max-w-3xl min-h-0 flex-1 flex-col rounded-2xl border border-cyan-300/25 bg-[#06131c]/75 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_8px_18px_rgba(0,0,0,.28)] backdrop-blur-sm">
-            <div className="flex shrink-0 items-center gap-2 px-1 pb-2">
-              <div className="min-w-0 flex-1">
-                <div className="font-mono text-[10px] font-black tracking-[.18em] text-cyan-200">
-                  BIBLIOTECA NO CELULAR
+          <div className="relative z-20 mx-auto flex h-full w-full max-w-3xl min-h-0 flex-1 flex-row-reverse gap-2 rounded-2xl border border-cyan-300/25 bg-[#06131c]/75 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_8px_18px_rgba(0,0,0,.28)] backdrop-blur-sm">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+              <div className="flex shrink-0 items-center gap-2 px-1 pb-2">
+                <div className="min-w-0 flex-1">
+                  <div className="font-mono text-[10px] font-black tracking-[.18em] text-cyan-200">
+                    BIBLIOTECA NO CELULAR
+                  </div>
+                  <div className="truncate font-mono text-[9px] text-slate-400">
+                    Escolha o jogo para abrir no navegador
+                  </div>
                 </div>
-                <div className="truncate font-mono text-[9px] text-slate-400">
-                  Escolha o jogo para abrir no navegador
-                </div>
+                <span className="rounded-full border border-cyan-300/25 px-2 py-1 font-mono text-[9px] text-cyan-200">
+                  {visibleLibraryGames.length}
+                </span>
               </div>
-              <span className="rounded-full border border-cyan-300/25 px-2 py-1 font-mono text-[9px] text-cyan-200">
-                {visibleLibraryGames.length}
-              </span>
+              <input
+                value={libraryQuery}
+                onChange={(event) => {
+                  setLibraryQuery(event.target.value);
+                  setLibraryIndex(0);
+                }}
+                placeholder="Buscar jogo..."
+                className="mb-2 w-full shrink-0 rounded-xl border border-cyan-300/25 bg-black/35 px-3 py-2 font-mono text-[11px] text-cyan-50 outline-none placeholder:text-slate-500 focus:border-cyan-300/70"
+                aria-label="Buscar jogo na biblioteca"
+              />
+              <div className="game-library-scroll min-h-0 flex-1 overflow-y-auto pr-1">
+                {libraryLoading ? (
+                  <div className="grid h-full place-items-center font-mono text-[11px] text-cyan-200">
+                    CARREGANDO JOGOS...
+                  </div>
+                ) : visibleLibraryGames.length === 0 ? (
+                  <div className="grid h-full place-items-center text-center font-mono text-[11px] text-slate-400">
+                    Nenhum jogo encontrado.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {visibleLibraryGames.map((game, index) => (
+                      <button
+                        key={game.rom}
+                        type="button"
+                        onClick={() => {
+                          setLibraryIndex(index);
+                          launchMobileGame(game.rom);
+                        }}
+                        className={`relative aspect-video min-w-0 overflow-hidden rounded-xl border text-left font-mono text-[10px] font-bold transition ${index === libraryIndex ? "border-cyan-200 text-cyan-50 shadow-[0_0_12px_rgba(34,211,238,.28)]" : "border-white/10 text-slate-300"}`}
+                      >
+                        <span className="absolute inset-0 bg-gradient-to-br from-cyan-950 to-slate-950" />
+                        {game.snapUrl && (
+                          <img
+                            src={game.snapUrl}
+                            alt=""
+                            aria-hidden="true"
+                            loading="lazy"
+                            decoding="async"
+                            onError={(event) => {
+                              event.currentTarget.hidden = true;
+                            }}
+                            className="absolute inset-0 h-full w-full object-cover"
+                          />
+                        )}
+                        <span className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-transparent" />
+                        <span className="absolute inset-x-2 bottom-2 z-10">
+                          <span className="line-clamp-2 block">{game.title}</span>
+                          <span className="mt-1 block truncate text-[8px] font-normal text-slate-200/80">
+                            TOCAR PARA ABRIR
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-            <input
-              value={libraryQuery}
-              onChange={(event) => {
-                setLibraryQuery(event.target.value);
-                setLibraryIndex(0);
-              }}
-              placeholder="Buscar jogo..."
-              className="mb-2 w-full shrink-0 rounded-xl border border-cyan-300/25 bg-black/35 px-3 py-2 font-mono text-[11px] text-cyan-50 outline-none placeholder:text-slate-500 focus:border-cyan-300/70"
-              aria-label="Buscar jogo na biblioteca"
-            />
-            <div className="game-library-scroll min-h-0 flex-1 overflow-y-auto pr-1">
-              {libraryLoading ? (
-                <div className="grid h-full place-items-center font-mono text-[11px] text-cyan-200">
-                  CARREGANDO JOGOS...
-                </div>
-              ) : visibleLibraryGames.length === 0 ? (
-                <div className="grid h-full place-items-center text-center font-mono text-[11px] text-slate-400">
-                  Nenhum jogo encontrado.
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  {visibleLibraryGames.map((game, index) => (
-                    <button
-                      key={game.rom}
-                      type="button"
-                      onClick={() => {
-                        setLibraryIndex(index);
-                        launchMobileGame(game.rom);
-                      }}
-                      className={`min-h-14 rounded-xl border px-2 py-2 text-left font-mono text-[10px] font-bold transition ${index === libraryIndex ? "border-cyan-200 bg-cyan-300/20 text-cyan-50 shadow-[0_0_12px_rgba(34,211,238,.28)]" : "border-white/10 bg-black/20 text-slate-300"}`}
-                    >
-                      <span className="line-clamp-2">{game.title}</span>
-                      <span className="mt-1 block truncate text-[8px] font-normal text-slate-500">
-                        TOCAR PARA ABRIR
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <aside className="relative hidden w-[clamp(112px,22vw,180px)] shrink-0 overflow-hidden rounded-xl border border-white/15 bg-slate-950 compact:flex">
+              <img
+                src="/assets/mobile-library-rider.png"
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-cover object-center"
+              />
+              <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/10" />
+            </aside>
           </div>
         )}
         {!libraryMode && circuitLayout.width > 0 && circuitLayout.pads.length > 0 && (

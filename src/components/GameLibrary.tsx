@@ -126,7 +126,7 @@ const prettyFallback = (name: string) =>
 async function waitForBridge(): Promise<void> {
   await new Promise<void>((resolve) => {
     const script = document.createElement("script");
-    script.src = "/web/mame-web.js?v=20261101-remote-pause-exit-v2";
+    script.src = "/web/mame-web.js?v=20261102-topband-v1";
     script.onload = () => resolve();
     script.onerror = () => resolve();
     document.head.appendChild(script);
@@ -491,7 +491,7 @@ export function GameLibrary({
       </div>
 
       <header
-        className={`relative z-10 sticky top-0 border-b border-cyan-500/20 bg-[#050009]/90 px-4 py-3 backdrop-blur sm:px-8`}
+        className={`relative z-10 sticky top-0 border-b border-cyan-500/20 px-4 py-3 sm:px-8`}
       >
         <div
           className={`mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}
@@ -682,7 +682,7 @@ export function GameLibrary({
 
             {phase === "ready" && visibleRoms.length > 0 && (
               <div
-                className={`grid w-full min-w-0 grid-cols-2 gap-3 ${isWindowExpanded ? "sm:grid-cols-3 xl:grid-cols-4" : ""}`}
+                className={`grid w-full min-w-0 grid-cols-2 gap-3 ${isWindowExpanded ? "lg:grid-cols-3 xl:grid-cols-4" : ""}`}
               >
                 {visibleRoms.map((rom, index) => (
                   <GameCard
@@ -904,7 +904,7 @@ function GameCard({
 
 function LibrarySkeleton({ expanded }: { expanded: boolean }) {
   return (
-    <div className={`grid grid-cols-2 gap-3 ${expanded ? "sm:grid-cols-3 xl:grid-cols-4" : ""}`}>
+    <div className={`grid grid-cols-2 gap-3 ${expanded ? "lg:grid-cols-3 xl:grid-cols-4" : ""}`}>
       {Array.from({ length: 12 }).map((_, i) => (
         <div
           key={i}
