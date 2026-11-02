@@ -611,3 +611,13 @@
   flex: 0 0 auto;
   transform: none;
 }
+
+@media (orientation: landscape) {
+  .remote-library-art {
+    display: flex;
+  }
+
+  .remote-library-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

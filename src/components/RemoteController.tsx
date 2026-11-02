@@ -763,7 +763,7 @@ export function RemoteController() {
       </header>
       <section
         ref={frameRef}
-        className={`relative isolate mx-auto flex w-full ${libraryMode ? "max-w-3xl" : "max-w-none"} min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] compact:gap-0 compact:py-0 ${libraryMode ? "justify-start" : "justify-between"}`}
+        className={`relative isolate mx-auto flex w-full max-w-none min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] compact:gap-0 compact:py-0 ${libraryMode ? "justify-start" : "justify-between"}`}
         style={{
           backgroundImage: `linear-gradient(145deg, rgba(255,255,255,.11), transparent 24%, transparent 76%, rgba(255,255,255,.035)), radial-gradient(ellipse at 50% 52%, rgba(34,211,238,.15), transparent 62%), url("/assets/remote-controller-pcb.webp")`,
           backgroundSize: "100% 100%, cover, cover",
@@ -771,7 +771,7 @@ export function RemoteController() {
         }}
       >
         {libraryMode && (
-          <div className="relative z-20 mx-auto flex h-full w-full max-w-3xl min-h-0 flex-1 flex-row-reverse gap-2 rounded-2xl border border-cyan-300/25 bg-[#06131c]/75 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_8px_18px_rgba(0,0,0,.28)] backdrop-blur-sm">
+          <div className="relative z-20 mx-auto flex h-full w-full max-w-none min-h-0 flex-1 flex-row-reverse gap-2 rounded-2xl border border-cyan-300/25 bg-[#06131c]/75 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_8px_18px_rgba(0,0,0,.28)] backdrop-blur-sm">
             <div className="flex min-h-0 min-w-0 flex-1 flex-col">
               <div className="flex shrink-0 items-center gap-2 px-1 pb-2">
                 <div className="min-w-0 flex-1">
@@ -806,7 +806,7 @@ export function RemoteController() {
                     Nenhum jogo encontrado.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="remote-library-grid grid grid-cols-2 gap-2">
                     {visibleLibraryGames.map((game, index) => (
                       <button
                         key={game.rom}
@@ -844,7 +844,7 @@ export function RemoteController() {
                 )}
               </div>
             </div>
-            <aside className="relative hidden w-[clamp(112px,22vw,180px)] shrink-0 overflow-hidden rounded-xl border border-white/15 bg-slate-950 compact:flex">
+            <aside className="remote-library-art relative hidden w-[clamp(112px,22vw,220px)] shrink-0 overflow-hidden rounded-xl border border-white/15 bg-slate-950">
               <img
                 src="/assets/mobile-library-rider.png"
                 alt=""
