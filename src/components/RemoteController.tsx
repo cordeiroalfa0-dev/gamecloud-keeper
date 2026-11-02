@@ -316,19 +316,27 @@ export function RemoteController() {
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
       animationFrame = window.requestAnimationFrame(() => {
         const frameRect = frame.getBoundingClientRect();
+        // Em pé, o controle é girado 90° pelo CSS; converte para coordenadas do controle.
+        const rotated = window.matchMedia("(orientation: portrait)").matches;
         const pads = Array.from(frame.querySelectorAll<HTMLElement>("[data-circuit-pad]")).map(
           (element): CircuitPad => {
             const rect = element.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
             return {
               id: element.dataset["circuitPad"] || "",
               side: element.dataset["circuitSide"] === "right" ? "right" : "left",
-              x: rect.left - frameRect.left + rect.width / 2,
-              y: rect.top - frameRect.top + rect.height / 2,
+              x: rotated ? cy - frameRect.top : cx - frameRect.left,
+              y: rotated ? frameRect.right - cx : cy - frameRect.top,
               radius: Math.min(rect.width, rect.height) / 2,
             };
           },
         );
-        setCircuitLayout({ width: frameRect.width, height: frameRect.height, pads });
+        setCircuitLayout({
+          width: rotated ? frameRect.height : frameRect.width,
+          height: rotated ? frameRect.width : frameRect.height,
+          pads,
+        });
       });
     };
     measure();
@@ -396,8 +404,13 @@ export function RemoteController() {
 
   const enterLandscapeMode = async () => {
     try {
-      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-        await document.documentElement.requestFullscreen();
+      const root = document.documentElement as HTMLElement & {
+        webkitRequestFullscreen?: () => Promise<void> | void;
+      };
+      const doc = document as Document & { webkitFullscreenElement?: Element | null };
+      if (!document.fullscreenElement && !doc.webkitFullscreenElement) {
+        if (root.requestFullscreen) await root.requestFullscreen({ navigationUI: "hide" });
+        else if (root.webkitRequestFullscreen) await root.webkitRequestFullscreen();
       }
     } catch {
       // Alguns navegadores não permitem tela cheia nesta página.
@@ -671,43 +684,22 @@ export function RemoteController() {
   return (
     <main
       translate="no"
-      className="mga-reference-controller notranslate relative flex h-[100dvh] min-h-0 flex-col select-none overflow-hidden bg-[radial-gradient(circle_at_15%_10%,rgba(113,140,153,.32),transparent_26%),radial-gradient(circle_at_90%_90%,rgba(194,113,58,.14),transparent_28%),linear-gradient(135deg,#1c2930,#0e151b_55%,#111b21)] p-2 text-slate-100 [@media(max-height:500px)]:p-1"
+      className="mga-reference-controller notranslate relative flex h-[100dvh] min-h-0 flex-col select-none overflow-hidden bg-[radial-gradient(circle_at_15%_10%,rgba(113,140,153,.32),transparent_26%),radial-gradient(circle_at_90%_90%,rgba(194,113,58,.14),transparent_28%),linear-gradient(135deg,#1c2930,#0e151b_55%,#111b21)] p-2 text-slate-100 compact:p-1"
       onContextMenu={(event) => event.preventDefault()}
       onPointerDown={() => {
         void enterLandscapeMode();
         void requestWakeLock();
       }}
     >
-      <div className="remote-landscape-guard fixed inset-0 z-[200] place-items-center bg-[#08141c] p-6 text-center">
-        <section className="w-full max-w-sm rounded-3xl border border-cyan-200/25 bg-slate-900/90 p-6 shadow-2xl">
-          <div aria-hidden="true" className="text-5xl text-cyan-200">
-            ↻
-          </div>
-          <h1 className="mt-3 font-mono text-xl font-black tracking-wide text-white">
-            Gire o celular na horizontal
-          </h1>
-          <p className="mt-3 text-sm leading-relaxed text-slate-300">
-            O controle e a biblioteca do celular funcionam em paisagem. Toque abaixo para tentar
-            ativar a tela cheia e a rotação automática.
-          </p>
-          <button
-            type="button"
-            onClick={() => void enterLandscapeMode()}
-            className="mt-5 w-full rounded-xl border border-cyan-200/70 bg-cyan-300/15 px-4 py-3 font-mono text-sm font-black text-cyan-100"
-          >
-            TENTAR MODO HORIZONTAL
-          </button>
-        </section>
-      </div>
       <div className="pointer-events-none absolute inset-2 rounded-[2rem] border border-white/10 shadow-[inset_0_0_50px_rgba(255,255,255,.035)]" />
-      <header className="relative mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between gap-3 rounded-2xl border border-slate-300/20 bg-slate-200/[.07] px-4 py-3 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_10px_25px_rgba(2,6,23,.22)] [@media(max-height:500px)]:gap-2 [@media(max-height:500px)]:px-2 [@media(max-height:500px)]:py-1">
+      <header className="relative mx-auto flex w-full max-w-3xl shrink-0 items-center justify-between gap-3 rounded-2xl border border-slate-300/20 bg-slate-200/[.07] px-4 py-3 font-mono shadow-[inset_0_1px_0_rgba(255,255,255,.14),0_10px_25px_rgba(2,6,23,.22)] compact:gap-2 compact:px-2 compact:py-1">
         <div>
           <div className="flex items-center gap-2 text-xs tracking-[.18em] text-slate-100">
             <img
               src="/kali-dragon.png"
               alt=""
               aria-hidden="true"
-              className="h-12 w-12 object-contain brightness-0 invert opacity-80 drop-shadow-[0_0_9px_rgba(251,146,60,.6)] [@media(max-height:500px)]:h-5 [@media(max-height:500px)]:w-5"
+              className="h-12 w-12 object-contain brightness-0 invert opacity-80 drop-shadow-[0_0_9px_rgba(251,146,60,.6)] compact:h-5 compact:w-5"
             />
             MASTER GAMES
           </div>
@@ -738,7 +730,7 @@ export function RemoteController() {
       </header>
       <section
         ref={frameRef}
-        className={`relative isolate mx-auto flex w-full ${libraryMode ? "max-w-3xl" : "max-w-none"} min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:py-0 ${libraryMode ? "justify-start" : "justify-between"}`}
+        className={`relative isolate mx-auto flex w-full ${libraryMode ? "max-w-3xl" : "max-w-none"} min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-[2rem] border border-white/25 bg-[#06131c]/25 px-2 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.2),inset_0_0_55px_rgba(34,211,238,.08),0_18px_40px_rgba(0,0,0,.38)] compact:gap-0 compact:py-0 ${libraryMode ? "justify-start" : "justify-between"}`}
         style={{
           backgroundImage: `linear-gradient(145deg, rgba(255,255,255,.11), transparent 24%, transparent 76%, rgba(255,255,255,.035)), radial-gradient(ellipse at 50% 52%, rgba(34,211,238,.15), transparent 62%), url("/assets/remote-controller-pcb.webp")`,
           backgroundSize: "100% 100%, cover, cover",
@@ -964,7 +956,7 @@ export function RemoteController() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="remote-install-title"
-            className="relative max-h-[94dvh] w-full max-w-lg overflow-y-auto rounded-[2rem] border border-cyan-200/35 bg-[linear-gradient(145deg,#10252d,#09131b_60%,#180f18)] p-5 text-slate-100 shadow-[0_0_80px_rgba(34,211,238,.22)] sm:p-7 [@media(max-height:500px)]:rounded-2xl [@media(max-height:500px)]:p-3"
+            className="relative max-h-[94dvh] w-full max-w-lg overflow-y-auto rounded-[2rem] border border-cyan-200/35 bg-[linear-gradient(145deg,#10252d,#09131b_60%,#180f18)] p-5 text-slate-100 shadow-[0_0_80px_rgba(34,211,238,.22)] sm:p-7 compact:rounded-2xl compact:p-3"
           >
             <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-cyan-300 via-violet-400 to-orange-300" />
             <button
@@ -978,8 +970,8 @@ export function RemoteController() {
             >
               ×
             </button>
-            <div className="flex items-center gap-4 pr-10 [@media(max-height:500px)]:gap-2">
-              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-cyan-300/35 bg-cyan-300/10 p-2 shadow-[0_0_24px_rgba(34,211,238,.15)] [@media(max-height:500px)]:h-10 [@media(max-height:500px)]:w-10 [@media(max-height:500px)]:rounded-xl [@media(max-height:500px)]:p-1">
+            <div className="flex items-center gap-4 pr-10 compact:gap-2">
+              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-cyan-300/35 bg-cyan-300/10 p-2 shadow-[0_0_24px_rgba(34,211,238,.15)] compact:h-10 compact:w-10 compact:rounded-xl compact:p-1">
                 <img src="/kali-dragon.png" alt="" className="h-full w-full object-contain" />
               </div>
               <div>
@@ -988,7 +980,7 @@ export function RemoteController() {
                 </p>
                 <h2
                   id="remote-install-title"
-                  className="mt-1 text-2xl font-black text-white [@media(max-height:500px)]:text-lg"
+                  className="mt-1 text-2xl font-black text-white compact:text-lg"
                 >
                   Instale o MGA Controle
                 </h2>
@@ -997,13 +989,13 @@ export function RemoteController() {
             <img
               src="/assets/remote-controller-fight.jpg"
               alt="Chun-Li e Ken em uma luta de arcade"
-              className="mt-5 h-48 w-full rounded-2xl border border-white/15 object-cover object-center shadow-[0_12px_30px_rgba(0,0,0,.35)] sm:h-56 [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:h-16"
+              className="mt-5 h-48 w-full rounded-2xl border border-white/15 object-cover object-center shadow-[0_12px_30px_rgba(0,0,0,.35)] sm:h-56 compact:mt-2 compact:h-16"
             />
-            <div className="mt-4 rounded-2xl border border-cyan-200/20 bg-cyan-200/[.06] p-4 [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:p-2">
+            <div className="mt-4 rounded-2xl border border-cyan-200/20 bg-cyan-200/[.06] p-4 compact:mt-2 compact:p-2">
               <p className="font-mono text-[11px] font-black tracking-[.18em] text-cyan-200">
                 CONTROLE WEB · SEM APK
               </p>
-              <p className="mt-2 text-sm leading-relaxed text-slate-200 [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-xs">
+              <p className="mt-2 text-sm leading-relaxed text-slate-200 compact:mt-1 compact:text-xs">
                 Instale este app web no celular para abrir o controle como um aplicativo, em tela
                 cheia e sem precisar procurar o link novamente.
               </p>
@@ -1012,24 +1004,24 @@ export function RemoteController() {
               <button
                 type="button"
                 onClick={() => void installRemoteApp()}
-                className="mt-3 w-full rounded-2xl border border-cyan-200/80 bg-gradient-to-b from-cyan-300/30 to-cyan-700/20 px-5 py-4 font-mono text-sm font-black tracking-wide text-cyan-50 shadow-[0_0_24px_rgba(34,211,238,.16)] transition hover:brightness-110 [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:py-2"
+                className="mt-3 w-full rounded-2xl border border-cyan-200/80 bg-gradient-to-b from-cyan-300/30 to-cyan-700/20 px-5 py-4 font-mono text-sm font-black tracking-wide text-cyan-50 shadow-[0_0_24px_rgba(34,211,238,.16)] transition hover:brightness-110 compact:mt-2 compact:py-2"
               >
                 ⬇ INSTALAR APP WEB NO CELULAR
               </button>
             )}
             <a
               href={`/controller?controller=1&room=${encodeURIComponent(room)}&player=${player}`}
-              className="mt-3 flex w-full items-center justify-center rounded-2xl border border-violet-200/50 bg-violet-300/10 px-5 py-3 font-mono text-xs font-black tracking-wide text-violet-100 transition hover:bg-violet-300/20 [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:py-2"
+              className="mt-3 flex w-full items-center justify-center rounded-2xl border border-violet-200/50 bg-violet-300/10 px-5 py-3 font-mono text-xs font-black tracking-wide text-violet-100 transition hover:bg-violet-300/20 compact:mt-2 compact:py-2"
             >
               ↗ ABRIR LINK DO APP WEB
             </a>
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/25 px-4 py-3 font-mono text-xs [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:px-3 [@media(max-height:500px)]:py-1.5">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/25 px-4 py-3 font-mono text-xs compact:mt-2 compact:px-3 compact:py-1.5">
               <strong className={player === 1 ? "text-cyan-200" : "text-orange-200"}>
                 JOGADOR {player}
               </strong>
               <span className="text-slate-400">SALA {room}</span>
             </div>
-            <p className="mt-4 text-sm leading-relaxed text-slate-300 [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-xs">
+            <p className="mt-4 text-sm leading-relaxed text-slate-300 compact:mt-2 compact:text-xs">
               Esta é a versão web do sistema. A instalação adiciona um atalho do{" "}
               <b className="text-cyan-100">MGA Controle</b> à tela inicial e mantém a sala do
               Jogador {player} pronta para usar.

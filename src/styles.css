@@ -3,6 +3,15 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+/* Tela baixa do controle: celular deitado, ou em pé com o controle girado. */
+@custom-variant compact {
+  @media (max-height: 500px) {
+    @slot;
+  }
+  @media (orientation: portrait) and (max-width: 500px) {
+    @slot;
+  }
+}
 
 /*
  * Design system definition.
