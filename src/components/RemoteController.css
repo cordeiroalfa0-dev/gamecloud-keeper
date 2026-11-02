@@ -521,17 +521,35 @@
   }
 }
 
-/* Celular em pé: gira o controle para ele continuar sempre na horizontal. */
+/* Celular em pé: o layout permanece estreito antes da rotação e vira horizontal
+   depois dela. A largura/altura invertidas aqui faziam os botões nascerem
+   comprimidos na largura do celular e ficarem pequenos após o giro. */
 @media (orientation: portrait) {
   .mga-reference-controller {
     position: fixed !important;
     top: 50%;
     left: 50%;
-    width: 100dvh !important;
-    height: 100dvw !important;
+    width: 100dvw !important;
+    height: 100dvh !important;
     min-height: 0 !important;
     transform: translate(-50%, -50%) rotate(90deg);
     transform-origin: center;
+  }
+}
+
+/* O controle remoto é sempre usado deitado. No modo girado, os limites usam
+   vh para dimensionar os botões pela largura visual disponível após a rotação. */
+@media (orientation: portrait) and (max-width: 600px) {
+  .controller-control-row {
+    gap: clamp(10px, 3vh, 22px);
+    padding-right: max(6px, env(safe-area-inset-bottom));
+    padding-left: max(6px, env(safe-area-inset-top));
+  }
+
+  .controller-pad-grid,
+  .controller-action-grid {
+    width: min(18rem, 46vh, calc(100dvh - 132px));
+    gap: clamp(8px, 1.8vh, 14px);
   }
 }
 
@@ -571,7 +589,7 @@
 
 .controller-pad-grid,
 .controller-action-grid {
-  width: min(18rem, 46vw, 58vh, calc(100dvh - 156px));
+  width: min(19rem, 48vw, 64vh, calc(100dvh - 132px));
   flex: 0 0 auto;
   transform: none;
 }
