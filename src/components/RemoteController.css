@@ -521,17 +521,17 @@
   }
 }
 
-.remote-landscape-guard {
-  display: none !important;
-}
-
+/* Celular em pé: gira o controle para ele continuar sempre na horizontal. */
 @media (orientation: portrait) {
-  .mga-reference-controller > :not(.remote-landscape-guard) {
-    display: none !important;
-  }
-
-  .mga-reference-controller > .remote-landscape-guard {
-    display: grid !important;
+  .mga-reference-controller {
+    position: fixed !important;
+    top: 50%;
+    left: 50%;
+    width: 100dvh !important;
+    height: 100dvw !important;
+    min-height: 0 !important;
+    transform: translate(-50%, -50%) rotate(90deg);
+    transform-origin: center;
   }
 }
 
