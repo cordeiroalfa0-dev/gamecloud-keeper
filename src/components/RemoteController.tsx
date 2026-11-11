@@ -688,6 +688,11 @@ export function RemoteController() {
       onPointerCancel={() => {
         if (!libraryMode || !libraryCommandByInput[input]) releaseInput(input);
       }}
+      onLostPointerCapture={() => {
+        if (libraryMode && libraryCommandByInput[input]) return;
+        if (inputPressedAt.current.has(input) && !inputReleaseTimers.current.has(input))
+          releaseInput(input);
+      }}
       onContextMenu={(event) => event.preventDefault()}
     >
       <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,.8)]">{label}</span>
