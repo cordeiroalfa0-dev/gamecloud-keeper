@@ -186,7 +186,7 @@ export function RemoteController() {
   const [libraryMode, setLibraryMode] = useState(true);
   const [gamePaused, setGamePaused] = useState(false);
   const [libraryGames, setLibraryGames] = useState<
-    Array<{ rom: string; title: string; snapUrl?: string }>
+    Array<{ rom: string; title: string; snapUrl?: string | undefined }>
   >([]);
   const [libraryLoading, setLibraryLoading] = useState(true);
   const [libraryQuery, setLibraryQuery] = useState("");
