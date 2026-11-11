@@ -98,6 +98,15 @@ class GamepadHandler {
                     }
 
                 })
+                // Controles USB genéricos (sem mapeamento padrão) mandam o
+                // direcional como "hat" num eixo; converte em DPAD_*.
+                const hatDirs = this.readHat(gamepad);
+                const oldHat = oldGamepad.hat || {};
+                gamepadToSave.hat = hatDirs;
+                [['up',12],['down',13],['left',14],['right',15]].forEach(([dir, idx]) => {
+                    if (!!oldHat[dir] === !!hatDirs[dir]) return;
+                    this.dispatchEvent(hatDirs[dir] ? 'buttondown' : 'buttonup', {index: idx, label: this.getButtonLabel(idx), gamepadIndex: gamepad.index});
+                });
                 this.gamepads[oldIndex] = gamepadToSave;
             })
             if (!hasGamepad) {
@@ -139,6 +148,16 @@ class GamepadHandler {
         this.listeners[name.toLowerCase()] = cb;
     }
 
+    readHat(gamepad) {
+        const dirs = {};
+        if (!gamepad || gamepad.mapping === 'standard' || !gamepad.axes) return dirs;
+        const v = gamepad.axes[9];
+        if (typeof v !== 'number' || v > 1.05 || v < -1.05) return dirs;
+        const step = Math.round((v + 1) / (2 / 7));
+        const table = [['up'],['up','right'],['right'],['down','right'],['down'],['down','left'],['left'],['up','left']];
+        (table[step] || []).forEach(d => { dirs[d] = true; });
+        return dirs;
+    }
     getButtonLabel(index) {
         if (index === null || index === undefined) {
             return null;
