@@ -479,7 +479,7 @@ export function GameLibrary({
             alt=""
             aria-hidden="true"
             style={{
-              objectPosition: "center 30%",
+              objectPosition: "center 18%",
               transform:
                 "translate3d(var(--mga-parallax-x, 0px), var(--mga-parallax-y, 0px), 0) scale(1.02)",
             }}
