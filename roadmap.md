@@ -9,6 +9,6 @@
 - [x] Auto-save a cada 1 minuto (era 30s) e remoção de todos os botões de salvar (player); botões de Retornar/Carregar mantidos
 - [x] Botões CRÉDITO e START do controle remoto (funcionam no preview; site precisa ser publicado)
 - [x] Sincronizar com o GitHub: main 3a4b541 já estava na cópia local; corrigido erro de tipo em RemoteController.tsx que quebrava o build
-- [ ] Decidir se os arquivos de "Jogar na TV" voltam (foram removidos no GitHub; cópia guardada no histórico local, commit 5f3a62c)
+- [x] Decidir se os arquivos de "Jogar na TV" voltam: decidido em 2026-11-17 — ficam FORA (cópia continua guardada na branch lovable-sync do GitHub e no commit local 5f3a62c)
 - [x] Controle do celular sempre na horizontal (gira sozinho em pé) e tela cheia para esconder a barra do endereço
 - [ ] Conferir e atualizar biblioteca do celular com imagens, dois cards e imagem ao lado
