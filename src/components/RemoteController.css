@@ -612,13 +612,14 @@
   transform: none;
 }
 
-@media (orientation: landscape) {
+/* Biblioteca: dois cards por linha e a imagem ao lado (deitado ou girado). */
+@media (orientation: landscape), (orientation: portrait) and (max-width: 500px) {
   .remote-library-art {
     display: flex;
   }
 
   .remote-library-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
