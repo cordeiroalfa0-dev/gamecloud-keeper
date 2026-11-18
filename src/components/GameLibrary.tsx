@@ -479,11 +479,11 @@ export function GameLibrary({
             alt=""
             aria-hidden="true"
             style={{
-              objectPosition: "center 30%",
+              objectPosition: "center center",
               transform:
-                "translate3d(var(--mga-parallax-x, 0px), var(--mga-parallax-y, 0px), 0) scale(1.02)",
+                "translate3d(var(--mga-parallax-x, 0px), var(--mga-parallax-y, 0px), 0)",
             }}
-            className={`mga-hero-image absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
+            className={`mga-hero-image absolute inset-0 h-full w-full object-contain transition-opacity duration-1000 ${
               index === backgroundIndex ? "opacity-100" : "opacity-0"
             }`}
           />
