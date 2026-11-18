@@ -766,7 +766,7 @@
     }
   };
   const skipDifficulty=q.get('skipDifficulty')==='1';
-  difficulty=skipDifficulty?readDifficulty():await chooseDifficulty();
+  difficulty=readDifficulty();
   if(skipDifficulty)log('Iniciado pelo controle: usando a dificuldade salva sem abrir a configuração.');
 
   const fail=x=>{
