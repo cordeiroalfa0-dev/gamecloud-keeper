@@ -39,7 +39,7 @@
     #status{position:fixed;inset:0;z-index:99999;display:grid;place-items:start center;background:linear-gradient(rgba(0,0,0,.94) 0,rgba(0,0,0,.94) 92px,transparent 92px);color:#00e5ff;font:700 16px monospace;text-align:center;padding:70px 24px 24px;box-sizing:border-box;white-space:pre-wrap;pointer-events:none;text-shadow:0 0 8px #000,0 0 14px #00e5ff}
     #debug{position:fixed;left:10px;right:10px;bottom:10px;z-index:100000;max-height:42vh;overflow:auto;display:none;background:rgba(0,0,0,.9);border:1px solid #00e5ff;color:#00e5ff;padding:10px;box-sizing:border-box;font:12px/1.35 monospace;white-space:pre-wrap}
     #manual-start{position:fixed;left:50%;top:112px;transform:translateX(-50%);z-index:100001;display:none;background:#08000f;color:#00e5ff;border:2px solid #00e5ff;box-shadow:0 0 18px #00e5ff66;padding:16px 24px;font:700 16px monospace;cursor:pointer}
-    #difficulty-setup{position:fixed;inset:0;z-index:100002;display:grid;place-items:center;background:linear-gradient(rgba(3,0,6,.68),rgba(3,0,6,.82)),url('/assets/game-loading-art.png') center/cover no-repeat;color:#fff;padding:24px;box-sizing:border-box;font-family:monospace}
+    #difficulty-setup{position:fixed;inset:0;z-index:100002;display:grid;place-items:center;background:linear-gradient(rgba(3,0,6,.68),rgba(3,0,6,.82)),url('/assets/game-loading-art.png') center top/cover no-repeat;color:#fff;padding:24px;box-sizing:border-box;font-family:monospace}
     #difficulty-setup .difficulty-card{width:min(560px,100%);border:1px solid #00e5ff55;background:rgba(5,0,11,.98);box-shadow:0 0 24px #00e5ff22;padding:24px;box-sizing:border-box;text-align:center}
     #difficulty-setup h1{margin:0 0 10px;color:#00e5ff;font-size:20px}
     #difficulty-setup p{margin:0 auto 20px;color:#aaa;font-size:12px;line-height:1.5;max-width:470px}
@@ -354,7 +354,7 @@
       #difficulty-setup .difficulty-actions{gap:8px}
       #difficulty-setup button{min-width:0;flex:1;padding:12px 8px}
     }
-    #loading-art{position:fixed;inset:0;z-index:99990;background:#030006 url('/assets/game-loading-art.png') center/cover no-repeat;transition:opacity .35s ease;}
+    #loading-art{position:fixed;inset:0;z-index:99990;background:#030006 url('/assets/game-loading-art.png') center top/cover no-repeat;transition:opacity .35s ease;}
     #loading-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.62));}
     #loading-art.hidden{opacity:0;pointer-events:none;}
     #mga-rotate-warning{position:fixed;inset:0;z-index:100020;display:none;place-items:center;background:rgba(3,0,8,.96);color:#00e5ff;text-align:center;padding:24px;box-sizing:border-box;font:bold 16px monospace;line-height:1.6;text-shadow:0 0 10px #00e5ff}
