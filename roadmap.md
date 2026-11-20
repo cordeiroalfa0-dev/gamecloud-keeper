@@ -5,7 +5,8 @@
 - [x] Ativar login com Google
 - [x] Corrigir "Retornar ao momento salvo" após reabrir o jogo (core CPS2)
 - [x] Corrigir login Google no site publicado (app apontava para banco antigo; várias contas)
-- [ ] Verificar salvamento em nuvem com usuário logado (depende de login Google real)
+- [x] Verificar salvamento em nuvem com usuário logado (validado em 2026-11-20 com a conta real do usuário: grava, lê e exclui)
+- [x] Save na nuvem E no Google Drive ao mesmo tempo (banco grava sempre; Drive via conexão ligada; leitura devolve o mais recente)
 - [x] Auto-save a cada 1 minuto (era 30s) e remoção de todos os botões de salvar (player); botões de Retornar/Carregar mantidos
 - [x] Botões CRÉDITO e START do controle remoto (funcionam no preview; site precisa ser publicado)
 - [x] Sincronizar com o GitHub: main 3a4b541 já estava na cópia local; corrigido erro de tipo em RemoteController.tsx que quebrava o build

@@ -18,6 +18,16 @@ const MAX_ROM_LEN = 160;
 const MAX_CORE_LEN = 80;
 const MAX_DATE_STR_LEN = 80;
 
+type StoredSave = {
+  stateB64: string;
+  preview: string;
+  savedAt: number;
+  checkpointVersion: number;
+  dateStr: string;
+};
+
+type WriteResult = { stored: boolean; savedAt: number; checkpointVersion: number };
+
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
@@ -43,6 +53,134 @@ async function readSaveSession(request: Request) {
   }
 }
 
+// O save mais recente vence, independente de onde ele estava guardado.
+function newerSave(a: StoredSave | null, b: StoredSave | null): StoredSave | null {
+  if (!a) return b;
+  if (!b) return a;
+  if (b.savedAt > a.savedAt) return b;
+  if (b.savedAt === a.savedAt && b.checkpointVersion > a.checkpointVersion) return b;
+  return a;
+}
+
+async function readDatabaseSave(
+  uid: string,
+  rom: string,
+  core: string,
+): Promise<StoredSave | null> {
+  const db = await admin();
+  const { data, error } = await db
+    .from("mga_saves")
+    .select("state_b64, preview, saved_at, checkpoint_version, date_str")
+    .eq("user_id", uid)
+    .eq("rom", rom)
+    .eq("core", core)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data
+    ? {
+        stateB64: data.state_b64,
+        preview: data.preview || "",
+        savedAt: Number(data.saved_at),
+        checkpointVersion: Number(data.checkpoint_version) || 0,
+        dateStr: data.date_str || "",
+      }
+    : null;
+}
+
+type DatabaseWrite = { ok: true; result: WriteResult } | { ok: false; error: string };
+
+async function writeDatabaseSave(
+  uid: string,
+  rom: string,
+  core: string,
+  payload: {
+    stateB64: string;
+    preview: string;
+    savedAt: number;
+    checkpointVersion: number;
+    dateStr: string;
+  },
+): Promise<DatabaseWrite> {
+  const db = await admin();
+  type UpsertRpc = (
+    fn: string,
+    args: Record<string, unknown>,
+  ) => Promise<{
+    data: Array<{ stored?: boolean; saved_at?: number; checkpoint_version?: number }> | null;
+    error: { code?: string; message: string } | null;
+  }>;
+  const { data: result, error } = await (db.rpc as unknown as UpsertRpc)("mga_upsert_save", {
+    p_user_id: uid,
+    p_rom: rom,
+    p_core: core,
+    p_state_b64: payload.stateB64,
+    p_preview: payload.preview,
+    p_saved_at: payload.savedAt,
+    p_checkpoint_version: payload.checkpointVersion,
+    p_date_str: payload.dateStr,
+  });
+  if (error) {
+    // Compatibilidade temporária com ambientes que ainda não aplicaram a
+    // migração da função atômica: valida antes e confirma depois do upsert.
+    if (error.code !== "42883" && error.code !== "PGRST202") {
+      return { ok: false, error: error.message };
+    }
+    const { data: current, error: readError } = await db
+      .from("mga_saves")
+      .select("saved_at, checkpoint_version")
+      .eq("user_id", uid)
+      .eq("rom", rom)
+      .eq("core", core)
+      .maybeSingle();
+    if (readError) return { ok: false, error: readError.message };
+    if (
+      current &&
+      (Number(current.saved_at) > payload.savedAt ||
+        (Number(current.saved_at) === payload.savedAt &&
+          Number(current.checkpoint_version || 0) > payload.checkpointVersion))
+    ) {
+      return {
+        ok: true,
+        result: {
+          stored: false,
+          savedAt: Number(current.saved_at),
+          checkpointVersion: Number(current.checkpoint_version || 0),
+        },
+      };
+    }
+    const fallback = await db.from("mga_saves").upsert({
+      user_id: uid,
+      rom,
+      core,
+      state_b64: payload.stateB64,
+      preview: payload.preview,
+      saved_at: payload.savedAt,
+      checkpoint_version: payload.checkpointVersion,
+      date_str: payload.dateStr,
+    });
+    if (fallback.error) return { ok: false, error: fallback.error.message };
+    return {
+      ok: true,
+      result: {
+        stored: true,
+        savedAt: payload.savedAt,
+        checkpointVersion: payload.checkpointVersion,
+      },
+    };
+  }
+  const stored = Array.isArray(result) ? result[0]?.stored !== false : true;
+  return {
+    ok: true,
+    result: {
+      stored,
+      savedAt: Array.isArray(result) ? Number(result[0]?.saved_at || payload.savedAt) : payload.savedAt,
+      checkpointVersion: Array.isArray(result)
+        ? Number(result[0]?.checkpoint_version || payload.checkpointVersion)
+        : payload.checkpointVersion,
+    },
+  };
+}
+
 async function get({ request }: { request: Request }) {
   const session = await readSaveSession(request);
   if (!session) return json({ ok: false, error: "Não autenticado." }, 401);
@@ -65,35 +203,29 @@ async function get({ request }: { request: Request }) {
       503,
     );
   }
-  if (driveMode === "configured") {
-    try {
-      const data = await drive.readGoogleDriveSave(session.uid, rom, core);
-      return json({ ok: true, save: data });
-    } catch (error) {
-      console.error("Google Drive save read failed:", error);
-      return json({ ok: false, error: "Não foi possível ler o save na nuvem." }, 502);
-    }
+
+  let databaseSave: StoredSave | null;
+  try {
+    databaseSave = await readDatabaseSave(session.uid, rom, core);
+  } catch (error) {
+    console.error("Database save read failed:", error);
+    return json({ ok: false, error: "Não foi possível ler o save na nuvem." }, 500);
   }
 
-  const db = await admin();
-  const { data, error } = await db
-    .from("mga_saves")
-    .select("state_b64, preview, saved_at, checkpoint_version, date_str")
-    .eq("user_id", session.uid)
-    .eq("rom", rom)
-    .eq("core", core)
-    .maybeSingle();
-  if (error) return json({ ok: false, error: error.message }, 500);
-  const save = data
-    ? {
-        stateB64: data.state_b64,
-        preview: data.preview || "",
-        savedAt: Number(data.saved_at),
-        checkpointVersion: Number(data.checkpoint_version) || 0,
-        dateStr: data.date_str || "",
-      }
-    : null;
-  return json({ ok: true, save });
+  if (driveMode !== "configured") {
+    return json({ ok: true, save: databaseSave, storage: "database" });
+  }
+
+  // Google Drive é lido em paralelo com o banco; o mais recente dos dois vence.
+  let driveSave: StoredSave | null = null;
+  try {
+    driveSave = await drive.readGoogleDriveSave(session.uid, rom, core);
+  } catch (error) {
+    console.error("Google Drive save read failed:", error);
+  }
+
+  const save = newerSave(databaseSave, driveSave);
+  return json({ ok: true, save, storage: "database+google_drive" });
 }
 
 async function upsert({ request }: { request: Request }) {
@@ -124,6 +256,8 @@ async function upsert({ request }: { request: Request }) {
     return json({ ok: false, error: "Estado do save vazio ou grande demais." }, 413);
   }
 
+  const payload = { stateB64, preview, savedAt, checkpointVersion, dateStr };
+
   const drive = await import("@/lib/google-drive-saves.server");
   const driveMode = drive.getGoogleDriveSavesMode();
   if (driveMode === "misconfigured") {
@@ -135,110 +269,56 @@ async function upsert({ request }: { request: Request }) {
       503,
     );
   }
+
+  // O banco grava sempre; o Google Drive grava quando está configurado. Assim o
+  // save fica na nuvem e no Drive ao mesmo tempo.
+  const databaseWrite = await writeDatabaseSave(session.uid, rom, core, payload);
+
+  let driveStored: boolean | null = null;
+  let driveError: unknown = null;
   if (driveMode === "configured") {
     try {
-      const result = await drive.writeGoogleDriveSave(session.uid, rom, core, {
-        stateB64,
-        preview,
-        savedAt,
-        checkpointVersion,
-        dateStr,
-      });
-      return json(
-        {
-          ok: true,
-          storage: "google_drive",
-          stored: result.stored,
-          savedAt: result.save.savedAt,
-          checkpointVersion: result.save.checkpointVersion,
-          reason: result.stored ? undefined : "newer_remote",
-        },
-        result.stored ? 200 : 409,
-      );
+      const result = await drive.writeGoogleDriveSave(session.uid, rom, core, payload);
+      driveStored = result.stored;
     } catch (error) {
+      driveError = error;
       console.error("Google Drive save write failed:", error);
-      return json({ ok: false, error: "Não foi possível gravar o save na nuvem." }, 502);
     }
   }
 
-  const db = await admin();
-  type UpsertRpc = (
-    fn: string,
-    args: Record<string, unknown>,
-  ) => Promise<{
-    data: Array<{ stored?: boolean; saved_at?: number; checkpoint_version?: number }> | null;
-    error: { code?: string; message: string } | null;
-  }>;
-  const { data: result, error } = await (db.rpc as unknown as UpsertRpc)("mga_upsert_save", {
-    p_user_id: session.uid,
-    p_rom: rom,
-    p_core: core,
-    p_state_b64: stateB64,
-    p_preview: preview,
-    p_saved_at: savedAt,
-    p_checkpoint_version: checkpointVersion,
-    p_date_str: dateStr,
-  });
-  if (error) {
-    // Compatibilidade temporária com ambientes que ainda não aplicaram a
-    // migração da função atômica: valida antes e confirma depois do upsert.
-    if (error.code !== "42883" && error.code !== "PGRST202") {
-      return json({ ok: false, error: error.message }, 500);
-    }
-    const { data: current, error: readError } = await db
-      .from("mga_saves")
-      .select("saved_at, checkpoint_version")
-      .eq("user_id", session.uid)
-      .eq("rom", rom)
-      .eq("core", core)
-      .maybeSingle();
-    if (readError) return json({ ok: false, error: readError.message }, 500);
-    if (
-      current &&
-      (Number(current.saved_at) > savedAt ||
-        (Number(current.saved_at) === savedAt &&
-          Number(current.checkpoint_version || 0) > checkpointVersion))
-    ) {
-      return json(
-        {
-          ok: true,
-          storage: "supabase",
-          stored: false,
-          reason: "newer_remote",
-          savedAt: Number(current.saved_at),
-          checkpointVersion: Number(current.checkpoint_version || 0),
-        },
-        409,
-      );
-    }
-    const fallback = await db.from("mga_saves").upsert({
-      user_id: session.uid,
-      rom,
-      core,
-      state_b64: stateB64,
-      preview,
-      saved_at: savedAt,
-      checkpoint_version: checkpointVersion,
-      date_str: dateStr,
-    });
-    if (fallback.error) return json({ ok: false, error: fallback.error.message }, 500);
-    return json({ ok: true, storage: "supabase", stored: true, savedAt, checkpointVersion });
+  if (!databaseWrite.ok && driveStored === null) {
+    return json({ ok: false, error: databaseWrite.error }, 500);
   }
-  const stored = Array.isArray(result) ? result[0]?.stored !== false : true;
-  const remoteSavedAt = Array.isArray(result) ? Number(result[0]?.saved_at || savedAt) : savedAt;
-  const remoteCheckpointVersion = Array.isArray(result)
-    ? Number(result[0]?.checkpoint_version || checkpointVersion)
+  if (!databaseWrite.ok && driveStored !== true) {
+    return json(
+      {
+        ok: false,
+        error: driveError instanceof Error ? driveError.message : databaseWrite.error,
+      },
+      502,
+    );
+  }
+
+  const stored = databaseWrite.ok ? databaseWrite.result.stored : driveStored === true;
+  const accepted = stored || driveStored === true;
+  const savedAtResult = databaseWrite.ok ? databaseWrite.result.savedAt : savedAt;
+  const checkpointResult = databaseWrite.ok
+    ? databaseWrite.result.checkpointVersion
     : checkpointVersion;
+  // Só anuncia o Drive quando a gravação nele realmente aconteceu.
+  const storage = driveStored === true ? "database+google_drive" : "database";
+
   return json(
     {
       ok: true,
-      storage: "supabase",
-      stored,
-      savedAt: remoteSavedAt,
-      checkpointVersion: remoteCheckpointVersion,
-      reason: stored ? undefined : "newer_remote",
+      storage,
+      stored: accepted,
+      driveStored: driveStored === true,
+      savedAt: savedAtResult,
+      checkpointVersion: checkpointResult,
+      reason: accepted ? undefined : "newer_remote",
     },
-    stored ? 200 : 409,
+    accepted ? 200 : 409,
   );
 }
 
@@ -265,15 +345,6 @@ async function remove({ request }: { request: Request }) {
       503,
     );
   }
-  if (driveMode === "configured") {
-    try {
-      await drive.deleteGoogleDriveSave(session.uid, rom, core);
-      return json({ ok: true });
-    } catch (error) {
-      console.error("Google Drive save deletion failed:", error);
-      return json({ ok: false, error: "Não foi possível excluir o save na nuvem." }, 502);
-    }
-  }
 
   const db = await admin();
   const { error } = await db
@@ -283,6 +354,14 @@ async function remove({ request }: { request: Request }) {
     .eq("rom", rom)
     .eq("core", core);
   if (error) return json({ ok: false, error: error.message }, 500);
+
+  if (driveMode === "configured") {
+    try {
+      await drive.deleteGoogleDriveSave(session.uid, rom, core);
+    } catch (error) {
+      console.error("Google Drive save deletion failed:", error);
+    }
+  }
   return json({ ok: true });
 }
 
