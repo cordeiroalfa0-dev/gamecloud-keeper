@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { GameLibrary } from "@/components/GameLibrary";
 import { RemoteController } from "@/components/RemoteController";
+import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
@@ -290,6 +291,25 @@ function Launcher({
     setGuestEmail(normalizedEmail);
   };
 
+  const [googlePending, setGooglePending] = useState(false);
+  const enterWithGoogle = async () => {
+    if (googlePending) return;
+    setGooglePending(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/?launcher=1`,
+      });
+      if (result.error) {
+        alert("Não foi possível abrir o login do Google. Tente novamente.");
+        setGooglePending(false);
+      }
+      // Quando redireciona, a página sai daqui; o retorno é tratado no Index.
+    } catch {
+      alert("Não foi possível abrir o login do Google. Tente novamente.");
+      setGooglePending(false);
+    }
+  };
+
   const logout = async () => {
     try {
       await supabase.auth.signOut();
@@ -347,6 +367,32 @@ function Launcher({
         className="rounded border border-cyan-500/60 bg-black/70 px-1.5 py-1 text-cyan-200 shadow-[0_2px_8px_rgba(0,0,0,.7)] hover:bg-cyan-400/15"
       >
         Entrar
+      </button>
+      <button
+        type="button"
+        onClick={enterWithGoogle}
+        disabled={googlePending}
+        className="flex items-center gap-1 rounded border border-cyan-300/70 bg-cyan-400/15 px-1.5 py-1 font-bold text-cyan-100 shadow-[0_2px_8px_rgba(0,0,0,.7)] hover:bg-cyan-400/30 disabled:opacity-60"
+      >
+        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" aria-hidden="true">
+          <path
+            fill="#EA4335"
+            d="M12 5.04c1.62 0 3.06.56 4.2 1.64l3.12-3.12C17.46 1.8 14.96.72 12 .72 7.44.72 3.56 3.42 1.7 7.32l3.66 2.84C6.24 7.26 8.88 5.04 12 5.04z"
+          />
+          <path
+            fill="#4285F4"
+            d="M23.28 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.34c-.27 1.48-1.11 2.73-2.36 3.57l3.6 2.79c2.11-1.95 3.7-4.83 3.7-8.55z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M5.36 14.29a7.2 7.2 0 0 1 0-4.58L1.7 6.87a11.28 11.28 0 0 0 0 10.26l3.66-2.84z"
+          />
+          <path
+            fill="#34A853"
+            d="M12 23.28c3.04 0 5.6-1 7.46-2.72l-3.6-2.79c-1 .68-2.29 1.08-3.86 1.08-3.12 0-5.76-2.22-6.64-5.12l-3.66 2.84c1.86 3.9 5.74 6.71 10.3 6.71z"
+          />
+        </svg>
+        {googlePending ? "Abrindo…" : "Entrar com Google"}
       </button>
     </div>
   );
